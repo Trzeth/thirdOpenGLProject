@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="thirdModelViewer.cpp" />
+    <ClCompile Include="ModelViewer\Window.cpp">
+      <Filter>ModelViewer</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelViewer\ModelViewer.cpp">
+      <Filter>ModelViewer</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelViewer\System\CameraSystem.cpp">
+      <Filter>ModelViewer\System</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelViewer\System\ModelRenderSystem.cpp">
+      <Filter>ModelViewer\System</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelViewer\Scene\DefaultScene.cpp">
+      <Filter>ModelViewer\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelViewer\Scene\Scene.cpp">
+      <Filter>ModelViewer\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelViewer\Component\TransformComponent.cpp">
+      <Filter>ModelViewer\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelViewer\Component\CameraComponent.cpp">
+      <Filter>ModelViewer\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelViewer\Component\ModelRenderComponent.cpp">
+      <Filter>ModelViewer\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelViewer\Component\PlayerComponent.cpp">
+      <Filter>ModelViewer\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelViewer\Extra\Util.cpp">
+      <Filter>ModelViewer\Extra</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelViewer\Extra\PrefabConstructionInfo.cpp">
+      <Filter>ModelViewer\Extra</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelViewer\Extra\Transform.cpp">
+      <Filter>ModelViewer\Extra</Filter>
+    </ClCompile>
+    <ClCompile Include="Lib\glad.c">
+      <Filter>Lib</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="ModelViewer">
+      <UniqueIdentifier>{9616b4c3-3190-4bef-be79-b3d8acf0c62e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ModelViewer\Component">
+      <UniqueIdentifier>{5eed5845-eed0-40e3-a514-0ca84a0265be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ModelViewer\Event">
+      <UniqueIdentifier>{eef9ccfa-0c46-447a-a8f1-15f41db1b823}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ModelViewer\Extra">
+      <UniqueIdentifier>{61e16fa3-e82f-4ee8-b15d-2cd8c2ea3063}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ModelViewer\Shader">
+      <UniqueIdentifier>{89f60c31-2b3f-4852-8587-dee7f9f3d82a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ModelViewer\System">
+      <UniqueIdentifier>{462c4d09-8c94-4d38-9b4e-765d370fac56}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ModelViewer\Scene">
+      <UniqueIdentifier>{8da57b89-bb5b-4203-ada8-2b965d771999}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lib">
+      <UniqueIdentifier>{6a120461-6f4d-4abb-b584-f851f854cba4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ModelViewer\Window.h">
+      <Filter>ModelViewer</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelViewer\ModelViewer.h">
+      <Filter>ModelViewer</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelViewer\System\ModelRenderSystem.h">
+      <Filter>ModelViewer\System</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelViewer\System\CameraSystem.h">
+      <Filter>ModelViewer\System</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelViewer\Scene\DefaultScene.h">
+      <Filter>ModelViewer\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelViewer\Scene\Scene.h">
+      <Filter>ModelViewer\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelViewer\Component\PlayerComponent.h">
+      <Filter>ModelViewer\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelViewer\Component\TransformComponent.h">
+      <Filter>ModelViewer\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelViewer\Component\CameraComponent.h">
+      <Filter>ModelViewer\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelViewer\Component\ModelRenderComponent.h">
+      <Filter>ModelViewer\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelViewer\Extra\Transform.h">
+      <Filter>ModelViewer\Extra</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelViewer\Extra\Util.h">
+      <Filter>ModelViewer\Extra</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelViewer\Extra\PrefabConstructionInfo.h">
+      <Filter>ModelViewer\Extra</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

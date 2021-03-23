@@ -225,7 +225,9 @@ Mesh ModelLoader::Impl::processMesh(aiMesh* mesh, const aiScene* scene, std::uno
 	std::vector<BoneData> boneData;
 	loadBoneData(mesh, scene, nodeIdMap, vertexBoneData, boneData);
 
-	return Mesh(vertices, indices, material, vertexBoneData, boneData);
+	Mesh processedMesh(vertices, indices, material, vertexBoneData, boneData);
+
+	return processedMesh;
 }
 
 void ModelLoader::Impl::loadBoneData(aiMesh* mesh, const aiScene* scene, std::unordered_map<std::string, unsigned int> nodeIdMap, std::vector<VertexBoneData>& vertexBoneData, std::vector<BoneData>& boneData)

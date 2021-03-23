@@ -43,10 +43,10 @@ void main()
     vec4 PosL = BoneTransform * vec4(aPos, 1.0);
     vec4 NormalL = BoneTransform * vec4(aNormal,0.0);
 
-    vec4 worldPos = model * mesh * PosL;
+    vec4 worldPos = model * PosL;
     gl_Position = projection * view * getWorldBendPos(worldPos);
     FragPos = vec3(worldPos.xyz);
 
-    Normal = (model * mesh * NormalL).xyz;
+    Normal = (model * NormalL).xyz;
     TexCoords = aTexCoords;
 }

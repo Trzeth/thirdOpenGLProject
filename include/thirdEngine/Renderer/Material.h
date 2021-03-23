@@ -52,6 +52,7 @@ class Material
 {
 public:
 	Material();
+
 	void SetProperty(const std::string& key, const MaterialProperty& property);
 	void SetTextures(const std::vector<Texture>& textures);
 	void Apply(const Shader& shader)const;

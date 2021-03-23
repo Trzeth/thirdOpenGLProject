@@ -3,7 +3,7 @@
 
 struct MeshImpl
 {
-	MeshImpl() : VAO(0), VBO(0), EBO(0), nVertices(0), nIndices(0) { }
+	MeshImpl() : VAO(0), VBO(0), VBO_bone(0), EBO(0), nVertices(0), nIndices(0), boneData(), boneTransforms() { }
 
 	/*! Vertex array object used to draw this model. */
 	GLuint VAO;

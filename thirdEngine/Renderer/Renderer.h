@@ -25,13 +25,16 @@ enum RenderSpace
 	RenderSpace_World,
 };
 
+constexpr unsigned int maxPointLights = 64;
+constexpr unsigned int maxBones = 100;
+
 class Renderer
 {
 public:
 	/*! Shader cache. Stores a shader along with its uniform locations. */
 	struct ShaderCache
 	{
-		ShaderCache(const ShaderImpl& shader) :shader(shader), dirLight(), pointLightCount() { };
+		ShaderCache(const ShaderImpl& shader);
 
 		struct PointLightCache
 		{
@@ -74,6 +77,7 @@ public:
 		glm::mat4 transform;
 
 		//AnimationContext context;
+		AnimationContext context;
 
 		/*! Which space to render the renderable in. Defaults to RenderSpace_World. */
 		RenderSpace space;

@@ -52,7 +52,7 @@ int ModelViewer::setup()
 	/* System */
 	modelRenderSystem = std::make_unique<ModelRenderSystem>(world, renderer);
 	cameraSystem = std::make_unique<CameraSystem>(world, renderer);
-	//playerInputSystem = std::make_unique<PlayerInputSystem>(world, input, eventManager);
+	viewInputSystem = std::make_unique<ViewerInputSystem>(world, input, eventManager);
 
 	SceneInfo sceneInfo;
 	sceneInfo.world = &world;
@@ -70,6 +70,8 @@ int ModelViewer::loop()
 		if (!lastFrame)lastFrame = currentFrame;
 		deltaTime = currentFrame - lastFrame;
 
+		if (deltaTime < FRAMEDURATION)continue;
+
 		update();
 		draw();
 
@@ -86,11 +88,9 @@ int ModelViewer::teardown()
 
 void ModelViewer::update()
 {
-	_ASSERTE(_CrtCheckMemory());
-
 	/* Input */
 	input.Update();
-	//playerInputSystem->Update(deltaTime);
+	viewInputSystem->Update(deltaTime);
 
 	/* Display */
 	modelRenderSystem->Update(deltaTime);
@@ -102,8 +102,6 @@ void ModelViewer::update()
 
 void ModelViewer::draw()
 {
-	_ASSERTE(_CrtCheckMemory());
-
 	renderer.Draw();
 	window.NextFrame();
 }

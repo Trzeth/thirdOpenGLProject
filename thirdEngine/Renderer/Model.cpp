@@ -2,7 +2,7 @@
 
 #include "Model.h"
 
-Model::Model() :transform(1.0f), type(ModelType::Normal) {
+Model::Model() :transform(1.0f) {
 }
 
 glm::vec3 interpolate(glm::vec3 a, glm::vec3 b, float lerp)
@@ -54,23 +54,25 @@ ValType interpolateKeyframes(const std::vector<KeyType>& keys, float time, unsig
 
 std::vector<glm::mat4> Model::GetNodeTransforms(const std::string& animName, float time, AnimationContext& context)
 {
-	auto iter = animations.find(animName);
-	if (iter == animations.end()) {
+	auto iter = animationData.animations.find(animName);
+	if (iter == animationData.animations.end())
+	{
 		return nodeTransforms;
 	}
 
-	if (nodeTransforms.size() < nodes.size()) {
-		nodeTransforms.resize(nodes.size());
+	if (nodeTransforms.size() < animationData.nodes.size())
+	{
+		nodeTransforms.resize(animationData.nodes.size());
 	}
 
 	const Animation& animation = iter->second;
 	time += animation.startTime;
 
-	for (unsigned i = 0; i < nodes.size(); i++) {
-		const ModelNode& node = nodes[i];
+	for (unsigned i = 0; i < animationData.nodes.size(); i++) {
+		const ModelNode& node = animationData.nodes[i];
 
 		glm::mat4 parentTransform = glm::mat4();
-		if (node.parent < nodes.size()) {
+		if (node.parent < animationData.nodes.size()) {
 			parentTransform = nodeTransforms[node.parent];
 		}
 
@@ -111,4 +113,12 @@ std::vector<glm::mat4> Model::GetNodeTransforms(const std::string& animName, flo
 	}
 
 	return nodeTransforms;
+}
+
+void Model::GenVAO() const
+{
+	for (const auto& mesh : meshes)
+	{
+		mesh.GenVAO();
+	}
 }

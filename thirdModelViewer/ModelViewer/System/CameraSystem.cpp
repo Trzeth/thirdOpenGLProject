@@ -16,6 +16,8 @@ void CameraSystem::updateEntity(float dt, eid_t entity)
 	CameraComponent* cameraComponent = world.GetComponent<CameraComponent>(entity);
 	TransformComponent* transformComponent = world.GetComponent<TransformComponent>(entity);
 
+	if (!cameraComponent->isEnable)return;
+
 	glm::mat4 matrix = transformComponent->data->Matrix();
 	cameraComponent->data.SetInverseViewMatrix(matrix);
 

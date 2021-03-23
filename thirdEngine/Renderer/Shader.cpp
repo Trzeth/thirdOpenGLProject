@@ -115,15 +115,21 @@ Shader ShaderLoader::CompileAndLink(const std::string& vertexShaderPath, const s
 
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
-
+	/*
+#if _DEBUG
 	GLint uniformCount;
 	glGetProgramiv(ID, GL_ACTIVE_UNIFORMS, &uniformCount);
+	printf("INFO::SHADER::ACTIVE_UNIFORM \n%s\n%s\n", vertexShaderPath.c_str(), fragmentShaderPath.c_str());
 	char buffer[128];
 	for (GLint i = 0; i < uniformCount; i++) {
 		GLsizei length;
 		glGetActiveUniformName(ID, i, 128, &length, buffer);
 		printf("%s\n", buffer);
 	}
+#endif
+*/
+
+	int i = glGetUniformLocation(ID, "model");
 
 	return Shader(make_unique<ShaderImpl>(ID));
 }

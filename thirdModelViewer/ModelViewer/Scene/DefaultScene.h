@@ -22,7 +22,7 @@ private:
 
 	EventManager& eventManager;
 
+	Prefab modelPrefab;
 	Prefab manPrefab;
-	Prefab scenePrefab;
 	Prefab cameraPrefab;
 };

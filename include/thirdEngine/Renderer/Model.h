@@ -10,11 +10,6 @@
 #include "Material.h"
 #include "Animation.h"
 
-enum class ModelType {
-	Normal,
-	Skinned
-};
-
 /*! Node in the model's hierarchy. This is strongly tied to an AnimationData struct.
 	An "index" here refers to an index into AnimationData.nodes. */
 struct ModelNode
@@ -35,6 +30,19 @@ struct ModelNode
 	std::vector<unsigned int> children;
 };
 
+/*! Data for all the animations which a model contains. */
+struct AnimationData
+{
+	/*! The animations themselves. */
+	std::unordered_map<std::string, Animation> animations;
+
+	/*! A map of node names to node IDs. (Is this necessary?) */
+	std::unordered_map<std::string, unsigned int> nodeIdMap;
+
+	/*! The node hierarchy. */
+	std::vector<ModelNode> nodes;
+};
+
 class Model
 {
 public:
@@ -45,26 +53,20 @@ public:
 
 	std::vector<glm::mat4> GetNodeTransforms(const std::string& animation, float time, AnimationContext& context);
 
-	//virtual void Draw();
+	void GenVAO()const;
 
-	ModelType Type() { return type; }
+	//virtual void Draw();
 protected:
-	ModelType type;
-	// Transform Model to Normal Position (From 3DSMAX TO GAME)
-	// transformToOrigin
+	/*!
+	 * @brief (Self Defined)transform of the entire model
+	*/
 	glm::mat4 transform;
 
-	/*! The node hierarchy. */
-	std::vector<ModelNode> nodes;
-
-	/*! A map of node names to node IDs. (Is this necessary?) */
-	std::unordered_map<std::string, unsigned int> nodeIdMap;
-
 	// Identify by Node name
-	tsl::ordered_map<Mesh, std::map<std::string, glm::mat4>> meshes;
+	std::vector<Mesh> meshes;
 
-	/*! The animations themselves. */
-	std::unordered_map<std::string, Animation> animations;
+	/*! All the animations. */
+	AnimationData animationData;
 
 	/*! Cached transforms returned from getNodeTransforms. */
 	std::vector<glm::mat4> nodeTransforms;

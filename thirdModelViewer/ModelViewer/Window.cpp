@@ -102,7 +102,7 @@ void Window::setupGLFW()
 
 void Window::create()
 {
-	window = glfwCreateWindow(width, height, "Farm", NULL, NULL);
+	window = glfwCreateWindow(width, height, "thirdModelViewer", NULL, NULL);
 
 	if (window == NULL)
 	{
@@ -162,7 +162,7 @@ void Window::SetCloseFlag(bool flag)
 
 bool Window::ShouldClose()
 {
-	return glfwWindowShouldClose(window) | windowCloseFlag;
+	return glfwWindowShouldClose(window) || windowCloseFlag;
 }
 
 void Window::Close()

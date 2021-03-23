@@ -10,7 +10,7 @@ public:
 	ModelLoader();
 	~ModelLoader();
 
-	Model LoadModel(const std::string& path, ModelType type);
+	Model LoadModel(const std::string& path);
 
 	void SetDefaultMaterial(const Material& material);
 private:

@@ -149,8 +149,8 @@
     <ClCompile Include="Lib\glad.c" />
     <ClCompile Include="ModelViewer\Component\CameraComponent.cpp" />
     <ClCompile Include="ModelViewer\Component\ModelRenderComponent.cpp" />
-    <ClCompile Include="ModelViewer\Component\PlayerComponent.cpp" />
     <ClCompile Include="ModelViewer\Component\TransformComponent.cpp" />
+    <ClCompile Include="ModelViewer\Component\ViewerComponent.cpp" />
     <ClCompile Include="ModelViewer\Extra\PrefabConstructionInfo.cpp" />
     <ClCompile Include="ModelViewer\Extra\Transform.cpp" />
     <ClCompile Include="ModelViewer\Extra\Util.cpp" />
@@ -159,14 +159,15 @@
     <ClCompile Include="ModelViewer\Scene\Scene.cpp" />
     <ClCompile Include="ModelViewer\System\CameraSystem.cpp" />
     <ClCompile Include="ModelViewer\System\ModelRenderSystem.cpp" />
+    <ClCompile Include="ModelViewer\System\ViewerInputSystem.cpp" />
     <ClCompile Include="ModelViewer\Window.cpp" />
     <ClCompile Include="thirdModelViewer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ModelViewer\Component\CameraComponent.h" />
     <ClInclude Include="ModelViewer\Component\ModelRenderComponent.h" />
-    <ClInclude Include="ModelViewer\Component\PlayerComponent.h" />
     <ClInclude Include="ModelViewer\Component\TransformComponent.h" />
+    <ClInclude Include="ModelViewer\Component\ViewerComponent.h" />
     <ClInclude Include="ModelViewer\Extra\PrefabConstructionInfo.h" />
     <ClInclude Include="ModelViewer\Extra\Transform.h" />
     <ClInclude Include="ModelViewer\Extra\Util.h" />
@@ -175,6 +176,7 @@
     <ClInclude Include="ModelViewer\Scene\Scene.h" />
     <ClInclude Include="ModelViewer\System\CameraSystem.h" />
     <ClInclude Include="ModelViewer\System\ModelRenderSystem.h" />
+    <ClInclude Include="ModelViewer\System\ViewerInputSystem.h" />
     <ClInclude Include="ModelViewer\Window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

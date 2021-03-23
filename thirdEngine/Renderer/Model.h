@@ -53,6 +53,8 @@ public:
 
 	std::vector<glm::mat4> GetNodeTransforms(const std::string& animation, float time, AnimationContext& context);
 
+	void GenVAO()const;
+
 	//virtual void Draw();
 protected:
 	/*!

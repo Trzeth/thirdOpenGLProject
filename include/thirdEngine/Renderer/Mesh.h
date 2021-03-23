@@ -51,25 +51,34 @@ public:
 	Mesh();
 	Mesh(const Mesh& mesh);
 	Mesh(std::vector<Vertex> vertices, std::vector<unsigned> indices, Material material);
+	Mesh(std::vector<Vertex> vertices, std::vector<unsigned> indices, Material material, std::vector<VertexBoneData> vertexBoneData, std::vector<BoneData> boneData);
+
 	~Mesh();
 
-	virtual void operator=(const Mesh& mesh);
+	void operator=(const Mesh& mesh);
 
 	bool operator==(const Mesh& m) const
 	{
 		return m.name == name;
 	}
 
-	virtual void GenVAO();
+	void GenVAO() const;
 
 	//Remember To GenVAO
-	virtual void Draw();
+	void Draw() const;
+
+	/*!
+	 * @brief Gets the transforms of each bone in boneData given the position
+	 * @param nodeTransforms  The transforms of all of the nodes in the model.
+	 * @return Matrices for each bone which transform from the bone's bind-pose space to the bone's new space (given by nodeTransforms[bone.nodeId]).
+	 * The values in the returned vector directly correspond to the bones in this mesh's boneData vector.
+	*/
+	std::vector<glm::mat4> GetBoneTransforms(const std::vector<glm::mat4>& nodeTransforms) const;
 
 	std::string name;
-protected:
-	std::unique_ptr<MeshImpl> impl;
-
 	Material material;
+	std::unique_ptr<MeshImpl> impl;
+	bool hasVertexBoneData;
 };
 
 namespace std

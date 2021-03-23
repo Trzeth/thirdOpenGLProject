@@ -1,8 +1,10 @@
+#include <exception>
 #include <glad/glad.h>
 
 #include "Mesh.h"
 #include "MeshImpl.h"
 #include "Material.h"
+#include "RenderUtil.h"
 
 Mesh::Mesh() : impl(new MeshImpl()), material(), hasVertexBoneData(false)
 { }
@@ -10,10 +12,12 @@ Mesh::Mesh() : impl(new MeshImpl()), material(), hasVertexBoneData(false)
 Mesh::Mesh(const Mesh& mesh) : impl(new MeshImpl(*mesh.impl)), material(mesh.material), hasVertexBoneData(false)
 { }
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned> indices, Material material) : Mesh(vertices, indices, std::vector<VertexBoneData>(), std::vector<BoneData>())
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned> indices, Material material)
+	: Mesh(vertices, indices, material, std::vector<VertexBoneData>(), std::vector<BoneData>())
 { }
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned> indices, std::vector<VertexBoneData> vertexBoneData, std::vector<BoneData> boneData)
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned> indices, Material material, std::vector<VertexBoneData> vertexBoneData, std::vector<BoneData> boneData)
+	: Mesh()
 {
 	this->material = material;
 	hasVertexBoneData = vertexBoneData.size() > 0 ? true : false;
@@ -24,7 +28,6 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned> indices, std::vec
 	impl->boneTransforms.resize(impl->boneData.size());
 
 	glGenBuffers(1, &impl->VBO);
-
 	glBindBuffer(GL_ARRAY_BUFFER, impl->VBO);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
 
@@ -49,7 +52,7 @@ void Mesh::operator=(const Mesh& mesh)
 	this->material = mesh.material;
 }
 
-void Mesh::GenVAO()
+void Mesh::GenVAO() const
 {
 	glGenVertexArrays(1, &impl->VAO);
 
@@ -69,18 +72,43 @@ void Mesh::GenVAO()
 	if (hasVertexBoneData) {
 		glBindBuffer(GL_ARRAY_BUFFER, impl->VBO_bone);
 		glEnableVertexAttribArray(3);
-		glVertexAttribIPointer(3, 4, GL_INT, sizeof(VertexBoneData), (const GLvoid*)offsetof(VertexBoneData, boneIds));
+		glVertexAttribIPointer(3, 4, GL_INT, sizeof(VertexBoneData), (const GLvoid*)0);
 		glEnableVertexAttribArray(4);
 		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(VertexBoneData), (const GLvoid*)offsetof(VertexBoneData, boneWeights));
-		glBindVertexArray(0);
 	}
 
 	glBindVertexArray(0);
+
+	glCheckError();
 }
 
-void Mesh::Draw()
+void Mesh::Draw() const
 {
+	/*!
+	 * @brief Don't forget to Gen VAO
+	*/
+	assert(impl->VAO != 0);
+
 	glBindVertexArray(impl->VAO);
 	glDrawElements(GL_TRIANGLES, impl->nIndices, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
+}
+
+std::vector<glm::mat4> Mesh::GetBoneTransforms(const std::vector<glm::mat4>& nodeTransforms) const
+{
+	if (nodeTransforms.size() <= 0) {
+		return impl->boneTransforms;
+	}
+
+	// Assume 0 is the root node
+	glm::mat4 globalInverse = glm::inverse(nodeTransforms[0]);
+	for (unsigned int i = 0; i < impl->boneData.size(); i++) {
+		const BoneData& boneData = impl->boneData[i];
+		glm::mat4 nodeTransform = nodeTransforms[boneData.nodeId];
+		glm::mat4 boneOffset = boneData.boneOffset;
+		glm::mat4 boneTransform = globalInverse * nodeTransform * boneOffset;
+		impl->boneTransforms[i] = boneTransform;
+	}
+
+	return impl->boneTransforms;
 }

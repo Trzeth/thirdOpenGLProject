@@ -2,6 +2,9 @@
 #include "Renderer.h"
 #include "RenderUtil.h"
 
+#include "Mesh.h"
+#include "MeshImpl.h"
+
 Renderer::Renderer()
 {
 	this->uiModelTransform = glm::mat4();
@@ -11,6 +14,37 @@ Renderer::Renderer()
 
 Renderer::~Renderer()
 {
+}
+
+Renderer::ShaderCache::ShaderCache(const ShaderImpl& shader)
+	:shader(shader), pointLights(maxPointLights), bones(maxBones)
+{
+	for (unsigned int i = 0; i < pointLights.size(); i++) {
+		PointLightCache& light = this->pointLights[i];
+		std::stringstream sstream;
+		sstream << "pointLight[" << i << "]";
+		light.constant = shader.GetUniformLocation((sstream.str() + ".constant").c_str());
+		light.linear = shader.GetUniformLocation((sstream.str() + ".linear").c_str());
+		light.quadratic = shader.GetUniformLocation((sstream.str() + ".quadratic"));
+		light.ambient = shader.GetUniformLocation((sstream.str() + ".ambient").c_str());
+		light.diffuse = shader.GetUniformLocation((sstream.str() + ".diffuse").c_str());
+		light.specular = shader.GetUniformLocation((sstream.str() + ".specular").c_str());
+		light.position = shader.GetUniformLocation((sstream.str() + ".position").c_str());
+		glCheckError();
+	}
+
+	this->dirLight.direction = shader.GetUniformLocation("dirLight.direction");
+	this->dirLight.ambient = shader.GetUniformLocation("dirLight.ambient");
+	this->dirLight.diffuse = shader.GetUniformLocation("dirLight.diffuse");
+	this->dirLight.specular = shader.GetUniformLocation("dirLight.specular");
+
+	this->pointLightCount = shader.GetUniformLocation("pointLightCount");
+
+	for (unsigned int i = 0; i < maxBones; i++) {
+		std::stringstream sstream;
+		sstream << "bones[" << i << "]";
+		this->bones[i] = shader.GetUniformLocation(sstream.str());
+	}
 }
 
 void Renderer::Initialize()
@@ -112,15 +146,16 @@ Renderer::RenderableHandle Renderer::GetRenderableHandle(const ModelHandle& mode
 
 	Model& model = *modelOpt;
 
-	bool animatable = false;//Deal with later
+	bool animatable = (model.animationData.animations.size() > 0);
 
 	RenderableHandle handle = this->entityPool.GetNewHandle(Entity(*shader.impl, modelHandle, animatable));
+
 	return handle;
 }
 
 void Renderer::Draw()
 {
-	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glEnable(GL_DEPTH_TEST);
@@ -143,6 +178,26 @@ void Renderer::Update(float dt)
 		assert(modelOpt);
 
 		// Deal with Later
+
+		Model& model = *modelOpt;
+		auto& animationMap = model.animationData.animations;
+		auto animIter = animationMap.find(animName);
+
+		if (animIter == animationMap.end()) {
+			continue;
+		}
+		Animation& animation = animIter->second;
+
+		float duration = animation.endTime - animation.startTime;
+		if (renderable.time > duration) {
+			// Loop or clamp
+			if (renderable.loopAnimation) {
+				renderable.time -= duration;
+			}
+			else {
+				renderable.time = duration;
+			}
+		}
 	}
 }
 
@@ -185,11 +240,15 @@ void Renderer::drawInternal(RenderSpace space)
 
 		shaderCache.shader.Use();
 
-		/*
 		if (renderable.animatable) {
 			for (const auto& mesh : model.meshes) {
 				std::vector<glm::mat4> nodeTransforms = model.GetNodeTransforms(renderable.animName, renderable.time, renderable.context);
 				if (renderable.animName.empty()) {
+					//!!!!!!!!!!!!!!!
+					std::vector<glm::mat4> boneTransforms = mesh.GetBoneTransforms(nodeTransforms);
+					for (unsigned int j = 0; j < boneTransforms.size(); j++) {
+						glUniformMatrix4fv(shaderCache.bones[j], 1, GL_FALSE, &boneTransforms[j][0][0]);
+					}
 					// Just do bindpose
 				}
 				else if (mesh.impl->boneData.size() == 0) {
@@ -199,7 +258,7 @@ void Renderer::drawInternal(RenderSpace space)
 				}
 				else {
 					// Skinned animation
-					std::vector<glm::mat4> boneTransforms = mesh.first.GetBoneTransforms(nodeTransforms);
+					std::vector<glm::mat4> boneTransforms = mesh.GetBoneTransforms(nodeTransforms);
 					for (unsigned int j = 0; j < boneTransforms.size(); j++) {
 						glUniformMatrix4fv(shaderCache.bones[j], 1, GL_FALSE, &boneTransforms[j][0][0]);
 					}
@@ -207,9 +266,17 @@ void Renderer::drawInternal(RenderSpace space)
 			}
 		}
 
-		shaderCache.shader.setMat4("model", modelMatrix);
+		shaderCache.shader.SetModelMatrix(modelMatrix);
 
-		model.Draw(shaderCache.shader, -1);
-		*/
+		model.meshes[0].material.Apply(shaderCache.shader);
+
+		glCheckError();
+		const Mesh& mesh = model.meshes[0];
+
+		shaderCache.shader.Use();
+
+		mesh.Draw();
+
+		//model.Draw(shaderCache.shader, -1);
 	}
 }

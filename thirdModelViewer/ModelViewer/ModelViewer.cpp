@@ -48,7 +48,8 @@ int ModelViewer::setup()
 	/* Event Manager */
 
 	/* Renderer*/
-	renderer.Initialize();
+
+	renderer.Initialize(window.GetWidth(), window.GetHeight());
 
 	/* System */
 	modelRenderSystem = std::make_unique<ModelRenderSystem>(world, renderer);

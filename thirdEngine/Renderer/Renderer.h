@@ -100,9 +100,8 @@ public:
 	//typedef HandlePool<PointLight>::Handle PointLightHandle;
 
 	Renderer();
-	~Renderer();
 
-	void Initialize();
+	void Initialize(int width, int height);
 
 	void SetDirLight(const DirLight& dirLight);
 
@@ -122,6 +121,9 @@ public:
 
 	// low left corner
 	void SetViewport(int x, int y, int w, int h);
+
+	int GetViewportWidth() const;
+	int GetViewportHeight() const;
 
 	ModelHandle GetModelHandle(const Model& model);
 
@@ -143,4 +145,7 @@ private:
 	glm::mat4 uiModelTransform;
 	glm::mat4 projectionMatrix;
 	glm::mat4 viewMatrix;
+
+	int viewportWidth;
+	int viewportHeight;
 };

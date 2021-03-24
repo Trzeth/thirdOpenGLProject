@@ -60,7 +60,7 @@ struct ModelLoader::Impl
 	*/
 	Mesh processMesh(aiMesh* mesh, const aiScene* scene, std::unordered_map<std::string, unsigned int> nodeIdMap, const std::vector<Material>& materials);
 
-	AnimationData processAnimations(const aiScene* scene, const std::unordered_map<std::string, unsigned int>& nodeIdMap, const std::vector<ModelNode> nodes);
+	AnimationData processAnimations(const aiScene* scene, const std::unordered_map<std::string, unsigned int>& nodeIdMap);
 
 	/*!
 	 * \brief Processes and returns the bone data of a specific mesh.
@@ -127,20 +127,20 @@ Model ModelLoader::Impl::processModel(aiNode* rootNode, const aiScene* scene)
 	std::vector<ModelNode> nodeHierarchy;
 	std::unordered_map<std::string, unsigned int> nodeIdMap;
 
-	std::vector<aiNode*> nodesWithMeshes;
-	std::vector<std::vector<glm::mat4>> nodeTransform(scene->mNumMeshes);
+	std::vector<std::vector<glm::mat4>> meshesTransform(scene->mNumMeshes);
+	std::vector<std::vector<int>> meshNodeId(scene->mNumMeshes);
+
+	//Process STACK
 	std::vector<aiNode*> processQueue;
+	std::vector<glm::mat4> cachedTransform;
+
 	processQueue.push_back(rootNode);
+	cachedTransform.push_back(glm::mat4(1.0f));
 
 	while (processQueue.size() > 0) {
 		aiNode* ai_node = processQueue.back();
 		processQueue.pop_back();
 		std::string nodeName(ai_node->mName.data);
-
-		// If this node has meshes, we'll want to save it for processing later
-		if (ai_node->mNumMeshes > 0) {
-			nodesWithMeshes.push_back(ai_node);
-		}
 
 		unsigned int nodeId = nodeHierarchy.size();
 		nodeIdMap[nodeName] = nodeId;
@@ -161,17 +161,32 @@ Model ModelLoader::Impl::processModel(aiNode* rootNode, const aiScene* scene)
 			node.isRoot = true;
 		}
 
+		glm::mat4 globalTransform = cachedTransform.back() * aiToGlm(rootNode->mTransformation);
+		cachedTransform.pop_back();
+
+		for (unsigned int i = 0; i != ai_node->mNumMeshes; i++) {
+			meshesTransform[ai_node->mMeshes[i]].push_back(globalTransform);
+
+			if (scene->mNumAnimations > 0)meshNodeId[ai_node->mMeshes[i]].push_back(nodeHierarchy.size());
+		}
+
 		nodeHierarchy.push_back(node);
 
 		for (unsigned int i = 0; i < ai_node->mNumChildren; i++) {
 			processQueue.push_back(ai_node->mChildren[i]);
+			cachedTransform.push_back(globalTransform);
 		}
 	}
 
 	model.meshes = processMeshes(scene, nodeIdMap, material);
+	model.meshesTransform = meshesTransform;
 
 	if (scene->mNumAnimations > 0)
-		model.animationData = processAnimations(scene, nodeIdMap, nodeHierarchy);
+	{
+		model.animationData = processAnimations(scene, nodeIdMap);
+		model.animationData.nodes = nodeHierarchy;
+		model.animationData.meshNodeId = meshNodeId;
+	}
 
 	return model;
 }
@@ -303,11 +318,10 @@ std::vector<Texture> ModelLoader::Impl::loadMaterialTextures(const std::string& 
 	return textures;
 }
 
-AnimationData ModelLoader::Impl::processAnimations(const aiScene* scene, const std::unordered_map<std::string, unsigned int>& nodeIdMap, const std::vector<ModelNode> nodes)
+AnimationData ModelLoader::Impl::processAnimations(const aiScene* scene, const std::unordered_map<std::string, unsigned int>& nodeIdMap)
 {
 	AnimationData animationData;
 	animationData.nodeIdMap = nodeIdMap;
-	animationData.nodes = nodes;
 
 	for (unsigned int i = 0; i < scene->mNumAnimations; i++) {
 		aiAnimation* ai_animation = scene->mAnimations[i];

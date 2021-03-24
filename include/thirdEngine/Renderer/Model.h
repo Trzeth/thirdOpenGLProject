@@ -41,6 +41,9 @@ struct AnimationData
 
 	/*! The node hierarchy. */
 	std::vector<ModelNode> nodes;
+
+	//The mesh under node in the hierarhy
+	std::vector<std::vector<int>> meshNodeId;
 };
 
 class Model
@@ -57,13 +60,12 @@ public:
 
 	//virtual void Draw();
 protected:
-	/*!
-	 * @brief (Self Defined)transform of the entire model
-	*/
-	glm::mat4 transform;
-
-	// Identify by Node name
 	std::vector<Mesh> meshes;
+
+	/*!
+	 * @brief Transform of the mesh in the hierarhy (when with animation for bindpose)
+	*/
+	std::vector<std::vector<glm::mat4>> meshesTransform;
 
 	/*! All the animations. */
 	AnimationData animationData;

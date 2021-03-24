@@ -65,7 +65,7 @@ protected:
 	/*!
 	 * @brief Transform of the mesh in the hierarhy (when with animation for bindpose)
 	*/
-	std::vector<std::vector<glm::mat4>> meshTransform;
+	std::vector<std::vector<glm::mat4>> meshesTransform;
 
 	/*! All the animations. */
 	AnimationData animationData;

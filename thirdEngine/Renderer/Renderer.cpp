@@ -12,10 +12,6 @@ Renderer::Renderer()
 	this->uiModelTransform[1][1] = -1.0f;
 }
 
-Renderer::~Renderer()
-{
-}
-
 Renderer::ShaderCache::ShaderCache(const ShaderImpl& shader)
 	:shader(shader), pointLights(maxPointLights), bones(maxBones)
 {
@@ -47,13 +43,16 @@ Renderer::ShaderCache::ShaderCache(const ShaderImpl& shader)
 	}
 }
 
-void Renderer::Initialize()
+void Renderer::Initialize(int width, int height)
 {
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		assert(0);
 		//Failed to initialize GLAD
 	}
+
+	viewportWidth = width;
+	viewportHeight = height;
 }
 
 void Renderer::SetDirLight(const DirLight& dirLight)
@@ -125,6 +124,19 @@ void Renderer::SetViewport(int w, int h)
 void Renderer::SetViewport(int x, int y, int w, int h)
 {
 	glViewport(x, y, w, h);
+
+	viewportWidth = w;
+	viewportHeight = h;
+}
+
+int Renderer::GetViewportWidth() const
+{
+	return viewportWidth;
+}
+
+int Renderer::GetViewportHeight() const
+{
+	return viewportHeight;
 }
 
 Renderer::ModelHandle Renderer::GetModelHandle(const Model& model)
@@ -240,41 +252,45 @@ void Renderer::drawInternal(RenderSpace space)
 
 		shaderCache.shader.Use();
 
-		if (renderable.animatable) {
-			for (const auto& mesh : model.meshes) {
+		//Ö»¿¼ÂÇÁË¹Ç÷À¶¯»­£¡£¡
+		for (int i = 0; i != model.meshes.size(); i++)
+		{
+			//Do Anim once per mesh
+			if (renderable.animatable) {
 				std::vector<glm::mat4> nodeTransforms = model.GetNodeTransforms(renderable.animName, renderable.time, renderable.context);
 				if (renderable.animName.empty()) {
 					// Just do bindpose
 				}
-				else if (mesh.impl->boneData.size() == 0) {
+				else if (model.meshes[i].impl->boneData.size() == 0) {
 					// Not skinned animation
 					// TODO: Actually find the node of the mesh
 					modelMatrix *= nodeTransforms[1];
 				}
 				else {
 					// Skinned animation
-					std::vector<glm::mat4> boneTransforms = mesh.GetBoneTransforms(nodeTransforms);
+					std::vector<glm::mat4> boneTransforms = model.meshes[i].GetBoneTransforms(nodeTransforms);
 					for (unsigned int j = 0; j < boneTransforms.size(); j++) {
 						glUniformMatrix4fv(shaderCache.bones[j], 1, GL_FALSE, &boneTransforms[j][0][0]);
 					}
 				}
+
+				// In case of mesh under animated node
+				for (const int node : model.animationData.meshNodeId[i]) {
+					shaderCache.shader.SetModelMatrix(modelMatrix * nodeTransforms[i]);
+					model.meshes[i].material.Apply(shaderCache.shader);
+					model.meshes[i].Draw();
+					glCheckError();
+				}
+			}
+			else
+			{
+				for (const glm::mat4& transform : model.meshesTransform[i]) {
+					shaderCache.shader.SetModelMatrix(modelMatrix * transform);
+					model.meshes[i].material.Apply(shaderCache.shader);
+					model.meshes[i].Draw();
+					glCheckError();
+				}
 			}
 		}
-		else
-		{
-		}
-
-		shaderCache.shader.SetModelMatrix(modelMatrix);
-
-		model.meshes[0].material.Apply(shaderCache.shader);
-
-		glCheckError();
-		const Mesh& mesh = model.meshes[0];
-
-		shaderCache.shader.Use();
-
-		mesh.Draw();
-
-		//model.Draw(shaderCache.shader, -1);
 	}
 }

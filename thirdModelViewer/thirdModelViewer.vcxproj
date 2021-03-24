@@ -116,7 +116,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;MSVC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir);</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -147,6 +147,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Lib\glad.c" />
+    <ClCompile Include="Lib\ImGui\imgui.cpp" />
+    <ClCompile Include="Lib\ImGui\ImGuiFileDialog\ImGuiFileDialog.cpp" />
+    <ClCompile Include="Lib\ImGui\imgui_demo.cpp" />
+    <ClCompile Include="Lib\ImGui\imgui_draw.cpp" />
+    <ClCompile Include="Lib\ImGui\imgui_tables.cpp" />
+    <ClCompile Include="Lib\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="ModelViewer\Component\CameraComponent.cpp" />
     <ClCompile Include="ModelViewer\Component\ModelRenderComponent.cpp" />
     <ClCompile Include="ModelViewer\Component\TransformComponent.cpp" />
@@ -164,6 +170,14 @@
     <ClCompile Include="thirdModelViewer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Lib\ImGui\imconfig.h" />
+    <ClInclude Include="Lib\ImGui\imgui.h" />
+    <ClInclude Include="Lib\ImGui\ImGuiFileDialog\ImGuiFileDialog.h" />
+    <ClInclude Include="Lib\ImGui\ImGuiFileDialog\ImGuiFileDialogConfig.h" />
+    <ClInclude Include="Lib\ImGui\imgui_internal.h" />
+    <ClInclude Include="Lib\ImGui\imstb_rectpack.h" />
+    <ClInclude Include="Lib\ImGui\imstb_textedit.h" />
+    <ClInclude Include="Lib\ImGui\imstb_truetype.h" />
     <ClInclude Include="ModelViewer\Component\CameraComponent.h" />
     <ClInclude Include="ModelViewer\Component\ModelRenderComponent.h" />
     <ClInclude Include="ModelViewer\Component\TransformComponent.h" />

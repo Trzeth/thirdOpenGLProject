@@ -4,6 +4,8 @@
 class Input;
 class EventManager;
 
+constexpr double CAMERASPEED = 0.1;
+
 class ViewerInputSystem :public System
 {
 public:

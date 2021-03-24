@@ -47,6 +47,24 @@
     <ClCompile Include="ModelViewer\System\ViewerInputSystem.cpp">
       <Filter>ModelViewer\System</Filter>
     </ClCompile>
+    <ClCompile Include="Lib\ImGui\ImGuiFileDialog\ImGuiFileDialog.cpp">
+      <Filter>Lib\ImGui\ImGuiFileDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="Lib\ImGui\imgui_widgets.cpp">
+      <Filter>Lib\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Lib\ImGui\imgui.cpp">
+      <Filter>Lib\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Lib\ImGui\imgui_demo.cpp">
+      <Filter>Lib\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Lib\ImGui\imgui_draw.cpp">
+      <Filter>Lib\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Lib\ImGui\imgui_tables.cpp">
+      <Filter>Lib\ImGui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ModelViewer">
@@ -72,6 +90,12 @@
     </Filter>
     <Filter Include="Lib">
       <UniqueIdentifier>{6a120461-6f4d-4abb-b584-f851f854cba4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lib\ImGui">
+      <UniqueIdentifier>{848e37ee-e93a-4371-8eda-8a4eafdfe5ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lib\ImGui\ImGuiFileDialog">
+      <UniqueIdentifier>{fa3ee00c-d8a5-4a0b-8989-1baf3deb8e4a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -116,6 +140,30 @@
     </ClInclude>
     <ClInclude Include="ModelViewer\System\ViewerInputSystem.h">
       <Filter>ModelViewer\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Lib\ImGui\ImGuiFileDialog\ImGuiFileDialogConfig.h">
+      <Filter>Lib\ImGui\ImGuiFileDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="Lib\ImGui\ImGuiFileDialog\ImGuiFileDialog.h">
+      <Filter>Lib\ImGui\ImGuiFileDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="Lib\ImGui\imstb_rectpack.h">
+      <Filter>Lib\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Lib\ImGui\imstb_textedit.h">
+      <Filter>Lib\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Lib\ImGui\imstb_truetype.h">
+      <Filter>Lib\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Lib\ImGui\imconfig.h">
+      <Filter>Lib\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Lib\ImGui\imgui.h">
+      <Filter>Lib\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Lib\ImGui\imgui_internal.h">
+      <Filter>Lib\ImGui</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -13,7 +13,7 @@
 
 #include "Scene/DefaultScene.h"
 
-constexpr double FRAMEDURATION = 1.0 / 30;
+constexpr double FRAMEDURATION = 1.0 / 60;
 
 class ModelViewer
 {
@@ -37,6 +37,7 @@ private:
 	std::unique_ptr<ModelRenderSystem> modelRenderSystem;
 	std::unique_ptr<CameraSystem> cameraSystem;
 	std::unique_ptr<ViewerInputSystem> viewInputSystem;
+
 	std::unique_ptr<DefaultScene> defaultScene;
 
 	Renderer renderer;

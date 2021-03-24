@@ -244,11 +244,6 @@ void Renderer::drawInternal(RenderSpace space)
 			for (const auto& mesh : model.meshes) {
 				std::vector<glm::mat4> nodeTransforms = model.GetNodeTransforms(renderable.animName, renderable.time, renderable.context);
 				if (renderable.animName.empty()) {
-					//!!!!!!!!!!!!!!!
-					std::vector<glm::mat4> boneTransforms = mesh.GetBoneTransforms(nodeTransforms);
-					for (unsigned int j = 0; j < boneTransforms.size(); j++) {
-						glUniformMatrix4fv(shaderCache.bones[j], 1, GL_FALSE, &boneTransforms[j][0][0]);
-					}
 					// Just do bindpose
 				}
 				else if (mesh.impl->boneData.size() == 0) {
@@ -264,6 +259,9 @@ void Renderer::drawInternal(RenderSpace space)
 					}
 				}
 			}
+		}
+		else
+		{
 		}
 
 		shaderCache.shader.SetModelMatrix(modelMatrix);

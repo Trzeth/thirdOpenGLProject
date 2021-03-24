@@ -2,8 +2,7 @@
 
 #include "Model.h"
 
-Model::Model() :transform(1.0f) {
-}
+Model::Model() { }
 
 glm::vec3 interpolate(glm::vec3 a, glm::vec3 b, float lerp)
 {
@@ -71,12 +70,12 @@ std::vector<glm::mat4> Model::GetNodeTransforms(const std::string& animName, flo
 	for (unsigned i = 0; i < animationData.nodes.size(); i++) {
 		const ModelNode& node = animationData.nodes[i];
 
-		glm::mat4 parentTransform = glm::mat4();
+		glm::mat4 parentTransform(1.0f);
 		if (node.parent < animationData.nodes.size()) {
 			parentTransform = nodeTransforms[node.parent];
 		}
 
-		glm::mat4 nodeTransform;
+		glm::mat4 nodeTransform(1.0f);
 
 		auto channelIdIter = animation.channelIdMap.find(i);
 		if (channelIdIter == animation.channelIdMap.end()) {

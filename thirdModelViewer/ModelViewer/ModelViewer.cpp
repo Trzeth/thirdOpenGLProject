@@ -38,11 +38,12 @@ int ModelViewer::setup()
 	input.SetDefaultMapping("Vertical", KbmAxis_W, KbmAxis_S);
 	input.SetDefaultMapping("LookHorizontal", KbmAxis_MouseXPos, KbmAxis_MouseXNeg, AxisProps(0.1f, 0.2f, 0.3f));
 	input.SetDefaultMapping("LookVertical", KbmAxis_MouseYPos, KbmAxis_MouseYNeg, AxisProps(0.1f, 0.2f, 0.3f));
-	input.SetDefaultMapping("Jump", KbmAxis_Space, KbmAxis_None);
-	input.SetDefaultMapping("Use", KbmAxis_E, KbmAxis_None);
-	input.SetDefaultMapping("Fire", KbmAxis_MouseLeft, KbmAxis_None);
-	input.SetDefaultMapping("Reload", KbmAxis_R, KbmAxis_None);
-	input.SetDefaultMapping("Start", KbmAxis_Return, KbmAxis_None);
+
+	input.SetDefaultMapping("Space", KbmAxis_Space, KbmAxis_None);
+	input.SetDefaultMapping("E", KbmAxis_E, KbmAxis_None);
+	input.SetDefaultMapping("LeftMouse", KbmAxis_MouseLeft, KbmAxis_None);
+	input.SetDefaultMapping("R", KbmAxis_R, KbmAxis_None);
+	input.SetDefaultMapping("Return", KbmAxis_Return, KbmAxis_None);
 
 	/* Event Manager */
 

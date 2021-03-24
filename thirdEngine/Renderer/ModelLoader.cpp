@@ -60,11 +60,6 @@ struct ModelLoader::Impl
 	*/
 	Mesh processMesh(aiMesh* mesh, const aiScene* scene, std::unordered_map<std::string, unsigned int> nodeIdMap, const std::vector<Material>& materials);
 
-	/*!
-	 * @brief Process Nodes
-	*/
-	ProcessNodesReturn processNodes(aiNode* rootNode, tsl::ordered_map<Mesh, std::map<std::string, glm::mat4> >& meshes);
-
 	AnimationData processAnimations(const aiScene* scene, const std::unordered_map<std::string, unsigned int>& nodeIdMap, const std::vector<ModelNode> nodes);
 
 	/*!
@@ -133,6 +128,7 @@ Model ModelLoader::Impl::processModel(aiNode* rootNode, const aiScene* scene)
 	std::unordered_map<std::string, unsigned int> nodeIdMap;
 
 	std::vector<aiNode*> nodesWithMeshes;
+	std::vector<std::vector<glm::mat4>> nodeTransform(scene->mNumMeshes);
 	std::vector<aiNode*> processQueue;
 	processQueue.push_back(rootNode);
 
@@ -307,58 +303,6 @@ std::vector<Texture> ModelLoader::Impl::loadMaterialTextures(const std::string& 
 	return textures;
 }
 
-ProcessNodesReturn ModelLoader::Impl::processNodes(aiNode* rootNode, tsl::ordered_map<Mesh, std::map<std::string, glm::mat4> >& meshes)
-{
-	std::vector<ModelNode> nodes;
-	std::unordered_map<std::string, unsigned int> nodeIdMap;
-
-	std::vector<aiNode*> processQueue;
-	processQueue.push_back(rootNode);
-
-	// First process the node hierarchy and pack it into our vector
-	while (processQueue.size() > 0) {
-		aiNode* ai_node = processQueue.back();
-		processQueue.pop_back();
-		std::string nodeName(ai_node->mName.data);
-
-		if (ai_node->mNumMeshes > 0) {
-			meshes.nth(ai_node->mMeshes[0] - 1).value()
-				.emplace(nodeName, aiToGlm(ai_node->mTransformation));
-		}
-
-		unsigned int nodeId = nodes.size();
-		nodeIdMap[nodeName] = nodeId;
-
-		ModelNode node;
-		node.name = nodeName;
-		node.transform = aiToGlm(ai_node->mTransformation);
-		if (ai_node->mParent != NULL) {
-			auto iter = nodeIdMap.find(ai_node->mParent->mName.data);
-			assert(iter != nodeIdMap.end());
-			// Assign parent
-			node.parent = iter->second;
-			// Assign self to parent's children
-			nodes[iter->second].children.push_back(nodeId);
-			node.isRoot = false;
-		}
-		else {
-			node.isRoot = true;
-		}
-
-		nodes.push_back(node);
-
-		for (unsigned int i = 0; i < ai_node->mNumChildren; i++) {
-			processQueue.push_back(ai_node->mChildren[i]);
-		}
-	}
-
-	ProcessNodesReturn val;
-	val.Nodes = nodes;
-	val.NodeIdMap = nodeIdMap;
-
-	return val;
-}
-
 AnimationData ModelLoader::Impl::processAnimations(const aiScene* scene, const std::unordered_map<std::string, unsigned int>& nodeIdMap, const std::vector<ModelNode> nodes)
 {
 	AnimationData animationData;
@@ -367,13 +311,21 @@ AnimationData ModelLoader::Impl::processAnimations(const aiScene* scene, const s
 
 	for (unsigned int i = 0; i < scene->mNumAnimations; i++) {
 		aiAnimation* ai_animation = scene->mAnimations[i];
+
 		std::string animName(ai_animation->mName.data);
+
+		// 3DSMAX FBX only export one animation
+		if (scene->mNumAnimations == 1 && animName.empty()) {
+			animName = "combinedAnim";
+		}
+
 		Animation& animation = animationData.animations[animName];
 
 		float minTime = FLT_MAX;
 		float maxTime = FLT_MIN;
 		for (unsigned int j = 0; j < ai_animation->mNumChannels; j++) {
 			aiNodeAnim* ai_channel = ai_animation->mChannels[j];
+
 			std::string nodeName = ai_channel->mNodeName.data;
 
 			auto iter = nodeIdMap.find(nodeName);

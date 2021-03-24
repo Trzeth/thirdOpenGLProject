@@ -9,7 +9,7 @@
 #include "ModelViewer/Component/TransformComponent.h"
 
 ViewerInputSystem::ViewerInputSystem(World& world, Input& input, EventManager& eventManager)
-	:System(world), input(input), eventManager(eventManager), horizontalRad(0), verticalRad(0)
+	:System(world), input(input), eventManager(eventManager), horizontalRad(0.0f), verticalRad(0.0f)
 {
 	require<ViewerComponent>();
 }
@@ -18,25 +18,28 @@ void ViewerInputSystem::updateEntity(float dt, eid_t entity)
 {
 	ViewerComponent* viewerComponent = world.GetComponent<ViewerComponent>(entity);
 
-	float horizontal = input.GetAxis("Horizontal", Device_Kbm);
-	float vertical = input.GetAxis("Vertical", Device_Kbm);
+	float horizontal = input.GetAxis("Horizontal", Device_Kbm) * CAMERASPEED;
+	float vertical = input.GetAxis("Vertical", Device_Kbm) * CAMERASPEED;
 	float lookHorizontal = input.GetAxis("LookHorizontal", Device_Kbm);
 	float lookVertical = input.GetAxis("LookVertical", Device_Kbm);
 
 	horizontalRad -= lookHorizontal * dt;
-	verticalRad += lookVertical * dt;
+	verticalRad -= lookVertical * dt;
 	verticalRad = glm::clamp(verticalRad, -glm::half_pi<float>() + 0.01f, glm::half_pi<float>() - 0.01f);
 
 	CameraComponent* fixedCamera = world.GetComponent<CameraComponent>(viewerComponent->data.FixedCamera);
 	CameraComponent* fpsCamera = world.GetComponent<CameraComponent>(viewerComponent->data.FPSCamera);
 
 	if (viewerComponent->viewerState == ViewerState::FPSCamera) {
-		TransformComponent* cameraTransform = world.GetComponent<TransformComponent>(viewerComponent->data.FixedCamera);
 		fixedCamera->isEnable = false;
 		fpsCamera->isEnable = true;
+		Transform& transform = *world.GetComponent<TransformComponent>(viewerComponent->data.FPSCamera)->data;
 
-		cameraTransform->data->SetRotation(glm::angleAxis(verticalRad, Transform::RIGHT));
-		cameraTransform->data->SetRotation(glm::angleAxis(horizontalRad, Transform::UP));
+		glm::quat rot = glm::vec3(verticalRad, horizontalRad, 0.0f);
+		transform.SetRotation(rot);
+
+		glm::vec3 newPos = transform.GetPosition() + transform.GetForward() * vertical + glm::cross(transform.GetForward(), Transform::UP) * horizontal;
+		transform.SetPosition(newPos);
 	}
 	else // Fixed Camera
 	{

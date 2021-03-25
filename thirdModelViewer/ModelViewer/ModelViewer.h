@@ -4,6 +4,7 @@
 #include <thirdEngine/Framework/World.h>
 #include <thirdEngine/Framework/EventManager.h>
 #include <thirdEngine/Input/Input.h>
+#include <thirdEngine/Renderer/UI/UIRenderer.h>
 
 #include "System/ModelRenderSystem.h"
 #include "System/CameraSystem.h"
@@ -41,6 +42,7 @@ private:
 	std::unique_ptr<DefaultScene> defaultScene;
 
 	Renderer renderer;
+	UIRenderer uiRenderer;
 	World world;
 	Input input;
 	Window window;

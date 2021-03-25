@@ -79,6 +79,33 @@
     <ClCompile Include="Renderer\HandlePool.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="Renderer\UI\ImGui\imgui_tables.cpp">
+      <Filter>Renderer\UI\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\UI\ImGui\imgui_widgets.cpp">
+      <Filter>Renderer\UI\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\UI\ImGui\imgui.cpp">
+      <Filter>Renderer\UI\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\UI\ImGui\imgui_demo.cpp">
+      <Filter>Renderer\UI\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\UI\ImGui\imgui_draw.cpp">
+      <Filter>Renderer\UI\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\UI\UIRenderer.cpp">
+      <Filter>Renderer\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\UI\UIElement.cpp">
+      <Filter>Renderer\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\UI\ImGui\imgui_impl_opengl3.cpp">
+      <Filter>Renderer\UI\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\UI\ImGui\imgui_impl_glfw.cpp">
+      <Filter>Renderer\UI\ImGui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Renderer\Model.h">
@@ -168,6 +195,36 @@
     <ClInclude Include="Renderer\stb_image.h">
       <Filter>Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="Renderer\UI\ImGui\imstb_rectpack.h">
+      <Filter>Renderer\UI\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\UI\ImGui\imstb_textedit.h">
+      <Filter>Renderer\UI\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\UI\ImGui\imstb_truetype.h">
+      <Filter>Renderer\UI\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\UI\ImGui\imconfig.h">
+      <Filter>Renderer\UI\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\UI\ImGui\imgui.h">
+      <Filter>Renderer\UI\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\UI\ImGui\imgui_internal.h">
+      <Filter>Renderer\UI\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\UI\UIRenderer.h">
+      <Filter>Renderer\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\UI\UIElement.h">
+      <Filter>Renderer\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\UI\ImGui\imgui_impl_glfw.h">
+      <Filter>Renderer\UI\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\UI\ImGui\imgui_impl_opengl3.h">
+      <Filter>Renderer\UI\ImGui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Framework">
@@ -184,6 +241,12 @@
     </Filter>
     <Filter Include="Renderer\UI">
       <UniqueIdentifier>{1a4e26a8-fffa-4441-855c-1da2e0a69e20}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer\2D">
+      <UniqueIdentifier>{fe8c10d4-e047-46d3-b46e-afbbd65fdf01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer\UI\ImGui">
+      <UniqueIdentifier>{eef490a1-c099-4c45-9006-e56e84eacaed}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

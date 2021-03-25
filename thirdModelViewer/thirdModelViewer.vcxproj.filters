@@ -41,29 +41,20 @@
     <ClCompile Include="Lib\glad.c">
       <Filter>Lib</Filter>
     </ClCompile>
-    <ClCompile Include="ModelViewer\Component\ViewerComponent.cpp">
-      <Filter>ModelViewer\Component</Filter>
-    </ClCompile>
     <ClCompile Include="ModelViewer\System\ViewerInputSystem.cpp">
       <Filter>ModelViewer\System</Filter>
     </ClCompile>
-    <ClCompile Include="Lib\ImGui\ImGuiFileDialog\ImGuiFileDialog.cpp">
-      <Filter>Lib\ImGui\ImGuiFileDialog</Filter>
+    <ClCompile Include="Lib\ImGuiFileDialog\ImGuiFileDialog.cpp">
+      <Filter>Lib\ImGuiFileDialog</Filter>
     </ClCompile>
-    <ClCompile Include="Lib\ImGui\imgui_widgets.cpp">
-      <Filter>Lib\ImGui</Filter>
+    <ClCompile Include="ModelViewer\UIElement\Sidebar.cpp">
+      <Filter>ModelViewer\UIElement</Filter>
     </ClCompile>
-    <ClCompile Include="Lib\ImGui\imgui.cpp">
-      <Filter>Lib\ImGui</Filter>
+    <ClCompile Include="ModelViewer\Component\ObjectViewerComponent.cpp">
+      <Filter>ModelViewer\Component</Filter>
     </ClCompile>
-    <ClCompile Include="Lib\ImGui\imgui_demo.cpp">
-      <Filter>Lib\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="Lib\ImGui\imgui_draw.cpp">
-      <Filter>Lib\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="Lib\ImGui\imgui_tables.cpp">
-      <Filter>Lib\ImGui</Filter>
+    <ClCompile Include="ModelViewer\Component\InspectorComponent.cpp">
+      <Filter>ModelViewer\Component</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -91,11 +82,11 @@
     <Filter Include="Lib">
       <UniqueIdentifier>{6a120461-6f4d-4abb-b584-f851f854cba4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Lib\ImGui">
-      <UniqueIdentifier>{848e37ee-e93a-4371-8eda-8a4eafdfe5ab}</UniqueIdentifier>
+    <Filter Include="Lib\ImGuiFileDialog">
+      <UniqueIdentifier>{d9d7993f-5468-473b-b760-bc69c8928d44}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Lib\ImGui\ImGuiFileDialog">
-      <UniqueIdentifier>{fa3ee00c-d8a5-4a0b-8989-1baf3deb8e4a}</UniqueIdentifier>
+    <Filter Include="ModelViewer\UIElement">
+      <UniqueIdentifier>{fc46def4-d9c8-4803-8385-99a90e7b99b5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -135,35 +126,23 @@
     <ClInclude Include="ModelViewer\Extra\PrefabConstructionInfo.h">
       <Filter>ModelViewer\Extra</Filter>
     </ClInclude>
-    <ClInclude Include="ModelViewer\Component\ViewerComponent.h">
-      <Filter>ModelViewer\Component</Filter>
-    </ClInclude>
     <ClInclude Include="ModelViewer\System\ViewerInputSystem.h">
       <Filter>ModelViewer\System</Filter>
     </ClInclude>
-    <ClInclude Include="Lib\ImGui\ImGuiFileDialog\ImGuiFileDialogConfig.h">
-      <Filter>Lib\ImGui\ImGuiFileDialog</Filter>
+    <ClInclude Include="Lib\ImGuiFileDialog\ImGuiFileDialog.h">
+      <Filter>Lib\ImGuiFileDialog</Filter>
     </ClInclude>
-    <ClInclude Include="Lib\ImGui\ImGuiFileDialog\ImGuiFileDialog.h">
-      <Filter>Lib\ImGui\ImGuiFileDialog</Filter>
+    <ClInclude Include="Lib\ImGuiFileDialog\ImGuiFileDialogConfig.h">
+      <Filter>Lib\ImGuiFileDialog</Filter>
     </ClInclude>
-    <ClInclude Include="Lib\ImGui\imstb_rectpack.h">
-      <Filter>Lib\ImGui</Filter>
+    <ClInclude Include="ModelViewer\UIElement\Sidebar.h">
+      <Filter>ModelViewer\UIElement</Filter>
     </ClInclude>
-    <ClInclude Include="Lib\ImGui\imstb_textedit.h">
-      <Filter>Lib\ImGui</Filter>
+    <ClInclude Include="ModelViewer\Component\ObjectViewerComponent.h">
+      <Filter>ModelViewer\Component</Filter>
     </ClInclude>
-    <ClInclude Include="Lib\ImGui\imstb_truetype.h">
-      <Filter>Lib\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="Lib\ImGui\imconfig.h">
-      <Filter>Lib\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="Lib\ImGui\imgui.h">
-      <Filter>Lib\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="Lib\ImGui\imgui_internal.h">
-      <Filter>Lib\ImGui</Filter>
+    <ClInclude Include="ModelViewer\Component\InspectorComponent.h">
+      <Filter>ModelViewer\Component</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

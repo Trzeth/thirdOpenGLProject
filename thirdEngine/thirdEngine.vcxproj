@@ -186,6 +186,16 @@ xcopy $(OutDir)$(TargetFileName) $(SolutionDir)lib\ /y</Command>
     <ClInclude Include="Renderer\stb_image.h" />
     <ClInclude Include="Renderer\Texture.h" />
     <ClInclude Include="Renderer\TextureImpl.h" />
+    <ClInclude Include="Renderer\UI\ImGui\imconfig.h" />
+    <ClInclude Include="Renderer\UI\ImGui\imgui.h" />
+    <ClInclude Include="Renderer\UI\ImGui\imgui_impl_glfw.h" />
+    <ClInclude Include="Renderer\UI\ImGui\imgui_impl_opengl3.h" />
+    <ClInclude Include="Renderer\UI\ImGui\imgui_internal.h" />
+    <ClInclude Include="Renderer\UI\ImGui\imstb_rectpack.h" />
+    <ClInclude Include="Renderer\UI\ImGui\imstb_textedit.h" />
+    <ClInclude Include="Renderer\UI\ImGui\imstb_truetype.h" />
+    <ClInclude Include="Renderer\UI\UIElement.h" />
+    <ClInclude Include="Renderer\UI\UIRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Framework\CollisionEvent.cpp" />
@@ -214,6 +224,15 @@ xcopy $(OutDir)$(TargetFileName) $(SolutionDir)lib\ /y</Command>
     <ClCompile Include="Renderer\Shader.cpp" />
     <ClCompile Include="Renderer\ShaderImpl.cpp" />
     <ClCompile Include="Renderer\Texture.cpp" />
+    <ClCompile Include="Renderer\UI\ImGui\imgui.cpp" />
+    <ClCompile Include="Renderer\UI\ImGui\imgui_demo.cpp" />
+    <ClCompile Include="Renderer\UI\ImGui\imgui_draw.cpp" />
+    <ClCompile Include="Renderer\UI\ImGui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="Renderer\UI\ImGui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="Renderer\UI\ImGui\imgui_tables.cpp" />
+    <ClCompile Include="Renderer\UI\ImGui\imgui_widgets.cpp" />
+    <ClCompile Include="Renderer\UI\UIElement.cpp" />
+    <ClCompile Include="Renderer\UI\UIRenderer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -5,18 +5,18 @@
 #include "ViewerInputSystem.h"
 
 #include "ModelViewer/Component/CameraComponent.h"
-#include "ModelViewer/Component/ViewerComponent.h"
+#include "ModelViewer/Component/ObjectViewerComponent.h"
 #include "ModelViewer/Component/TransformComponent.h"
 
 ViewerInputSystem::ViewerInputSystem(World& world, Input& input, EventManager& eventManager)
 	:System(world), input(input), eventManager(eventManager), horizontalRad(0.0f), verticalRad(0.0f)
 {
-	require<ViewerComponent>();
+	require<ObjectViewerComponent>();
 }
 
 void ViewerInputSystem::updateEntity(float dt, eid_t entity)
 {
-	ViewerComponent* viewerComponent = world.GetComponent<ViewerComponent>(entity);
+	ObjectViewerComponent* viewerComponent = world.GetComponent<ObjectViewerComponent>(entity);
 
 	float horizontal = input.GetAxis("Horizontal", Device_Kbm) * CAMERASPEED;
 	float vertical = input.GetAxis("Vertical", Device_Kbm) * CAMERASPEED;

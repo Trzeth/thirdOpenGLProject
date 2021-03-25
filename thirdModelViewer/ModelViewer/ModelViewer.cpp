@@ -2,7 +2,7 @@
 
 #include "Scene/DefaultScene.h"
 
-ModelViewer::ModelViewer() :renderer(), world(), input(), window(input, renderer), eventManager(world)
+ModelViewer::ModelViewer() :renderer(), uiRenderer(), world(), input(), window(input, renderer), eventManager(world)
 {
 	restart = false;
 	running = false;
@@ -48,8 +48,8 @@ int ModelViewer::setup()
 	/* Event Manager */
 
 	/* Renderer*/
-
 	renderer.Initialize(window.GetWidth(), window.GetHeight());
+	uiRenderer.Initialize(window.GetWindow());
 
 	/* System */
 	modelRenderSystem = std::make_unique<ModelRenderSystem>(world, renderer);
@@ -59,6 +59,7 @@ int ModelViewer::setup()
 	SceneInfo sceneInfo;
 	sceneInfo.world = &world;
 	sceneInfo.renderer = &renderer;
+	sceneInfo.uiRenderer = &uiRenderer;
 	defaultScene = std::make_unique<DefaultScene>(sceneInfo, eventManager);
 	defaultScene->Setup();
 
@@ -99,11 +100,13 @@ void ModelViewer::update()
 	cameraSystem->Update(deltaTime);
 
 	renderer.Update(deltaTime);
+	uiRenderer.Update(deltaTime);
 	world.CleanupEntities();
 }
 
 void ModelViewer::draw()
 {
 	renderer.Draw();
+	uiRenderer.Draw();
 	window.NextFrame();
 }

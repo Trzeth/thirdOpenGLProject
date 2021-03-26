@@ -162,6 +162,8 @@
     <ClCompile Include="ModelViewer\System\CameraSystem.cpp" />
     <ClCompile Include="ModelViewer\System\ModelRenderSystem.cpp" />
     <ClCompile Include="ModelViewer\System\ViewerInputSystem.cpp" />
+    <ClCompile Include="ModelViewer\UIElement\DockSpace.cpp" />
+    <ClCompile Include="ModelViewer\UIElement\ObjectViewer.cpp" />
     <ClCompile Include="ModelViewer\UIElement\Sidebar.cpp" />
     <ClCompile Include="ModelViewer\Window.cpp" />
     <ClCompile Include="thirdModelViewer.cpp" />
@@ -183,6 +185,8 @@
     <ClInclude Include="ModelViewer\System\CameraSystem.h" />
     <ClInclude Include="ModelViewer\System\ModelRenderSystem.h" />
     <ClInclude Include="ModelViewer\System\ViewerInputSystem.h" />
+    <ClInclude Include="ModelViewer\UIElement\DockSpace.h" />
+    <ClInclude Include="ModelViewer\UIElement\ObjectViewer.h" />
     <ClInclude Include="ModelViewer\UIElement\Sidebar.h" />
     <ClInclude Include="ModelViewer\Window.h" />
   </ItemGroup>

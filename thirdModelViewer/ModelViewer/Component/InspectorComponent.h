@@ -6,9 +6,11 @@
 
 struct InspectorComponent :public Component
 {
-	InspectorComponent() :uiElementHandle(nullptr) { }
+	InspectorComponent() :sidebarHandle(nullptr) { }
 
-	UIRenderer::UIElementHandle uiElementHandle;
+	UIRenderer::UIElementHandle dockSpaceHandle;
+	UIRenderer::UIElementHandle sidebarHandle;
+	UIRenderer::UIElementHandle objectViewerHandle;
 };
 
 class InspectorComponentConstructor :public ComponentConstructor {

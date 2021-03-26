@@ -5,6 +5,9 @@
 
 void Sidebar::Draw()
 {
+	ImGui::ShowDemoWindow();
+
+	/*
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 	{
@@ -24,4 +27,5 @@ void Sidebar::Draw()
 		ImGui::End();
 	}
 	ImGui::PopStyleVar(2);
+	*/
 }

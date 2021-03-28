@@ -1,8 +1,12 @@
 #pragma once
+#include <glad/glad.h>
 #include <thirdEngine/Framework/Component.h>
 #include <thirdEngine/Framework/ComponentConstructor.h>
 
 #include <thirdEngine/Renderer/UI/UIRenderer.h>
+
+#include "ModelViewer/UIElement/ObjectViewer.h"
+#include "ModelViewer/UIElement/Sidebar.h"
 
 struct InspectorComponent :public Component
 {
@@ -11,6 +15,22 @@ struct InspectorComponent :public Component
 	UIRenderer::UIElementHandle dockSpaceHandle;
 	UIRenderer::UIElementHandle sidebarHandle;
 	UIRenderer::UIElementHandle objectViewerHandle;
+
+	//UIElemtn ObjectViewer
+	std::shared_ptr<ObjectViewer> objectViewer;
+	std::shared_ptr<Sidebar> sidebar;
+
+	GLuint frameBuffer;
+	GLuint texColorBuffer;
+	//Depth Buffer
+	GLuint renderBuffer;
+
+	//Viewer Entity ID
+	eid_t viewer;
+
+	//Use to Check Window Resize
+	float preWindowWidth;
+	float preWindowHeight;
 };
 
 class InspectorComponentConstructor :public ComponentConstructor {

@@ -160,6 +160,7 @@
     <ClCompile Include="ModelViewer\Scene\DefaultScene.cpp" />
     <ClCompile Include="ModelViewer\Scene\Scene.cpp" />
     <ClCompile Include="ModelViewer\System\CameraSystem.cpp" />
+    <ClCompile Include="ModelViewer\System\InspectorSystem.cpp" />
     <ClCompile Include="ModelViewer\System\ModelRenderSystem.cpp" />
     <ClCompile Include="ModelViewer\System\ViewerInputSystem.cpp" />
     <ClCompile Include="ModelViewer\UIElement\DockSpace.cpp" />
@@ -176,6 +177,7 @@
     <ClInclude Include="ModelViewer\Component\ModelRenderComponent.h" />
     <ClInclude Include="ModelViewer\Component\TransformComponent.h" />
     <ClInclude Include="ModelViewer\Component\ObjectViewerComponent.h" />
+    <ClInclude Include="ModelViewer\Event\SidebarEvent.h" />
     <ClInclude Include="ModelViewer\Extra\PrefabConstructionInfo.h" />
     <ClInclude Include="ModelViewer\Extra\Transform.h" />
     <ClInclude Include="ModelViewer\Extra\Util.h" />
@@ -183,6 +185,7 @@
     <ClInclude Include="ModelViewer\Scene\DefaultScene.h" />
     <ClInclude Include="ModelViewer\Scene\Scene.h" />
     <ClInclude Include="ModelViewer\System\CameraSystem.h" />
+    <ClInclude Include="ModelViewer\System\InspectorSystem.h" />
     <ClInclude Include="ModelViewer\System\ModelRenderSystem.h" />
     <ClInclude Include="ModelViewer\System\ViewerInputSystem.h" />
     <ClInclude Include="ModelViewer\UIElement\DockSpace.h" />

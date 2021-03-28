@@ -54,7 +54,7 @@ struct FramebufferSizeCallback {
 	static void callback(GLFWwindow* window, int w, int h) {
 		obj->width = w;
 		obj->height = h;
-		obj->renderer.SetViewport(0, 0, w, h);
+		//obj->renderer.SetViewport(0, 0, w, h);
 	}
 };
 Window* FramebufferSizeCallback::obj;

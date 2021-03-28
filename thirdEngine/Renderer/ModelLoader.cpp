@@ -14,11 +14,6 @@
 #include "Texture.h"
 #include "TextureImpl.h"
 
-struct ProcessNodesReturn {
-	std::vector<ModelNode> Nodes;
-	std::unordered_map<std::string, unsigned int> NodeIdMap;
-};
-
 struct ModelLoader::Impl
 {
 	/*! The relative directory to the model we are currently loading. */

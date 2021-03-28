@@ -22,7 +22,10 @@ private:
 
 	EventManager& eventManager;
 
-	Prefab modelPrefab;
+	//Viewer of the object
+	Prefab viewerPrefab;
+
+	//UI Entity
 	Prefab inspectorPrefab;
 	Prefab cameraPrefab;
 };

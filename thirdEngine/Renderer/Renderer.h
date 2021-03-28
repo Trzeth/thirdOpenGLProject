@@ -122,12 +122,18 @@ public:
 	// low left corner
 	void SetViewport(int x, int y, int w, int h);
 
+	void SetFBO(GLuint FBO);
+
+	GLuint GetFBO()const;
+
 	int GetViewportWidth() const;
 	int GetViewportHeight() const;
 
 	ModelHandle GetModelHandle(const Model& model);
 
 	RenderableHandle GetRenderableHandle(const ModelHandle& modelHandle, const Shader& shader);
+
+	void ClearBuffer()const;
 
 	void Draw();
 
@@ -136,6 +142,8 @@ private:
 	void drawInternal(RenderSpace space);
 
 	DirLight dirLight;
+
+	GLuint FBO;
 
 	std::unordered_map<uint64_t, ShaderCache> shaderMap;
 

@@ -5,47 +5,22 @@
 
 void DockSpace::Draw()
 {
+	ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
+	window_flags |= ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground;
+
+	ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_PassthruCentralNode;
+
 	const ImGuiViewport* viewport = ImGui::GetMainViewport();
 	ImGui::SetNextWindowPos(viewport->WorkPos);
 	ImGui::SetNextWindowSize(viewport->WorkSize);
 	ImGui::SetNextWindowViewport(viewport->ID);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 
-	ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
-	window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-	window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-
-	{
-		ImGui::Begin("DockSpace Demo", 0, window_flags);
-
-		ImGuiID main = ImGui::GetID("Main");
-
-		ImGui::DockBuilderRemoveNode(main);
-		ImGui::DockBuilderAddNode(main, ImGuiDockNodeFlags_DockSpace);
-		ImGui::DockBuilderSetNodeSize(main, ImGui::GetMainViewport()->Size);
-
-		ImGuiID dock_main = main;
-		ImGuiID dock_right = ImGui::DockBuilderSplitNode(dock_main, ImGuiDir_Right, 0.3f, nullptr, &dock_main);
-
-		auto node = ImGui::DockBuilderGetNode(dock_main)->Size;
-
-		ImGui::DockBuilderDockWindow("ObjectViewer", dock_main);
-		ImGui::DockBuilderDockWindow("Sidebar", dock_right);
-
-		ImGui::DockBuilderFinish(main);
-
-		ImGui::DockSpace(main, ImVec2(0.0f, 0.0f), 0);
-
-		ImGui::End();
-	}
-
-	ImGui::PopStyleVar(2);
-
-	ImGui::Begin("Sidebar");
+	ImGui::Begin("DockSpace", 0, window_flags);
+	ImGuiID dockspace_id = ImGui::GetID("DockSpace##Main");
+	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 	ImGui::End();
-
-	ImGui::Begin("ObjectViewer");
-
-	ImGui::End();
+	ImGui::PopStyleVar(3);
 }

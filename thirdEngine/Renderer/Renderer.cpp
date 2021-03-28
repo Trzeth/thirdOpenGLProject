@@ -129,6 +129,16 @@ void Renderer::SetViewport(int x, int y, int w, int h)
 	viewportHeight = h;
 }
 
+void Renderer::SetFBO(GLuint FBO)
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+}
+
+GLuint Renderer::GetFBO() const
+{
+	return FBO;
+}
+
 int Renderer::GetViewportWidth() const
 {
 	return viewportWidth;
@@ -165,10 +175,15 @@ Renderer::RenderableHandle Renderer::GetRenderableHandle(const ModelHandle& mode
 	return handle;
 }
 
-void Renderer::Draw()
+void Renderer::ClearBuffer() const
 {
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void Renderer::Draw()
+{
+	ClearBuffer();
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -258,17 +273,22 @@ void Renderer::drawInternal(RenderSpace space)
 			//Do Anim once per mesh
 			if (renderable.animatable) {
 				std::vector<glm::mat4> nodeTransforms = model.GetNodeTransforms(renderable.animName, renderable.time, renderable.context);
-				if (renderable.animName.empty()) {
-					// Just do bindpose
-				}
-				else if (model.meshes[i].impl->boneData.size() == 0) {
+
+				if (model.meshes[i].impl->boneData.size() == 0) {
 					// Not skinned animation
-					// TODO: Actually find the node of the mesh
-					modelMatrix *= nodeTransforms[1];
 				}
-				else {
-					// Skinned animation
-					std::vector<glm::mat4> boneTransforms = model.meshes[i].GetBoneTransforms(nodeTransforms);
+				else
+				{
+					//Skinned animation
+					std::vector<glm::mat4> boneTransforms;
+					if (renderable.animName.empty()) {
+						// Just do bindpose
+						boneTransforms = model.meshes[i].GetBoneTransforms(model.meshesTransform[i]);
+					}
+					else {
+						// Skinned animation
+						boneTransforms = model.meshes[i].GetBoneTransforms(nodeTransforms);
+					}
 					for (unsigned int j = 0; j < boneTransforms.size(); j++) {
 						glUniformMatrix4fv(shaderCache.bones[j], 1, GL_FALSE, &boneTransforms[j][0][0]);
 					}
@@ -276,7 +296,15 @@ void Renderer::drawInternal(RenderSpace space)
 
 				// In case of mesh under animated node
 				for (const int node : model.animationData.meshNodeId[i]) {
-					shaderCache.shader.SetModelMatrix(modelMatrix * nodeTransforms[i]);
+					//No animation
+					if (nodeTransforms.size() < i) {
+						shaderCache.shader.SetModelMatrix(modelMatrix * model.meshesTransform[i][node]);
+					}
+					else
+					{
+						shaderCache.shader.SetModelMatrix(modelMatrix * nodeTransforms[node]);
+					}
+
 					model.meshes[i].material.Apply(shaderCache.shader);
 					model.meshes[i].Draw();
 					glCheckError();

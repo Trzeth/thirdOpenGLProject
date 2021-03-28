@@ -9,6 +9,7 @@
 #include "System/ModelRenderSystem.h"
 #include "System/CameraSystem.h"
 #include "System/ViewerInputSystem.h"
+#include "System/InspectorSystem.h"
 
 #include "Window.h"
 
@@ -38,6 +39,7 @@ private:
 	std::unique_ptr<ModelRenderSystem> modelRenderSystem;
 	std::unique_ptr<CameraSystem> cameraSystem;
 	std::unique_ptr<ViewerInputSystem> viewInputSystem;
+	std::unique_ptr<InspectorSystem> inspectorSystem;
 
 	std::unique_ptr<DefaultScene> defaultScene;
 

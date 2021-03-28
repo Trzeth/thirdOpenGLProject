@@ -12,7 +12,7 @@ void DefaultScene::Setup()
 {
 	setupPrefab();
 
-	eid_t model = world.ConstructPrefab(modelPrefab, World::NullEntity);
+	eid_t viewer = world.ConstructPrefab(viewerPrefab, World::NullEntity);
 
 	cameraPrefab.SetName("FPSCamera");
 	eid_t fpsCamera = world.ConstructPrefab(cameraPrefab, World::NullEntity);
@@ -20,12 +20,15 @@ void DefaultScene::Setup()
 	cameraPrefab.SetName("FixedCamera");
 	eid_t fixedCamera = world.ConstructPrefab(cameraPrefab, World::NullEntity);
 
-	ObjectViewerComponent* viewerComponent = world.GetComponent<ObjectViewerComponent>(model);
+	ObjectViewerComponent* viewerComponent = world.GetComponent<ObjectViewerComponent>(viewer);
 	viewerComponent->data.FPSCamera = fpsCamera;
 	viewerComponent->data.FixedCamera = fixedCamera;
 	viewerComponent->viewerState = ViewerState::FPSCamera;
 
-	world.ConstructPrefab(inspectorPrefab, World::NullEntity);
+	eid_t inspector = world.ConstructPrefab(inspectorPrefab, World::NullEntity);
+
+	InspectorComponent* inspectorComponent = world.GetComponent<InspectorComponent>(inspector);
+	inspectorComponent->viewer = viewer;
 }
 
 void DefaultScene::setupPrefab()
@@ -34,15 +37,15 @@ void DefaultScene::setupPrefab()
 		return;
 
 	shader = shaderLoader.CompileAndLink("ModelViewer/Shader/NoLight/shader.vs", "ModelViewer/Shader/NoLight/shader.fs");
-	Model model = modelLoader.LoadModel("Walk.DAE");
+	Model model = modelLoader.LoadModel(u8"TurnAround.DAE");
 	model.GenVAO();
 
 	Renderer::ModelHandle modelHandle = renderer.GetModelHandle(model);
 
-	modelPrefab.SetName("Object Model");
-	modelPrefab.AddConstructor(new TransformComponentConstructor());
-	modelPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, modelHandle, shader, "combinedAnim"));
-	modelPrefab.AddConstructor(new ObjectViewerComponentConstructor(ObjectViewerComponent::Data()));
+	viewerPrefab.SetName("Viewer");
+	viewerPrefab.AddConstructor(new TransformComponentConstructor());
+	viewerPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, modelHandle, shader, "combinedAnim"));
+	viewerPrefab.AddConstructor(new ObjectViewerComponentConstructor(ObjectViewerComponent::Data()));
 
 	cameraPrefab.SetName("Camera");
 	cameraPrefab.AddConstructor(new TransformComponentConstructor(Transform(glm::vec3(0, 0, 0))));

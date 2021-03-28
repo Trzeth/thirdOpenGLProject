@@ -62,6 +62,9 @@
     <ClCompile Include="ModelViewer\UIElement\DockSpace.cpp">
       <Filter>ModelViewer\UIElement</Filter>
     </ClCompile>
+    <ClCompile Include="ModelViewer\System\InspectorSystem.cpp">
+      <Filter>ModelViewer\System</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ModelViewer">
@@ -155,6 +158,12 @@
     </ClInclude>
     <ClInclude Include="ModelViewer\UIElement\ObjectViewer.h">
       <Filter>ModelViewer\UIElement</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelViewer\System\InspectorSystem.h">
+      <Filter>ModelViewer\System</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelViewer\Event\SidebarEvent.h">
+      <Filter>ModelViewer\Event</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

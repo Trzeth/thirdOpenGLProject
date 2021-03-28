@@ -55,6 +55,7 @@ int ModelViewer::setup()
 	modelRenderSystem = std::make_unique<ModelRenderSystem>(world, renderer);
 	cameraSystem = std::make_unique<CameraSystem>(world, renderer);
 	viewInputSystem = std::make_unique<ViewerInputSystem>(world, input, eventManager);
+	inspectorSystem = std::make_unique<InspectorSystem>(world, renderer);
 
 	SceneInfo sceneInfo;
 	sceneInfo.world = &world;
@@ -98,6 +99,7 @@ void ModelViewer::update()
 	/* Display */
 	modelRenderSystem->Update(deltaTime);
 	cameraSystem->Update(deltaTime);
+	inspectorSystem->Update(deltaTime);
 
 	renderer.Update(deltaTime);
 	uiRenderer.Update(deltaTime);
@@ -106,7 +108,9 @@ void ModelViewer::update()
 
 void ModelViewer::draw()
 {
-	renderer.Draw();
+	//renderer.Draw();
+	renderer.ClearBuffer();
+
 	uiRenderer.Draw();
 	window.NextFrame();
 }

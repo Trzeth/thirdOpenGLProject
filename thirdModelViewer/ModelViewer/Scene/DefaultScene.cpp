@@ -37,14 +37,14 @@ void DefaultScene::setupPrefab()
 		return;
 
 	shader = shaderLoader.CompileAndLink("ModelViewer/Shader/NoLight/shader.vs", "ModelViewer/Shader/NoLight/shader.fs");
-	Model model = modelLoader.LoadModel(u8"TurnAround.DAE");
+	Model model = modelLoader.LoadModel(u8"sphere.obj");
 	model.GenVAO();
 
 	Renderer::ModelHandle modelHandle = renderer.GetModelHandle(model);
 
 	viewerPrefab.SetName("Viewer");
 	viewerPrefab.AddConstructor(new TransformComponentConstructor());
-	viewerPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, modelHandle, shader, "combinedAnim"));
+	viewerPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, modelHandle, shader));
 	viewerPrefab.AddConstructor(new ObjectViewerComponentConstructor(ObjectViewerComponent::Data()));
 
 	cameraPrefab.SetName("Camera");

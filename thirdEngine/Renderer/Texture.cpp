@@ -70,7 +70,7 @@ Texture TextureLoader::LoadFromFile(TextureType type, const std::string& imageLo
 	}
 	else
 	{
-		printf("Texture failed to load at path: %s", imageLocation.c_str());
+		printf("Texture failed to load at path: %s \n", imageLocation.c_str());
 		stbi_image_free(data);
 	}
 

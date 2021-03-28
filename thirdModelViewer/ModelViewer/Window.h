@@ -30,8 +30,6 @@ private:
 	int width = 500, height = 500;
 	bool firstMouse = true;
 	float lastX, lastY;
-	bool firstAltShow = false;
-	bool altPress = false;
 
 	bool windowCloseFlag = false;
 

@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <vector>
 #include <thirdEngine/Renderer/UI/UIElement.h>
 
 class Sidebar :public UIElement
@@ -20,4 +21,10 @@ public:
 	std::string modelPath;
 	std::string fileName;
 	std::string path;
+
+	bool animNameChangedFlag;
+	std::string curAnimName;
+	std::vector<std::string> animNames;
+
+	std::vector<std::string> material;
 };

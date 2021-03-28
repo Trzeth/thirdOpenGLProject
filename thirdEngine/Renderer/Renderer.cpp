@@ -280,15 +280,7 @@ void Renderer::drawInternal(RenderSpace space)
 				else
 				{
 					//Skinned animation
-					std::vector<glm::mat4> boneTransforms;
-					if (renderable.animName.empty()) {
-						// Just do bindpose
-						boneTransforms = model.meshes[i].GetBoneTransforms(model.meshesTransform[i]);
-					}
-					else {
-						// Skinned animation
-						boneTransforms = model.meshes[i].GetBoneTransforms(nodeTransforms);
-					}
+					std::vector<glm::mat4> boneTransforms = model.meshes[i].GetBoneTransforms(nodeTransforms);
 					for (unsigned int j = 0; j < boneTransforms.size(); j++) {
 						glUniformMatrix4fv(shaderCache.bones[j], 1, GL_FALSE, &boneTransforms[j][0][0]);
 					}
@@ -296,14 +288,7 @@ void Renderer::drawInternal(RenderSpace space)
 
 				// In case of mesh under animated node
 				for (const int node : model.animationData.meshNodeId[i]) {
-					//No animation
-					if (nodeTransforms.size() < i) {
-						shaderCache.shader.SetModelMatrix(modelMatrix * model.meshesTransform[i][node]);
-					}
-					else
-					{
-						shaderCache.shader.SetModelMatrix(modelMatrix * nodeTransforms[node]);
-					}
+					shaderCache.shader.SetModelMatrix(modelMatrix * nodeTransforms[node]);
 
 					model.meshes[i].material.Apply(shaderCache.shader);
 					model.meshes[i].Draw();

@@ -9,9 +9,9 @@ void ObjectViewer::Draw()
 
 	ImGui::Begin("ObjectViewer", 0, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse);
 	{
-		windowHeight = ImGui::GetWindowHeight();
-		windowWidth = ImGui::GetWindowWidth();
-
+		windowHeight = ImGui::GetContentRegionAvail().y;
+		windowWidth = ImGui::GetContentRegionAvail().x;
+		;
 		ImGui::Image((ImTextureID)textureID, ImVec2(windowWidth, windowHeight), ImVec2(0, 1), ImVec2(1, 0));
 	}
 	ImGui::End();

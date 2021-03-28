@@ -19,14 +19,34 @@ void InspectorSystem::updateEntity(float dt, eid_t entity)
 
 	ModelRenderComponent* modelRenderComponent = world.GetComponent<ModelRenderComponent>(inspectorComponent->viewer);
 	if (inspectorComponent->sidebar->modelChangedFlag) {
-		Shader shader = shaderLoader.CompileAndLink("ModelViewer/Shader/NoLight/shader.vs", "ModelViewer/Shader/NoLight/shader.fs");
-		Model model = modelLoader.LoadModel(inspectorComponent->sidebar->modelPath);
+		auto sidebar = inspectorComponent->sidebar;
+
+		Model model = modelLoader.LoadModel(sidebar->modelPath);
 		model.GenVAO();
+
+		sidebar->animNames = model.GetAnimationName();
+		sidebar->animNames.insert(sidebar->animNames.begin(), std::string("bindpose"));
+		sidebar->curAnimName = "bindpose";
+		sidebar->animNameChangedFlag = false;
+
+		Shader shader;
+
+		if (sidebar->animNames.size() > 1)shader = shaderLoader.CompileAndLink("ModelViewer/Shader/NoLight/skinnedShader.vs", "ModelViewer/Shader/NoLight/skinnedShader.fs");
+		else shader = shaderLoader.CompileAndLink("ModelViewer/Shader/NoLight/shader.vs", "ModelViewer/Shader/NoLight/shader.fs");
 
 		Renderer::ModelHandle modelHandle = renderer.GetModelHandle(model);
 		modelRenderComponent->rendererHandle = renderer.GetRenderableHandle(modelHandle, shader);
-		inspectorComponent->sidebar->modelChangedFlag = false;
+
+		sidebar->modelChangedFlag = false;
 	}
+
+	if (inspectorComponent->sidebar->animNameChangedFlag) {
+		ModelRenderComponent* component = world.GetComponent<ModelRenderComponent>(inspectorComponent->viewer);
+		renderer.SetRenderableAnimation(component->rendererHandle, inspectorComponent->sidebar->curAnimName);
+		inspectorComponent->sidebar->animNameChangedFlag = false;
+	}
+
+	// Render To Frame buffer
 
 	if (lastResizeTime < RESIZETHRESHOLD)lastResizeTime += dt;
 

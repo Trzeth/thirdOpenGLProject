@@ -7,6 +7,8 @@ using namespace std;
 
 int main()
 {
+	setlocale(LC_ALL, ".UTF8");
+
 	ModelViewer viewer;
 	int result = viewer.Run();
 	return result;

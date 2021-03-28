@@ -2233,7 +2233,6 @@ namespace IGFD
 			std::wstring fpath(numchar, 0);
 			GetFullPathNameW(wpath.c_str(), numchar, (wchar_t*)fpath.data(), nullptr);
 
-			_wsetlocale(LC_ALL, L".UTF8");
 			int error = dirent_wcstombs_s(nullptr, real_path, PATH_MAX, fpath.c_str(), PATH_MAX - 1);
 			if (error)numchar = 0;
 			if (!numchar)

@@ -6,7 +6,10 @@
 #include "Lib/ImGuiFileDialog/ImGuiFileDialog.h"
 
 Sidebar::Sidebar()
-	:curCameraType(0), cameraSpeed(0.0f), resetCamera(false), playAnim(false), pauseAnim(false), modelPath(), path(), fileName(), modelChangedFlag(false)
+	:curCameraType(0), cameraSpeed(0.0f), resetCamera(false), playAnim(false), pauseAnim(false)
+	, modelPath(), path(), fileName()
+	, modelChangedFlag(false), animNameChangedFlag(false)
+	, animNames(), curAnimName()
 {
 }
 
@@ -19,15 +22,23 @@ void Sidebar::Draw()
 
 	ImGui::Begin("Material");
 
+	ImGui::Text("Texture");
+
+	for (int i = 0; i != animNames.size(); i++) {
+		if (ImGui::Selectable(animNames[i].c_str(), curAnimName == animNames[i])) {
+			curAnimName = animNames[i];
+			animNameChangedFlag = true;
+		}
+	}
+
 	ImGui::End();
 
 	//File Info
 	ImGui::Begin("General");
 
 	if (ImGui::Button("Open New Model"))
-		ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", "{.fbx,.obj,.dae,.FBX,.OBJ,.DAE}", ".");
+		ImGuiFileDialog::Instance()->OpenModal("ChooseFileDlgKey", "Choose File", "Model file format{.fbx,.obj,.dae,.FBX,.OBJ,.DAE}", ".");
 
-	// display
 	if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
 	{
 		// action if OK
@@ -47,15 +58,14 @@ void Sidebar::Draw()
 		ImGuiFileDialog::Instance()->Close();
 	}
 
-	ImGui::Text("Filename:%s", fileName.c_str());
+	ImGui::Text("File Name:%s", fileName.c_str());
 
-	ImGui::Text("Working dir:%s", path.c_str());
+	ImGui::Text("Working Dir:%s", path.c_str());
 
 	//Maybe more info?
 
 	{
 		//Camera
-
 		{
 			const char* cameraType[] = { "Flycam", "Arcball" };
 
@@ -67,10 +77,16 @@ void Sidebar::Draw()
 		ImGui::Button("Reset Camera");
 	}
 
-	if (ImGui::CollapsingHeader("Animation")) {
+	if (ImGui::CollapsingHeader("Animation", ImGuiTreeNodeFlags_DefaultOpen)) {
 		//Multi Select of animation
+		ImGui::Text("Animations Name");
 
-		ImGui::Text("Anima Name");
+		for (int i = 0; i != animNames.size(); i++) {
+			if (ImGui::Selectable(animNames[i].c_str(), curAnimName == animNames[i])) {
+				curAnimName = animNames[i];
+				animNameChangedFlag = true;
+			}
+		}
 
 		if (ImGui::Button("Play"))playAnim = true;
 

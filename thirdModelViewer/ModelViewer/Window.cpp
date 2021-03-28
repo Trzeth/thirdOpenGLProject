@@ -1,8 +1,12 @@
-#include <cassert>
-
 #include "Window.h"
+
+#include <cassert>
+#include <iostream>
+
 #include <thirdEngine/Input/Input.h>
 #include <thirdEngine/Renderer/Renderer.h>
+#include <thirdEngine/Renderer/UI/ImGui/imgui.h>
+#include <thirdEngine/Renderer/UI/ImGui/imgui_internal.h>
 
 #pragma region Call Back
 
@@ -33,8 +37,10 @@ struct MouseCallback {
 		obj->lastX = xpos;
 		obj->lastY = ypos;
 
-		if (!obj->altPress)
+		ImGuiContext& g = *ImGui::GetCurrentContext();
+		if (g.ActiveIdWindow && std::strcmp(g.ActiveIdWindow->Name, "ObjectViewer") == 0) {
 			obj->input.HandleMouseCallback(xoffset, yoffset);
+		}
 	}
 };
 Window* MouseCallback::obj;
@@ -65,24 +71,6 @@ struct KeyCallback {
 	static void callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 		if (key == GLFW_KEY_ESCAPE)
 			glfwSetWindowShouldClose(window, true);
-
-		if (mods == GLFW_MOD_ALT) {
-			obj->altPress = true;
-			if (obj->firstAltShow) {
-				glfwSetCursorPos(window, obj->lastX, obj->lastY);
-				obj->firstAltShow = false;
-			}
-			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-
-			return;
-			//不再处理之后的键盘操作
-		}
-		else
-		{
-			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-			obj->firstAltShow = true;
-			obj->altPress = false;
-		}
 
 		obj->input.HandleKeyCallBack(key, scancode, action, mods);
 	}
@@ -140,6 +128,7 @@ void Window::Initialize()
 	create();
 
 	glfwMakeContextCurrent(window);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
 	setupCallBack();
 }

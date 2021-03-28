@@ -56,13 +56,14 @@ std::vector<glm::mat4> Model::GetNodeTransforms(const std::string& animName, flo
 	auto iter = animationData.animations.find(animName);
 	if (iter == animationData.animations.end())
 	{
-		return nodeTransforms;
+		return animationData.bindposeNodeTransforms;
 	}
 
+	/*
 	if (nodeTransforms.size() < animationData.nodes.size())
 	{
 		nodeTransforms.resize(animationData.nodes.size());
-	}
+	}*/
 
 	const Animation& animation = iter->second;
 	time += animation.startTime;
@@ -72,7 +73,7 @@ std::vector<glm::mat4> Model::GetNodeTransforms(const std::string& animName, flo
 
 		glm::mat4 parentTransform(1.0f);
 		if (node.parent < animationData.nodes.size()) {
-			parentTransform = nodeTransforms[node.parent];
+			parentTransform = cachedNodeTransforms[node.parent];
 		}
 
 		glm::mat4 nodeTransform(1.0f);
@@ -108,10 +109,10 @@ std::vector<glm::mat4> Model::GetNodeTransforms(const std::string& animName, flo
 		}
 		glm::mat4 globalTransform = parentTransform * nodeTransform;
 
-		nodeTransforms[i] = globalTransform;
+		cachedNodeTransforms[i] = globalTransform;
 	}
 
-	return nodeTransforms;
+	return cachedNodeTransforms;
 }
 
 void Model::GenVAO() const
@@ -120,4 +121,13 @@ void Model::GenVAO() const
 	{
 		mesh.GenVAO();
 	}
+}
+
+std::vector<std::string> Model::GetAnimationName() const
+{
+	std::vector<std::string> animationName;
+	for (const auto& anim : animationData.animations) {
+		animationName.push_back(anim.first);
+	}
+	return animationName;
 }

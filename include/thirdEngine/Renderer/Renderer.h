@@ -117,6 +117,8 @@ public:
 
 	void SetRenderableTransform(const RenderableHandle& handle, const glm::mat4& transform);
 
+	void SetRenderableMaterial(const RenderableHandle& handle, const Shader& shader);
+
 	void SetViewport(int w, int h);
 
 	// low left corner

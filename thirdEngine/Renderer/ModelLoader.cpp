@@ -125,6 +125,9 @@ Model ModelLoader::Impl::processModel(aiNode* rootNode, const aiScene* scene)
 	std::vector<std::vector<glm::mat4>> meshesTransform(scene->mNumMeshes);
 	std::vector<std::vector<int>> meshNodeId(scene->mNumMeshes);
 
+	bool hasAnimation = scene->mNumAnimations > 0 ? true : false;
+	std::vector<glm::mat4> bindposeTransform;
+
 	//Process STACK
 	std::vector<aiNode*> processQueue;
 	std::vector<glm::mat4> cachedTransform;
@@ -156,14 +159,16 @@ Model ModelLoader::Impl::processModel(aiNode* rootNode, const aiScene* scene)
 			node.isRoot = true;
 		}
 
-		glm::mat4 globalTransform = cachedTransform.back() * aiToGlm(rootNode->mTransformation);
+		glm::mat4 globalTransform = cachedTransform.back() * aiToGlm(ai_node->mTransformation);
 		cachedTransform.pop_back();
 
 		for (unsigned int i = 0; i != ai_node->mNumMeshes; i++) {
 			meshesTransform[ai_node->mMeshes[i]].push_back(globalTransform);
 
-			if (scene->mNumAnimations > 0)meshNodeId[ai_node->mMeshes[i]].push_back(nodeHierarchy.size());
+			if (hasAnimation)meshNodeId[ai_node->mMeshes[i]].push_back(nodeHierarchy.size());
 		}
+
+		if (hasAnimation)bindposeTransform.push_back(globalTransform);
 
 		nodeHierarchy.push_back(node);
 
@@ -175,12 +180,14 @@ Model ModelLoader::Impl::processModel(aiNode* rootNode, const aiScene* scene)
 
 	model.meshes = processMeshes(scene, nodeIdMap, material);
 	model.meshesTransform = meshesTransform;
+	model.cachedNodeTransforms.resize(nodeHierarchy.size());
 
-	if (scene->mNumAnimations > 0)
+	if (hasAnimation)
 	{
 		model.animationData = processAnimations(scene, nodeIdMap);
 		model.animationData.nodes = nodeHierarchy;
 		model.animationData.meshNodeId = meshNodeId;
+		model.animationData.bindposeNodeTransforms = bindposeTransform;
 	}
 
 	return model;

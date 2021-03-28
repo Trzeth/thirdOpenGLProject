@@ -42,6 +42,8 @@ struct AnimationData
 	/*! The node hierarchy. */
 	std::vector<ModelNode> nodes;
 
+	std::vector<glm::mat4> bindposeNodeTransforms;
+
 	//The mesh under node in the hierarhy
 	std::vector<std::vector<int>> meshNodeId;
 };
@@ -58,7 +60,8 @@ public:
 
 	void GenVAO()const;
 
-	//virtual void Draw();
+	std::vector<std::string> GetAnimationName()const;
+
 protected:
 	std::vector<Mesh> meshes;
 
@@ -71,5 +74,5 @@ protected:
 	AnimationData animationData;
 
 	/*! Cached transforms returned from getNodeTransforms. */
-	std::vector<glm::mat4> nodeTransforms;
+	std::vector<glm::mat4> cachedNodeTransforms;
 };

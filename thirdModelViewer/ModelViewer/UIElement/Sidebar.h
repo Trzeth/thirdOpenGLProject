@@ -1,30 +1,24 @@
 #pragma once
 #include <string>
 #include <vector>
+
+#include <thirdEngine/Framework/World.h>
 #include <thirdEngine/Renderer/UI/UIElement.h>
+
+#include "ModelViewer/Component/ObjectViewerComponent.h"
 
 class Sidebar :public UIElement
 {
 public:
-	Sidebar();
+	Sidebar(ObjectViewerComponent* objectViewerComponent);
 
 	void Draw();
 	void Update(float dt) { }
 
-	int curCameraType;
-	float cameraSpeed;
-	bool resetCamera;
-	bool playAnim;
-	bool pauseAnim;
+private:
+	void DrawMetricsWindow();
+	void DrawGeneralWindow();
+	void DrawMaterialWindow();
 
-	bool modelChangedFlag;
-	std::string modelPath;
-	std::string fileName;
-	std::string path;
-
-	bool animNameChangedFlag;
-	std::string curAnimName;
-	std::vector<std::string> animNames;
-
-	std::vector<std::string> material;
+	ObjectViewerComponent* objectViewerComponent;
 };

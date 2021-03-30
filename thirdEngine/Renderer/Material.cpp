@@ -1,7 +1,6 @@
 #include <glad/glad.h>
 
 #include "Material.h"
-
 #include "TextureImpl.h"
 
 static uint64_t nextId;

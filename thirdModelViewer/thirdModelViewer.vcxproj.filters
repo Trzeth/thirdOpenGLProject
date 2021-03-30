@@ -97,6 +97,9 @@
     <Filter Include="ModelViewer\UIElement">
       <UniqueIdentifier>{fc46def4-d9c8-4803-8385-99a90e7b99b5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ModelViewer\Material">
+      <UniqueIdentifier>{c158f05e-efdd-49df-be97-ece424c02366}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ModelViewer\Window.h">

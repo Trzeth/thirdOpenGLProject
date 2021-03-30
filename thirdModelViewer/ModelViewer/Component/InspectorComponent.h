@@ -5,12 +5,15 @@
 
 #include <thirdEngine/Renderer/UI/UIRenderer.h>
 
+#include "ModelViewer/Component/ObjectViewerComponent.h"
+
 #include "ModelViewer/UIElement/ObjectViewer.h"
 #include "ModelViewer/UIElement/Sidebar.h"
 
+//ModelViewer UI Componet
 struct InspectorComponent :public Component
 {
-	InspectorComponent() :sidebarHandle(nullptr) { }
+	InspectorComponent() { }
 
 	UIRenderer::UIElementHandle dockSpaceHandle;
 	UIRenderer::UIElementHandle sidebarHandle;
@@ -33,13 +36,20 @@ struct InspectorComponent :public Component
 	float preWindowHeight;
 };
 
+struct InspectorComponentConstructorInfo {
+	//Viewer Entity ID
+	eid_t viewer;
+	std::vector<ShaderFileInfo> shaderFileInfos;
+};
+
 class InspectorComponentConstructor :public ComponentConstructor {
 public:
-	InspectorComponentConstructor(UIRenderer& uiRenderer)
-		:uiRenderer(uiRenderer) { }
+	InspectorComponentConstructor(UIRenderer& uiRenderer, ShaderLoader& shaderLoader)
+		:uiRenderer(uiRenderer), shaderLoader(shaderLoader) { }
 
 	virtual ComponentConstructorInfo Construct(World& world, eid_t parent, void* userinfo)const;
 	virtual void Finish(World& world, eid_t entity);
 private:
 	UIRenderer& uiRenderer;
+	ShaderLoader& shaderLoader;
 };

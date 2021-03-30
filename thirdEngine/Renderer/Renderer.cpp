@@ -21,7 +21,7 @@ Renderer::ShaderCache::ShaderCache(const ShaderImpl& shader)
 		sstream << "pointLight[" << i << "]";
 		light.constant = shader.GetUniformLocation((sstream.str() + ".constant").c_str());
 		light.linear = shader.GetUniformLocation((sstream.str() + ".linear").c_str());
-		light.quadratic = shader.GetUniformLocation((sstream.str() + ".quadratic"));
+		light.quadratic = shader.GetUniformLocation((sstream.str() + ".quadratic").c_str());
 		light.ambient = shader.GetUniformLocation((sstream.str() + ".ambient").c_str());
 		light.diffuse = shader.GetUniformLocation((sstream.str() + ".diffuse").c_str());
 		light.specular = shader.GetUniformLocation((sstream.str() + ".specular").c_str());
@@ -114,6 +114,22 @@ void Renderer::SetRenderableTransform(const RenderableHandle& handle, const glm:
 
 	Entity& renderable = *renderableOpt;
 	renderable.transform = transform;
+}
+
+void Renderer::SetRenderableShader(const RenderableHandle& handle, const Shader& shader)
+{
+	auto shaderIter = shaderMap.find(shader.impl->GetID());
+	if (shaderIter == shaderMap.end()) {
+		auto iterPair = shaderMap.emplace(std::make_pair(shader.impl->GetID(), ShaderCache(*shader.impl)));
+	}
+
+	std::optional<std::reference_wrapper<Entity>> renderableOpt = entityPool.Get(handle);
+	if (!renderableOpt) {
+		return;
+	}
+
+	Entity& renderable = *renderableOpt;
+	renderable.shaderCache = *shader.impl;
 }
 
 void Renderer::SetViewport(int w, int h)
@@ -289,7 +305,6 @@ void Renderer::drawInternal(RenderSpace space)
 				// In case of mesh under animated node
 				for (const int node : model.animationData.meshNodeId[i]) {
 					shaderCache.shader.SetModelMatrix(modelMatrix * nodeTransforms[node]);
-
 					model.meshes[i].material.Apply(shaderCache.shader);
 					model.meshes[i].Draw();
 					glCheckError();

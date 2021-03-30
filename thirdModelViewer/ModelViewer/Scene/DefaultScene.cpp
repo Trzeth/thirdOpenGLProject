@@ -25,10 +25,14 @@ void DefaultScene::Setup()
 	viewerComponent->data.FixedCamera = fixedCamera;
 	viewerComponent->viewerState = ViewerState::FPSCamera;
 
-	eid_t inspector = world.ConstructPrefab(inspectorPrefab, World::NullEntity);
+	InspectorComponentConstructorInfo info;
+	info.viewer = viewer;
+	info.shaderFileInfos = std::vector<ShaderFileInfo>{
+		ShaderFileInfo("Plain","ModelViewer/Shader/NoLight/shader.vs", "ModelViewer/Shader/NoLight/shader.fs"),
+		ShaderFileInfo("Skinned","ModelViewer/Shader/NoLight/skinnedShader.vs", "ModelViewer/Shader/NoLight/skinnedShader.fs"),
+	};
 
-	InspectorComponent* inspectorComponent = world.GetComponent<InspectorComponent>(inspector);
-	inspectorComponent->viewer = viewer;
+	eid_t inspector = world.ConstructPrefab(inspectorPrefab, World::NullEntity, &info);
 }
 
 void DefaultScene::setupPrefab()
@@ -52,7 +56,7 @@ void DefaultScene::setupPrefab()
 	cameraPrefab.AddConstructor(new CameraComponentConstructor(Camera()));
 
 	inspectorPrefab.SetName("Inspector");
-	inspectorPrefab.AddConstructor(new InspectorComponentConstructor(uiRenderer));
+	inspectorPrefab.AddConstructor(new InspectorComponentConstructor(uiRenderer, shaderLoader));
 
 	prefabsSteup = true;
 }

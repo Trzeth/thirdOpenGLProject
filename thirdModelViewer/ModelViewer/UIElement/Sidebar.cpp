@@ -5,34 +5,24 @@
 #include "Sidebar.h"
 #include "Lib/ImGuiFileDialog/ImGuiFileDialog.h"
 
-Sidebar::Sidebar()
-	:curCameraType(0), cameraSpeed(0.0f), resetCamera(false), playAnim(false), pauseAnim(false)
-	, modelPath(), path(), fileName()
-	, modelChangedFlag(false), animNameChangedFlag(false)
-	, animNames(), curAnimName()
-{
-}
+Sidebar::Sidebar(ObjectViewerComponent* objectViewerComponent)
+	:objectViewerComponent(objectViewerComponent)
+{ }
 
 void Sidebar::Draw()
 {
-	//Metrics Window
+	DrawMetricsWindow();
+	DrawMaterialWindow();
+	DrawGeneralWindow();
+}
+
+void Sidebar::DrawMetricsWindow()
+{
 	ImGui::ShowMetricsWindow();
+}
 
-	//Material Editor
-
-	ImGui::Begin("Material");
-
-	ImGui::Text("Texture");
-
-	for (int i = 0; i != animNames.size(); i++) {
-		if (ImGui::Selectable(animNames[i].c_str(), curAnimName == animNames[i])) {
-			curAnimName = animNames[i];
-			animNameChangedFlag = true;
-		}
-	}
-
-	ImGui::End();
-
+void Sidebar::DrawGeneralWindow()
+{
 	//File Info
 	ImGui::Begin("General");
 
@@ -44,11 +34,13 @@ void Sidebar::Draw()
 		// action if OK
 		if (ImGuiFileDialog::Instance()->IsOk())
 		{
-			if (modelPath != ImGuiFileDialog::Instance()->GetFilePathName()) {
-				modelPath = ImGuiFileDialog::Instance()->GetFilePathName();
-				fileName = ImGuiFileDialog::Instance()->GetCurrentFileName();
-				path = ImGuiFileDialog::Instance()->GetCurrentPath();
-				modelChangedFlag = true;
+			if (objectViewerComponent->fileInfo.FullPath != ImGuiFileDialog::Instance()->GetFilePathName()) {
+				ModelFileInfo fileInfo;
+				fileInfo.FullPath = ImGuiFileDialog::Instance()->GetFilePathName();
+				fileInfo.FileName = ImGuiFileDialog::Instance()->GetCurrentFileName();
+				fileInfo.DirPath = ImGuiFileDialog::Instance()->GetCurrentPath();
+				objectViewerComponent->fileInfo = fileInfo;
+				objectViewerComponent->fileChangedFlag = true;
 			}
 
 			// action
@@ -58,9 +50,9 @@ void Sidebar::Draw()
 		ImGuiFileDialog::Instance()->Close();
 	}
 
-	ImGui::Text("File Name:%s", fileName.c_str());
-
-	ImGui::Text("Working Dir:%s", path.c_str());
+	auto fileInfo = objectViewerComponent->fileInfo;
+	ImGui::Text("File Name:%s", fileInfo.FileName.c_str());
+	ImGui::Text("Working Dir:%s", fileInfo.DirPath.c_str());
 
 	//Maybe more info?
 
@@ -71,7 +63,9 @@ void Sidebar::Draw()
 
 			ImGui::Text("Control");
 			ImGui::SameLine();
-			ImGui::Combo("##CameraControl", &curCameraType, cameraType, IM_ARRAYSIZE(cameraType));
+
+			int cur = 1;
+			ImGui::Combo("##CameraControl", &cur, cameraType, IM_ARRAYSIZE(cameraType));
 		}
 
 		ImGui::Button("Reset Camera");
@@ -81,18 +75,42 @@ void Sidebar::Draw()
 		//Multi Select of animation
 		ImGui::Text("Animations Name");
 
-		for (int i = 0; i != animNames.size(); i++) {
-			if (ImGui::Selectable(animNames[i].c_str(), curAnimName == animNames[i])) {
-				curAnimName = animNames[i];
-				animNameChangedFlag = true;
+		const auto& animationNameList = objectViewerComponent->fileInfo.AnimationNameList;
+		for (int i = 0; i != animationNameList.size(); i++) {
+			if (ImGui::Selectable(animationNameList[i].c_str(), objectViewerComponent->currentAnimationIndex == i)) {
+				objectViewerComponent->currentAnimationIndex = i;
+				objectViewerComponent->animationChangedFlag = true;
 			}
 		}
 
-		if (ImGui::Button("Play"))playAnim = true;
+		ImGui::Button("Play");
 
 		ImGui::SameLine();
 
-		if (ImGui::Button("Pause"))pauseAnim = false;
+		ImGui::Button("Pause");
+	}
+
+	ImGui::End();
+}
+
+void Sidebar::DrawMaterialWindow()
+{
+	ImGui::Begin("Material");
+
+	ImGui::Text("Shader");
+
+	const auto& materialList = objectViewerComponent->shaderList;
+
+	int index = 0;
+	for (auto it = materialList.begin(); it != materialList.end(); it++, index++) {
+		if (ImGui::Selectable(it->first.Name.c_str(), index == objectViewerComponent->currentShaderIndex)) {
+			objectViewerComponent->currentShaderIndex = index;
+			objectViewerComponent->shaderChangedFlag = true;
+		}
+	}
+
+	if (ImGui::Button("Reload Current Shader")) {
+		objectViewerComponent->shaderReloadFlag = true;
 	}
 
 	ImGui::End();

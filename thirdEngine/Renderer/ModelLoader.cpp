@@ -101,7 +101,7 @@ Model ModelLoader::LoadModel(const std::string& path)
 			return Model();
 		}
 
-		this->impl->curDir = path.substr(0, path.find_last_of('/') + 1);
+		this->impl->curDir = path.substr(0, path.find_last_of('\\') + 1);
 		Model model = this->impl->processModel(scene->mRootNode, scene);
 
 		this->impl->modelIdCache.emplace(std::make_pair(path, model));

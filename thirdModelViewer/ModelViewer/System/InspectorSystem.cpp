@@ -6,6 +6,7 @@
 
 #include "ModelViewer/Component/InspectorComponent.h"
 #include "ModelViewer/Component/ModelRenderComponent.h"
+#include "ModelViewer/Component/ObjectViewerComponent.h"
 
 InspectorSystem::InspectorSystem(World& world, Renderer& renderer)
 	:System(world), renderer(renderer), lastResizeTime(RESIZETHRESHOLD)
@@ -18,32 +19,50 @@ void InspectorSystem::updateEntity(float dt, eid_t entity)
 	InspectorComponent* inspectorComponent = world.GetComponent<InspectorComponent>(entity);
 
 	ModelRenderComponent* modelRenderComponent = world.GetComponent<ModelRenderComponent>(inspectorComponent->viewer);
-	if (inspectorComponent->sidebar->modelChangedFlag) {
-		auto sidebar = inspectorComponent->sidebar;
+	ObjectViewerComponent* objectViewerComponent = world.GetComponent<ObjectViewerComponent>(inspectorComponent->viewer);
 
-		Model model = modelLoader.LoadModel(sidebar->modelPath);
+	if (objectViewerComponent->fileChangedFlag) {
+		auto& fileInfo = objectViewerComponent->fileInfo;
+
+		Model model = modelLoader.LoadModel(fileInfo.FullPath);
 		model.GenVAO();
 
-		sidebar->animNames = model.GetAnimationName();
-		sidebar->animNames.insert(sidebar->animNames.begin(), std::string("bindpose"));
-		sidebar->curAnimName = "bindpose";
-		sidebar->animNameChangedFlag = false;
+		std::vector<std::string> animationList = model.GetAnimationName();
+		animationList.insert(animationList.begin(), std::string("bindpose"));
 
-		Shader shader;
-
-		if (sidebar->animNames.size() > 1)shader = shaderLoader.CompileAndLink("ModelViewer/Shader/NoLight/skinnedShader.vs", "ModelViewer/Shader/NoLight/skinnedShader.fs");
-		else shader = shaderLoader.CompileAndLink("ModelViewer/Shader/NoLight/shader.vs", "ModelViewer/Shader/NoLight/shader.fs");
+		fileInfo.AnimationNameList = animationList;
+		objectViewerComponent->currentAnimationIndex = 0;
 
 		Renderer::ModelHandle modelHandle = renderer.GetModelHandle(model);
-		modelRenderComponent->rendererHandle = renderer.GetRenderableHandle(modelHandle, shader);
+		modelRenderComponent->rendererHandle = renderer.GetRenderableHandle(modelHandle,
+			objectViewerComponent->shaderList[objectViewerComponent->currentShaderIndex].second);
 
-		sidebar->modelChangedFlag = false;
+		objectViewerComponent->fileChangedFlag = false;
 	}
 
-	if (inspectorComponent->sidebar->animNameChangedFlag) {
+	if (objectViewerComponent->animationChangedFlag) {
 		ModelRenderComponent* component = world.GetComponent<ModelRenderComponent>(inspectorComponent->viewer);
-		renderer.SetRenderableAnimation(component->rendererHandle, inspectorComponent->sidebar->curAnimName);
-		inspectorComponent->sidebar->animNameChangedFlag = false;
+		renderer.SetRenderableAnimation(component->rendererHandle, objectViewerComponent->fileInfo.AnimationNameList[objectViewerComponent->currentAnimationIndex]);
+		objectViewerComponent->animationChangedFlag = false;
+	}
+
+	if (objectViewerComponent->shaderReloadFlag) {
+		ModelRenderComponent* component = world.GetComponent<ModelRenderComponent>(inspectorComponent->viewer);
+		objectViewerComponent->shaderList[objectViewerComponent->currentShaderIndex].second =
+			shaderLoader.CompileAndLink(
+				objectViewerComponent->shaderList[objectViewerComponent->currentShaderIndex].first.VertexShaderPath,
+				objectViewerComponent->shaderList[objectViewerComponent->currentShaderIndex].first.FragmentShaderPath
+			);
+		objectViewerComponent->shaderReloadFlag = false;
+
+		objectViewerComponent->shaderChangedFlag = true;
+	}
+
+	if (objectViewerComponent->shaderChangedFlag) {
+		ModelRenderComponent* component = world.GetComponent<ModelRenderComponent>(inspectorComponent->viewer);
+		renderer.SetRenderableShader(component->rendererHandle,
+			objectViewerComponent->shaderList[objectViewerComponent->currentShaderIndex].second);
+		objectViewerComponent->shaderChangedFlag = false;
 	}
 
 	// Render To Frame buffer

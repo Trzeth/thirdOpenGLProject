@@ -36,20 +36,13 @@ struct InspectorComponent :public Component
 	float preWindowHeight;
 };
 
-struct InspectorComponentConstructorInfo {
-	//Viewer Entity ID
-	eid_t viewer;
-	std::vector<ShaderFileInfo> shaderFileInfos;
-};
-
 class InspectorComponentConstructor :public ComponentConstructor {
 public:
-	InspectorComponentConstructor(UIRenderer& uiRenderer, ShaderLoader& shaderLoader)
-		:uiRenderer(uiRenderer), shaderLoader(shaderLoader) { }
+	InspectorComponentConstructor(UIRenderer& uiRenderer)
+		:uiRenderer(uiRenderer) { }
 
 	virtual ComponentConstructorInfo Construct(World& world, eid_t parent, void* userinfo)const;
 	virtual void Finish(World& world, eid_t entity);
 private:
 	UIRenderer& uiRenderer;
-	ShaderLoader& shaderLoader;
 };

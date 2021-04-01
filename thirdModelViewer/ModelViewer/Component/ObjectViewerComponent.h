@@ -6,8 +6,9 @@
 #include <thirdEngine/Framework/World.h>
 #include <thirdEngine/Framework/Component.h>
 #include <thirdEngine/Framework/DefaultComponentConstructor.h>
-
 #include <thirdEngine/Renderer/Shader.h>
+
+#include "ModelViewer/Material/MaterialWrapper.h"
 
 enum class ViewerState
 {
@@ -16,6 +17,9 @@ enum class ViewerState
 };
 
 struct ModelFileInfo {
+	ModelFileInfo()
+		:FullPath(), FileName(), DirPath(), AnimationNameList()
+	{ }
 	//UTF-8 Encoding
 	std::string FullPath;
 	std::string FileName;
@@ -24,31 +28,15 @@ struct ModelFileInfo {
 	std::vector<std::string> AnimationNameList;
 };
 
-struct ShaderFileInfo {
-	ShaderFileInfo(std::string name, std::string vertexShaderPath, std::string fragmentShaderPath)
-		:Name(name), VertexShaderPath(vertexShaderPath), FragmentShaderPath(fragmentShaderPath) { }
-	std::string Name;
-	std::string VertexShaderPath;
-	std::string FragmentShaderPath;
-};
-
 class ObjectViewerComponent :public Component
 {
 public:
 	ObjectViewerComponent()
-		:viewerState(ViewerState::FPSCamera), fileInfo(), shaderList()
-		, currentAnimationIndex(0), currentShaderIndex(0)
-		, fileChangedFlag(false), animationChangedFlag(false), shaderChangedFlag(false), shaderReloadFlag(false)
+		:FPSCamera(World::NullEntity), FixedCamera(World::NullEntity),
+		viewerState(ViewerState::FPSCamera), fileInfo(), materialList()
+		, currentAnimationIndex(0), currentMaterialIndex(0)
+		, fileChangedFlag(false), animationChangedFlag(false), materialChangedFlag(false), materialReloadFlag(false)
 	{  };
-
-	struct Data
-	{
-		Data() :FPSCamera(World::NullEntity), FixedCamera(World::NullEntity) {};
-		eid_t FPSCamera;
-		eid_t FixedCamera;
-	};
-
-	Data data;
 
 	bool fileChangedFlag;
 	ModelFileInfo fileInfo;
@@ -56,14 +44,24 @@ public:
 	bool animationChangedFlag;
 	int currentAnimationIndex;
 
-	std::vector<std::pair<ShaderFileInfo, Shader>> shaderList;
-	bool shaderChangedFlag;
-	bool shaderReloadFlag;
-	int currentShaderIndex;
+	std::vector<MaterialWrapper> materialList;
+	bool materialChangedFlag;
+	bool materialReloadFlag;
+	int currentMaterialIndex;
+
+	eid_t FPSCamera;
+	eid_t FixedCamera;
 
 	ViewerState viewerState;
 };
 
-class ObjectViewerComponentConstructor :public DefaultComponentConstructor<ObjectViewerComponent> {
-	using DefaultComponentConstructor<ObjectViewerComponent>::DefaultComponentConstructor;
+class ObjectViewerComponentConstructor :public ComponentConstructor {
+public:
+	ObjectViewerComponentConstructor(std::vector<MaterialWrapper> materialList)
+		:materialList(materialList) { }
+
+	virtual ComponentConstructorInfo Construct(World& world, eid_t parent, void* userinfo)const;
+	virtual void Finish(World& world, eid_t entity);
+private:
+	std::vector<MaterialWrapper> materialList;
 };

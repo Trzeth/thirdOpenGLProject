@@ -65,6 +65,12 @@
     <ClCompile Include="ModelViewer\System\InspectorSystem.cpp">
       <Filter>ModelViewer\System</Filter>
     </ClCompile>
+    <ClCompile Include="ModelViewer\Material\MaterialWrapper.cpp">
+      <Filter>ModelViewer\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelViewer\Material\PBRMaterial.cpp">
+      <Filter>ModelViewer\Material</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ModelViewer">
@@ -167,6 +173,12 @@
     </ClInclude>
     <ClInclude Include="ModelViewer\Event\SidebarEvent.h">
       <Filter>ModelViewer\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelViewer\Material\MaterialWrapper.h">
+      <Filter>ModelViewer\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelViewer\Material\PBRMaterial.h">
+      <Filter>ModelViewer\Material</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

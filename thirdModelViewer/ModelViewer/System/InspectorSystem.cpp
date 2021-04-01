@@ -21,6 +21,8 @@ void InspectorSystem::updateEntity(float dt, eid_t entity)
 	ModelRenderComponent* modelRenderComponent = world.GetComponent<ModelRenderComponent>(inspectorComponent->viewer);
 	ObjectViewerComponent* objectViewerComponent = world.GetComponent<ObjectViewerComponent>(inspectorComponent->viewer);
 
+	const auto& curMaterial = objectViewerComponent->materialList[objectViewerComponent->currentMaterialIndex];
+
 	if (objectViewerComponent->fileChangedFlag) {
 		auto& fileInfo = objectViewerComponent->fileInfo;
 
@@ -35,34 +37,33 @@ void InspectorSystem::updateEntity(float dt, eid_t entity)
 
 		Renderer::ModelHandle modelHandle = renderer.GetModelHandle(model);
 		modelRenderComponent->rendererHandle = renderer.GetRenderableHandle(modelHandle,
-			objectViewerComponent->shaderList[objectViewerComponent->currentShaderIndex].second);
+			curMaterial.shader);
+		renderer.SetRenderableMaterial(modelRenderComponent->rendererHandle, curMaterial.material);
 
 		objectViewerComponent->fileChangedFlag = false;
 	}
 
 	if (objectViewerComponent->animationChangedFlag) {
-		ModelRenderComponent* component = world.GetComponent<ModelRenderComponent>(inspectorComponent->viewer);
-		renderer.SetRenderableAnimation(component->rendererHandle, objectViewerComponent->fileInfo.AnimationNameList[objectViewerComponent->currentAnimationIndex]);
+		renderer.SetRenderableAnimation(modelRenderComponent->rendererHandle, objectViewerComponent->fileInfo.AnimationNameList[objectViewerComponent->currentAnimationIndex]);
 		objectViewerComponent->animationChangedFlag = false;
 	}
 
-	if (objectViewerComponent->shaderReloadFlag) {
-		ModelRenderComponent* component = world.GetComponent<ModelRenderComponent>(inspectorComponent->viewer);
-		objectViewerComponent->shaderList[objectViewerComponent->currentShaderIndex].second =
+	if (objectViewerComponent->materialReloadFlag) {
+		objectViewerComponent->materialList[objectViewerComponent->currentMaterialIndex].shader =
 			shaderLoader.CompileAndLink(
-				objectViewerComponent->shaderList[objectViewerComponent->currentShaderIndex].first.VertexShaderPath,
-				objectViewerComponent->shaderList[objectViewerComponent->currentShaderIndex].first.FragmentShaderPath
+				curMaterial.shaderFileInfo.vertexShaderPath,
+				curMaterial.shaderFileInfo.fragmentShaderPath
 			);
-		objectViewerComponent->shaderReloadFlag = false;
+		objectViewerComponent->materialReloadFlag = false;
 
-		objectViewerComponent->shaderChangedFlag = true;
+		objectViewerComponent->materialChangedFlag = true;
 	}
 
-	if (objectViewerComponent->shaderChangedFlag) {
-		ModelRenderComponent* component = world.GetComponent<ModelRenderComponent>(inspectorComponent->viewer);
-		renderer.SetRenderableShader(component->rendererHandle,
-			objectViewerComponent->shaderList[objectViewerComponent->currentShaderIndex].second);
-		objectViewerComponent->shaderChangedFlag = false;
+	if (objectViewerComponent->materialChangedFlag) {
+		renderer.SetRenderableShader(modelRenderComponent->rendererHandle,
+			curMaterial.shader);
+		renderer.SetRenderableMaterial(modelRenderComponent->rendererHandle, curMaterial.material);
+		objectViewerComponent->materialChangedFlag = false;
 	}
 
 	// Render To Frame buffer

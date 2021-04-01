@@ -58,8 +58,10 @@ public:
 	void Apply(const Shader& shader)const;
 	void Apply(const ShaderImpl& shader)const;
 
+	std::map<std::string, MaterialProperty> GetProperties()const;
+
 	MaterialDrawOrder DrawOrder;
 	MaterialDrawType DrawType;
-private:
+protected:
 	std::map<std::string, MaterialProperty> properties;
 };

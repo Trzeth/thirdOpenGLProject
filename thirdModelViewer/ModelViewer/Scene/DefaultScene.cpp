@@ -6,6 +6,9 @@
 #include "ModelViewer/Component/ObjectViewerComponent.h"
 #include "ModelViewer/Component/InspectorComponent.h"
 
+#include "ModelViewer/Material/MaterialWrapper.h"
+#include "ModelViewer/Material/PBRMaterial.h"
+
 #include "ModelViewer/Extra/PrefabConstructionInfo.h"
 
 void DefaultScene::Setup()
@@ -21,18 +24,11 @@ void DefaultScene::Setup()
 	eid_t fixedCamera = world.ConstructPrefab(cameraPrefab, World::NullEntity);
 
 	ObjectViewerComponent* viewerComponent = world.GetComponent<ObjectViewerComponent>(viewer);
-	viewerComponent->data.FPSCamera = fpsCamera;
-	viewerComponent->data.FixedCamera = fixedCamera;
+	viewerComponent->FPSCamera = fpsCamera;
+	viewerComponent->FixedCamera = fixedCamera;
 	viewerComponent->viewerState = ViewerState::FPSCamera;
 
-	InspectorComponentConstructorInfo info;
-	info.viewer = viewer;
-	info.shaderFileInfos = std::vector<ShaderFileInfo>{
-		ShaderFileInfo("Plain","ModelViewer/Shader/NoLight/shader.vs", "ModelViewer/Shader/NoLight/shader.fs"),
-		ShaderFileInfo("Skinned","ModelViewer/Shader/NoLight/skinnedShader.vs", "ModelViewer/Shader/NoLight/skinnedShader.fs"),
-	};
-
-	eid_t inspector = world.ConstructPrefab(inspectorPrefab, World::NullEntity, &info);
+	world.ConstructPrefab(inspectorPrefab, World::NullEntity, &viewer);
 }
 
 void DefaultScene::setupPrefab()
@@ -49,14 +45,27 @@ void DefaultScene::setupPrefab()
 	viewerPrefab.SetName("Viewer");
 	viewerPrefab.AddConstructor(new TransformComponentConstructor());
 	viewerPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, modelHandle, shader));
-	viewerPrefab.AddConstructor(new ObjectViewerComponentConstructor(ObjectViewerComponent::Data()));
+
+	std::vector<MaterialWrapper> materialList = getMaterialList();
+	viewerPrefab.AddConstructor(new ObjectViewerComponentConstructor(materialList));
 
 	cameraPrefab.SetName("Camera");
 	cameraPrefab.AddConstructor(new TransformComponentConstructor(Transform(glm::vec3(0, 0, 0))));
 	cameraPrefab.AddConstructor(new CameraComponentConstructor(Camera()));
 
 	inspectorPrefab.SetName("Inspector");
-	inspectorPrefab.AddConstructor(new InspectorComponentConstructor(uiRenderer, shaderLoader));
+	inspectorPrefab.AddConstructor(new InspectorComponentConstructor(uiRenderer));
 
 	prefabsSteup = true;
+}
+
+std::vector<MaterialWrapper> DefaultScene::getMaterialList()
+{
+	std::vector<MaterialWrapper> materialList{
+		MaterialWrapper("PBR",ShaderFileInfo("ModelViewer/Shader/NoLight/shader.vs","ModelViewer/Shader/pbr.fs"),PBRMaterial()),
+		MaterialWrapper("Plain",ShaderFileInfo("ModelViewer/Shader/NoLight/shader.vs", "ModelViewer/Shader/NoLight/shader.fs"),Material()),
+		MaterialWrapper("Skinned",ShaderFileInfo("ModelViewer/Shader/NoLight/skinnedShader.vs", "ModelViewer/Shader/NoLight/skinnedShader.fs"),Material())
+	};
+
+	return materialList;
 }

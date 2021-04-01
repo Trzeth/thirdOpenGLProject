@@ -5,6 +5,8 @@
 #include <thirdEngine/Framework/EventManager.h>
 #include "Scene.h"
 
+class MaterialWrapper;
+
 class DefaultScene :public Scene
 {
 public:
@@ -14,6 +16,8 @@ public:
 protected:
 	void setupPrefab();
 private:
+	std::vector<MaterialWrapper> getMaterialList();
+
 	ModelLoader modelLoader;
 	TextureLoader textureLoader;
 	ShaderLoader shaderLoader;

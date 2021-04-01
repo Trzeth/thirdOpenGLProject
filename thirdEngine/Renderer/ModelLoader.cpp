@@ -103,7 +103,7 @@ Model ModelLoader::LoadModel(const std::string& path)
 
 		this->impl->curDir = path.substr(0, path.find_last_of('\\') + 1);
 		Model model = this->impl->processModel(scene->mRootNode, scene);
-
+		model.material = impl->defaultMaterial;
 		this->impl->modelIdCache.emplace(std::make_pair(path, model));
 		return model;
 	}
@@ -286,7 +286,7 @@ std::vector<Material> ModelLoader::Impl::processMaterials(const aiScene* scene)
 				}
 		}
 
-		Material material;
+		Material material = defaultMaterial;
 		material.SetTextures(textures);
 		materials.emplace_back(material);
 	}

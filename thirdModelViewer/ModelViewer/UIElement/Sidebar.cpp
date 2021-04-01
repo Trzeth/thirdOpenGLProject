@@ -97,20 +97,18 @@ void Sidebar::DrawMaterialWindow()
 {
 	ImGui::Begin("Material");
 
-	ImGui::Text("Shader");
-
-	const auto& materialList = objectViewerComponent->shaderList;
+	const auto& materialList = objectViewerComponent->materialList;
 
 	int index = 0;
 	for (auto it = materialList.begin(); it != materialList.end(); it++, index++) {
-		if (ImGui::Selectable(it->first.Name.c_str(), index == objectViewerComponent->currentShaderIndex)) {
-			objectViewerComponent->currentShaderIndex = index;
-			objectViewerComponent->shaderChangedFlag = true;
+		if (ImGui::Selectable(it->name.c_str(), index == objectViewerComponent->currentMaterialIndex)) {
+			objectViewerComponent->currentMaterialIndex = index;
+			objectViewerComponent->materialChangedFlag = true;
 		}
 	}
 
 	if (ImGui::Button("Reload Current Shader")) {
-		objectViewerComponent->shaderReloadFlag = true;
+		objectViewerComponent->materialReloadFlag = true;
 	}
 
 	ImGui::End();

@@ -162,3 +162,8 @@ void Material::Apply(const ShaderImpl& shader) const
 	}
 	glDepthFunc(depthFunc);
 }
+
+std::map<std::string, MaterialProperty> Material::GetProperties() const
+{
+	return properties;
+}

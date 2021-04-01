@@ -27,13 +27,13 @@ void ViewerInputSystem::updateEntity(float dt, eid_t entity)
 	verticalRad -= lookVertical * dt;
 	verticalRad = glm::clamp(verticalRad, -glm::half_pi<float>() + 0.01f, glm::half_pi<float>() - 0.01f);
 
-	CameraComponent* fixedCamera = world.GetComponent<CameraComponent>(viewerComponent->data.FixedCamera);
-	CameraComponent* fpsCamera = world.GetComponent<CameraComponent>(viewerComponent->data.FPSCamera);
+	CameraComponent* fixedCamera = world.GetComponent<CameraComponent>(viewerComponent->FixedCamera);
+	CameraComponent* fpsCamera = world.GetComponent<CameraComponent>(viewerComponent->FPSCamera);
 
 	if (viewerComponent->viewerState == ViewerState::FPSCamera) {
 		fixedCamera->isEnable = false;
 		fpsCamera->isEnable = true;
-		Transform& transform = *world.GetComponent<TransformComponent>(viewerComponent->data.FPSCamera)->data;
+		Transform& transform = *world.GetComponent<TransformComponent>(viewerComponent->FPSCamera)->data;
 
 		glm::quat rot = glm::vec3(verticalRad, horizontalRad, 0.0f);
 		transform.SetRotation(rot);
@@ -43,6 +43,6 @@ void ViewerInputSystem::updateEntity(float dt, eid_t entity)
 	}
 	else // Fixed Camera
 	{
-		TransformComponent* cameraTransform = world.GetComponent<TransformComponent>(viewerComponent->data.FixedCamera);
+		TransformComponent* cameraTransform = world.GetComponent<TransformComponent>(viewerComponent->FixedCamera);
 	}
 }

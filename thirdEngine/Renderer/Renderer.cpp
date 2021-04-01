@@ -132,6 +132,16 @@ void Renderer::SetRenderableShader(const RenderableHandle& handle, const Shader&
 	renderable.shaderCache = *shader.impl;
 }
 
+void Renderer::SetRenderableMaterial(const RenderableHandle& handle, const Material& material)
+{
+	std::optional<std::reference_wrapper<Entity>> renderableOpt = entityPool.Get(handle);
+	if (!renderableOpt) {
+		return;
+	}
+
+	modelPool.Get(renderableOpt->get().modelHandle)->get().material = material;
+}
+
 void Renderer::SetViewport(int w, int h)
 {
 	SetViewport(0, 0, w, h);
@@ -305,6 +315,7 @@ void Renderer::drawInternal(RenderSpace space)
 				// In case of mesh under animated node
 				for (const int node : model.animationData.meshNodeId[i]) {
 					shaderCache.shader.SetModelMatrix(modelMatrix * nodeTransforms[node]);
+					model.material.Apply(shaderCache.shader);
 					model.meshes[i].material.Apply(shaderCache.shader);
 					model.meshes[i].Draw();
 					glCheckError();
@@ -314,6 +325,7 @@ void Renderer::drawInternal(RenderSpace space)
 			{
 				for (const glm::mat4& transform : model.meshesTransform[i]) {
 					shaderCache.shader.SetModelMatrix(modelMatrix * transform);
+					model.material.Apply(shaderCache.shader);
 					model.meshes[i].material.Apply(shaderCache.shader);
 					model.meshes[i].Draw();
 					glCheckError();

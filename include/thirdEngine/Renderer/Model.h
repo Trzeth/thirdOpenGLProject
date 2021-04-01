@@ -63,6 +63,9 @@ public:
 	std::vector<std::string> GetAnimationName()const;
 
 protected:
+	// Material of Model Level (Maybe override by material of mesh)
+	Material material;
+
 	std::vector<Mesh> meshes;
 
 	/*!

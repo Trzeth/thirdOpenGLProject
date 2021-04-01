@@ -119,6 +119,8 @@ public:
 
 	void SetRenderableShader(const RenderableHandle& handle, const Shader& shader);
 
+	void SetRenderableMaterial(const RenderableHandle& handle, const Material& material);
+
 	void SetViewport(int w, int h);
 
 	// low left corner

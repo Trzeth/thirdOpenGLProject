@@ -7,7 +7,7 @@
 
 ComponentConstructorInfo InspectorComponentConstructor::Construct(World& world, eid_t parent, void* userinfo) const
 {
-	InspectorComponentConstructorInfo* info = (InspectorComponentConstructorInfo*)userinfo;
+	eid_t viewer = *(eid_t*)userinfo;
 
 	InspectorComponent* component = new InspectorComponent();
 
@@ -18,16 +18,9 @@ ComponentConstructorInfo InspectorComponentConstructor::Construct(World& world, 
 	component->objectViewer = std::make_shared<ObjectViewer>();
 	component->objectViewerHandle = uiRenderer.GetEntityHandle(component->objectViewer);
 
-	component->viewer = info->viewer;
+	component->viewer = viewer;
 
 	ObjectViewerComponent* objectViewerComponent = world.GetComponent<ObjectViewerComponent>(component->viewer);
-
-	std::vector<std::pair<ShaderFileInfo, Shader>> shaderList;
-	for (const auto& shaderFileInfo : info->shaderFileInfos) {
-		shaderList.push_back(std::pair<ShaderFileInfo, Shader>(shaderFileInfo, shaderLoader.CompileAndLink(shaderFileInfo.VertexShaderPath, shaderFileInfo.FragmentShaderPath)));
-	}
-
-	objectViewerComponent->shaderList = shaderList;
 
 	component->sidebar = std::make_shared<Sidebar>(objectViewerComponent);
 	component->sidebarHandle = uiRenderer.GetEntityHandle(component->sidebar);

@@ -9,6 +9,7 @@
 #include "Shader.h"
 #include "ShaderImpl.h"
 #include "Texture.h"
+#include "TextureImpl.h"
 
 enum class MaterialDrawOrder
 {
@@ -31,6 +32,19 @@ enum class MaterialPropertyType
 	Invalid
 };
 
+union MaterialPropertyValue {
+	MaterialPropertyValue() { memset(this, 0, sizeof(MaterialPropertyValue)); }
+	MaterialPropertyValue(glm::vec3 vec3) : vec3(vec3) { }
+	MaterialPropertyValue(glm::vec4 vec4) : vec4(vec4) { }
+	MaterialPropertyValue(float flt) : flt(flt) { }
+	MaterialPropertyValue(const Texture& texture) : texture(*texture.impl) { }
+
+	glm::vec3 vec3;
+	glm::vec4 vec4;
+	float flt;
+	TextureImpl texture;
+};
+
 struct MaterialProperty
 {
 	MaterialProperty();
@@ -41,7 +55,6 @@ struct MaterialProperty
 	MaterialProperty(const Texture& texture);
 	~MaterialProperty();
 
-	union MaterialPropertyValue;
 	MaterialPropertyType type;
 	std::unique_ptr<MaterialPropertyValue> value;
 	// By convention, the max of this field is 56 bytes
@@ -58,7 +71,7 @@ public:
 	void Apply(const Shader& shader)const;
 	void Apply(const ShaderImpl& shader)const;
 
-	std::map<std::string, MaterialProperty> GetProperties()const;
+	std::map<std::string, MaterialProperty>& GetProperties();
 
 	MaterialDrawOrder DrawOrder;
 	MaterialDrawType DrawType;

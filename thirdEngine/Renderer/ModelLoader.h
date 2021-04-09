@@ -12,7 +12,7 @@ public:
 
 	Model LoadModel(const std::string& path);
 
-	void SetDefaultMaterial(const Material& material);
+	void SetDefaultMaterial(const std::shared_ptr<Material>& material);
 private:
 	struct Impl;
 	std::unique_ptr<Impl> impl;

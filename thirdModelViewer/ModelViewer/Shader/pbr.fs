@@ -14,26 +14,26 @@ uniform float ao;
 uniform vec3 lightPositions[4];
 uniform vec3 lightColors[4];
 
-uniform vec3 camPos;
+uniform vec3 viewPos;
 
 const float PI = 3.14159265359;
 
 float DistributionGGX(vec3 N, vec3 H, float roughness);
 float GeometrySchlickGGX(float NdotV, float roughness);
 float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness);
-vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness);
+vec3 fresnelSchlick(float cosTheta, vec3 F0);
 
 void main()
 {       
     vec3 N = normalize(Normal);
-    vec3 V = normalize(camPos - WorldPos);
+    vec3 V = normalize(viewPos - WorldPos);
 
     vec3 F0 = vec3(0.04); 
     F0 = mix(F0, albedo, metallic);
 
     // reflectance equation
     vec3 Lo = vec3(0.0);
-    for(int i = 0; i < 4; ++i) 
+    for(int i = 0; i != 4; i++) 
     {
         // calculate per-light radiance
         vec3 L = normalize(lightPositions[i] - WorldPos);
@@ -101,4 +101,9 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
     float ggx1  = GeometrySchlickGGX(NdotL, roughness);
 
     return ggx1 * ggx2;
+}
+
+vec3 fresnelSchlick(float cosTheta, vec3 F0)
+{
+    return F0 + (1.0 - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
 }

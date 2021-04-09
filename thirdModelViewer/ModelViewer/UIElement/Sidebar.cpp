@@ -1,6 +1,11 @@
 #include <string>
 #include <Windows.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <thirdEngine/Renderer/UI/ImGui/imgui.h>
+#include <thirdEngine/Renderer/Material.h>
 
 #include "Sidebar.h"
 #include "Lib/ImGuiFileDialog/ImGuiFileDialog.h"
@@ -11,17 +16,17 @@ Sidebar::Sidebar(ObjectViewerComponent* objectViewerComponent)
 
 void Sidebar::Draw()
 {
-	DrawMetricsWindow();
-	DrawMaterialWindow();
-	DrawGeneralWindow();
+	drawMetricsWindow();
+	drawMaterialWindow();
+	drawGeneralWindow();
 }
 
-void Sidebar::DrawMetricsWindow()
+void Sidebar::drawMetricsWindow()
 {
 	ImGui::ShowMetricsWindow();
 }
 
-void Sidebar::DrawGeneralWindow()
+void Sidebar::drawGeneralWindow()
 {
 	//File Info
 	ImGui::Begin("General");
@@ -93,7 +98,7 @@ void Sidebar::DrawGeneralWindow()
 	ImGui::End();
 }
 
-void Sidebar::DrawMaterialWindow()
+void Sidebar::drawMaterialWindow()
 {
 	ImGui::Begin("Material");
 
@@ -111,5 +116,41 @@ void Sidebar::DrawMaterialWindow()
 		objectViewerComponent->materialReloadFlag = true;
 	}
 
+	drawMaterialProperties(objectViewerComponent->materialList[objectViewerComponent->currentMaterialIndex].material->GetProperties());
+
 	ImGui::End();
+}
+
+void Sidebar::drawMaterialProperties(std::map<std::string, MaterialProperty>& properties)
+{
+	for (auto& keypair : properties) {
+		const std::string& name = keypair.first;
+		MaterialProperty& property = keypair.second;
+
+		switch (property.type)
+		{
+		case MaterialPropertyType::Float:
+		{
+			float val = property.value->flt;
+			ImGui::InputFloat(name.c_str(), &val, 0.1f);
+			property.value->flt = val;
+			break;
+		}
+		case MaterialPropertyType::Vec3:
+		{
+			ImGui::DragFloat3(name.c_str(), &property.value->vec3.x, 0.1f);
+			break;
+		}
+		case MaterialPropertyType::Vec4:
+		{
+			ImGui::DragFloat3(name.c_str(), &property.value->vec4.x, 0.1f);
+			break;
+		}
+		case MaterialPropertyType::Texture:
+			break;
+		default:
+			//Invalid Property
+			break;
+		}
+	}
 }

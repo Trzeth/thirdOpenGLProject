@@ -109,6 +109,8 @@ public:
 
 	void SetViewMatrix(const glm::mat4& transform);
 
+	void SetViewPos(const glm::vec3& pos);
+
 	void SetRenderableAnimation(const RenderableHandle& handle, const std::string& animName, bool loop = true);
 
 	void SetRenderableAnimationTime(const RenderableHandle& handle, float time);
@@ -119,7 +121,7 @@ public:
 
 	void SetRenderableShader(const RenderableHandle& handle, const Shader& shader);
 
-	void SetRenderableMaterial(const RenderableHandle& handle, const Material& material);
+	void SetRenderableMaterial(const RenderableHandle& handle, const std::shared_ptr<Material>& material);
 
 	void SetViewport(int w, int h);
 
@@ -157,6 +159,7 @@ private:
 	glm::mat4 uiModelTransform;
 	glm::mat4 projectionMatrix;
 	glm::mat4 viewMatrix;
+	glm::vec3 viewPos;
 
 	int viewportWidth;
 	int viewportHeight;

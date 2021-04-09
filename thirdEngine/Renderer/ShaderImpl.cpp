@@ -2,7 +2,7 @@
 #include "RenderUtil.h"
 
 ShaderImpl::ShaderImpl()
-	: shaderID(0), projectionUniform(0), viewUniform(0), modelUniform(0)
+	: shaderID(0), projectionUniform(0), viewUniform(0), modelUniform(0), viewPosUniform(0)
 { }
 
 ShaderImpl::ShaderImpl(GLuint shaderID)
@@ -11,6 +11,7 @@ ShaderImpl::ShaderImpl(GLuint shaderID)
 	this->projectionUniform = this->GetUniformLocation("projection");
 	this->viewUniform = this->GetUniformLocation("view");
 	this->modelUniform = this->GetUniformLocation("model");
+	this->viewPosUniform = this->GetUniformLocation("viewPos");
 }
 
 void ShaderImpl::Use() const
@@ -44,5 +45,11 @@ void ShaderImpl::SetProjectionMatrix(const glm::mat4& matrix) const
 void ShaderImpl::SetModelMatrix(const glm::mat4& matrix) const
 {
 	glUniformMatrix4fv(modelUniform, 1, GL_FALSE, &matrix[0][0]);
+	glCheckError();
+}
+
+void ShaderImpl::SetViewPos(const glm::vec3& pos) const
+{
+	glUniform3f(viewPosUniform, pos.x, pos.y, pos.z);
 	glCheckError();
 }

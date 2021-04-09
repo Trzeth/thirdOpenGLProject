@@ -171,6 +171,7 @@ xcopy $(OutDir)$(TargetFileName) $(SolutionDir)lib\ /y</Command>
     <ClInclude Include="Input\Input.h" />
     <ClInclude Include="Input\KbmDevice.h" />
     <ClInclude Include="Renderer\Animation.h" />
+    <ClInclude Include="Renderer\Box.h" />
     <ClInclude Include="Renderer\Camera.h" />
     <ClInclude Include="Renderer\Frustum.h" />
     <ClInclude Include="Renderer\HandlePool.h" />
@@ -212,6 +213,7 @@ xcopy $(OutDir)$(TargetFileName) $(SolutionDir)lib\ /y</Command>
     <ClCompile Include="Input\Input.cpp" />
     <ClCompile Include="Input\KbmDevice.cpp" />
     <ClCompile Include="Renderer\Animation.cpp" />
+    <ClCompile Include="Renderer\Box.cpp" />
     <ClCompile Include="Renderer\Camera.cpp" />
     <ClCompile Include="Renderer\Frustum.cpp" />
     <ClCompile Include="Renderer\HandlePool.cpp" />

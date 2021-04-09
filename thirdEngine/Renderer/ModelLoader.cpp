@@ -29,7 +29,7 @@ struct ModelLoader::Impl
 	TextureLoader textureLoader;
 
 	/*! Default material properties.*/
-	Material defaultMaterial;
+	std::shared_ptr<Material> defaultMaterial = std::make_shared<Material>();
 
 	/*!
 	 * \brief Processes an assimp model, starting from its root node.
@@ -109,7 +109,7 @@ Model ModelLoader::LoadModel(const std::string& path)
 	}
 }
 
-void ModelLoader::SetDefaultMaterial(const Material& material)
+void ModelLoader::SetDefaultMaterial(const std::shared_ptr<Material>& material)
 {
 	impl->defaultMaterial = material;
 }
@@ -232,7 +232,7 @@ Mesh ModelLoader::Impl::processMesh(aiMesh* mesh, const aiScene* scene, std::uno
 		}
 	}
 
-	Material material = mesh->mMaterialIndex >= 0 ? materials[mesh->mMaterialIndex] : defaultMaterial;
+	Material material = mesh->mMaterialIndex >= 0 ? materials[mesh->mMaterialIndex] : *defaultMaterial;
 
 	std::vector<VertexBoneData> vertexBoneData;
 	std::vector<BoneData> boneData;
@@ -286,7 +286,7 @@ std::vector<Material> ModelLoader::Impl::processMaterials(const aiScene* scene)
 				}
 		}
 
-		Material material = defaultMaterial;
+		Material material = *defaultMaterial;
 		material.SetTextures(textures);
 		materials.emplace_back(material);
 	}

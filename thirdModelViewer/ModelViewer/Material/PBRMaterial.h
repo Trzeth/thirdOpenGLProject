@@ -5,11 +5,11 @@ class PBRMaterial :public Material
 {
 public:
 	PBRMaterial() {
-		properties = std::map<std::string, MaterialProperty>{
-			{"albedo",MaterialProperty(glm::vec3(1.0,1.0,1.0))},
-			{"metallic",MaterialProperty(0.4)},
-			{"roughness",MaterialProperty(0.4)},
-			{"ao",MaterialProperty(0.4)},
-		};
+		SetProperty("albedo", MaterialProperty(glm::vec3(1.0, 1.0, 1.0)));
+		SetProperty("metallic", MaterialProperty(0.4));
+		SetProperty("roughness", MaterialProperty(0.4));
+		SetProperty("ao", MaterialProperty(0.4));
+		SetProperty("lightPositions[0]", MaterialProperty(glm::vec3(10.0, 0.0, 0.0)));
+		SetProperty("lightColors[0]", MaterialProperty(glm::vec3(1.0, 1.0, 1.0)));
 	};
 };

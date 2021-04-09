@@ -9,10 +9,10 @@ struct ShaderFileInfo {
 
 struct MaterialWrapper
 {
-	MaterialWrapper(std::string name, ShaderFileInfo fileInfo, Material material);
+	MaterialWrapper(std::string name, ShaderFileInfo fileInfo, const std::shared_ptr<Material>& material);
 
 	std::string name;
 	ShaderFileInfo shaderFileInfo;
 	Shader shader;
-	Material material;
+	std::shared_ptr<Material> material;
 };

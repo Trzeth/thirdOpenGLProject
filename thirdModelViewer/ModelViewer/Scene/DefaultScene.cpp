@@ -62,9 +62,9 @@ void DefaultScene::setupPrefab()
 std::vector<MaterialWrapper> DefaultScene::getMaterialList()
 {
 	std::vector<MaterialWrapper> materialList{
-		MaterialWrapper("PBR",ShaderFileInfo("ModelViewer/Shader/NoLight/shader.vs","ModelViewer/Shader/pbr.fs"),PBRMaterial()),
-		MaterialWrapper("Plain",ShaderFileInfo("ModelViewer/Shader/NoLight/shader.vs", "ModelViewer/Shader/NoLight/shader.fs"),Material()),
-		MaterialWrapper("Skinned",ShaderFileInfo("ModelViewer/Shader/NoLight/skinnedShader.vs", "ModelViewer/Shader/NoLight/skinnedShader.fs"),Material())
+		MaterialWrapper("PBR",ShaderFileInfo("ModelViewer/Shader/pbr.vs","ModelViewer/Shader/pbr.fs"),std::make_shared<PBRMaterial>()),
+		MaterialWrapper("Plain",ShaderFileInfo("ModelViewer/Shader/NoLight/shader.vs", "ModelViewer/Shader/NoLight/shader.fs"),std::make_shared<Material>()),
+		MaterialWrapper("Skinned",ShaderFileInfo("ModelViewer/Shader/NoLight/skinnedShader.vs", "ModelViewer/Shader/NoLight/skinnedShader.fs"),std::make_shared<Material>())
 	};
 
 	return materialList;

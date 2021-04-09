@@ -1,23 +1,9 @@
 #include <glad/glad.h>
 
 #include "Material.h"
-#include "TextureImpl.h"
 
 static uint64_t nextId;
 static std::unordered_map<uint64_t, GLint> shaderUniformCache;
-
-union MaterialProperty::MaterialPropertyValue {
-	MaterialPropertyValue() { memset(this, 0, sizeof(MaterialPropertyValue)); }
-	MaterialPropertyValue(glm::vec3 vec3) : vec3(vec3) { }
-	MaterialPropertyValue(glm::vec4 vec4) : vec4(vec4) { }
-	MaterialPropertyValue(float flt) : flt(flt) { }
-	MaterialPropertyValue(const Texture& texture) : texture(*texture.impl) { }
-
-	glm::vec3 vec3;
-	glm::vec4 vec4;
-	float flt;
-	TextureImpl texture;
-};
 
 MaterialProperty::MaterialProperty() :type(MaterialPropertyType::Invalid), propertyId(0)
 { }
@@ -69,13 +55,13 @@ void Material::SetProperty(const std::string& key, const MaterialProperty& prope
 
 	if (iter != properties.end()) {
 		iter->second.type = property.type;
-		iter->second.value = std::make_unique<MaterialProperty::MaterialPropertyValue>(*property.value);
+		iter->second.value = std::make_unique<MaterialPropertyValue>(*property.value);
 	}
 	else {
 		MaterialProperty copyProp;
 		copyProp.propertyId = nextId++;
 		copyProp.type = property.type;
-		copyProp.value = std::make_unique<MaterialProperty::MaterialPropertyValue>(*property.value);
+		copyProp.value = std::make_unique<MaterialPropertyValue>(*property.value);
 		properties.insert(std::make_pair(key, copyProp));
 	}
 }
@@ -122,7 +108,7 @@ void Material::Apply(const ShaderImpl& shader) const
 
 		if (cacheIter == shaderUniformCache.end()) {
 			// Miss - get the shader uniform and store it
-			GLint shaderUniformId = shader.GetUniformLocation(("material." + propertyName));
+			GLint shaderUniformId = shader.GetUniformLocation(propertyName);
 			auto insertIterPair = shaderUniformCache.insert(std::make_pair(hash, shaderUniformId));
 			cacheIter = insertIterPair.first;
 		}
@@ -163,7 +149,7 @@ void Material::Apply(const ShaderImpl& shader) const
 	glDepthFunc(depthFunc);
 }
 
-std::map<std::string, MaterialProperty> Material::GetProperties() const
+std::map<std::string, MaterialProperty>& Material::GetProperties()
 {
 	return properties;
 }

@@ -62,12 +62,17 @@ void Renderer::SetDirLight(const DirLight& dirLight)
 
 void Renderer::SetProjectionMatrix(const glm::mat4& transform)
 {
-	projectionMatrix = transform;
+	this->projectionMatrix = transform;
 }
 
 void Renderer::SetViewMatrix(const glm::mat4& transform)
 {
 	this->viewMatrix = transform;
+}
+
+void Renderer::SetViewPos(const glm::vec3& pos)
+{
+	viewPos = pos;
 }
 
 void Renderer::SetRenderableAnimation(const RenderableHandle& handle, const std::string& animName, bool loop)
@@ -132,7 +137,7 @@ void Renderer::SetRenderableShader(const RenderableHandle& handle, const Shader&
 	renderable.shaderCache = *shader.impl;
 }
 
-void Renderer::SetRenderableMaterial(const RenderableHandle& handle, const Material& material)
+void Renderer::SetRenderableMaterial(const RenderableHandle& handle, const std::shared_ptr<Material>& material)
 {
 	std::optional<std::reference_wrapper<Entity>> renderableOpt = entityPool.Get(handle);
 	if (!renderableOpt) {
@@ -265,6 +270,7 @@ void Renderer::drawInternal(RenderSpace space)
 
 		shaderCache.shader.SetProjectionMatrix(projectionMatrix);
 		shaderCache.shader.SetViewMatrix(viewMatrix);
+		shaderCache.shader.SetViewPos(viewPos);
 
 		//Later
 
@@ -315,7 +321,7 @@ void Renderer::drawInternal(RenderSpace space)
 				// In case of mesh under animated node
 				for (const int node : model.animationData.meshNodeId[i]) {
 					shaderCache.shader.SetModelMatrix(modelMatrix * nodeTransforms[node]);
-					model.material.Apply(shaderCache.shader);
+					model.material->Apply(shaderCache.shader);
 					model.meshes[i].material.Apply(shaderCache.shader);
 					model.meshes[i].Draw();
 					glCheckError();
@@ -325,7 +331,7 @@ void Renderer::drawInternal(RenderSpace space)
 			{
 				for (const glm::mat4& transform : model.meshesTransform[i]) {
 					shaderCache.shader.SetModelMatrix(modelMatrix * transform);
-					model.material.Apply(shaderCache.shader);
+					model.material->Apply(shaderCache.shader);
 					model.meshes[i].material.Apply(shaderCache.shader);
 					model.meshes[i].Draw();
 					glCheckError();

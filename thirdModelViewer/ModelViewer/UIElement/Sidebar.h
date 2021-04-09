@@ -16,9 +16,11 @@ public:
 	void Update(float dt) { }
 
 private:
-	void DrawMetricsWindow();
-	void DrawGeneralWindow();
-	void DrawMaterialWindow();
+	void drawMetricsWindow();
+	void drawGeneralWindow();
+	void drawMaterialWindow();
+
+	void drawMaterialProperties(std::map<std::string, MaterialProperty>& properties);
 
 	ObjectViewerComponent* objectViewerComponent;
 };

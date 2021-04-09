@@ -17,7 +17,8 @@ public:
 	void SetViewMatrix(const glm::mat4& matrix) const;
 	void SetProjectionMatrix(const glm::mat4& matrix) const;
 	void SetModelMatrix(const glm::mat4& matrix) const;
+	void SetViewPos(const glm::vec3& pos)const;
 private:
 	GLuint shaderID;
-	GLint projectionUniform, viewUniform, modelUniform;
+	GLint projectionUniform, viewUniform, modelUniform, viewPosUniform;
 };

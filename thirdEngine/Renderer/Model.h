@@ -64,7 +64,7 @@ public:
 
 protected:
 	// Material of Model Level (Maybe override by material of mesh)
-	Material material;
+	std::shared_ptr<Material> material;
 
 	std::vector<Mesh> meshes;
 

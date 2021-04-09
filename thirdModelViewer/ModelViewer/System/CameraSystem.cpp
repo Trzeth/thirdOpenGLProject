@@ -28,4 +28,5 @@ void CameraSystem::updateEntity(float dt, eid_t entity)
 
 	renderer.SetProjectionMatrix(glm::perspective(glm::radians(45.0f), ratio, 0.1f, 100.0f));
 	renderer.SetViewMatrix(cameraComponent->data.GetViewMatrix());
+	renderer.SetViewPos(transformComponent->data->GetWorldPosition());
 }

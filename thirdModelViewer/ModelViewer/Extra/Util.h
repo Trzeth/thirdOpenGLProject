@@ -33,6 +33,3 @@ static inline btTransform mat4_cast(const glm::mat4& m)
 	t.setFromOpenGLMatrix(glm::value_ptr(m));
 	return t;
 }
-
-GLenum glCheckError_(const char* file, int line);
-#define glCheckError() glCheckError_(__FILE__, __LINE__)

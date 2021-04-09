@@ -6,7 +6,8 @@
 enum class TextureType {
 	Diffuse,
 	Specular,
-	Cubemap
+	Cubemap,
+	HDR
 };
 
 struct TextureImpl;
@@ -27,4 +28,5 @@ struct TextureLoader
 {
 	Texture LoadFromFile(TextureType type, const std::string& imageLocation);
 	Texture LoadCubemap(const std::string& directory, const std::vector<std::string>& filename);
+	Texture LoadHDR(const std::string& filename);
 };

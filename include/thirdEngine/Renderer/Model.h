@@ -52,6 +52,7 @@ class Model
 {
 public:
 	friend class ModelLoader;
+	friend class Box;
 	friend class Renderer;
 
 	Model();

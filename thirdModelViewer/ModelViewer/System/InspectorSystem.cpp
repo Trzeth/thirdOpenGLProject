@@ -50,7 +50,7 @@ void InspectorSystem::updateEntity(float dt, eid_t entity)
 
 	if (objectViewerComponent->materialReloadFlag) {
 		objectViewerComponent->materialList[objectViewerComponent->currentMaterialIndex].shader =
-			shaderLoader.CompileAndLink(
+			shaderLoader.BuildFromFile(
 				curMaterial.shaderFileInfo.vertexShaderPath,
 				curMaterial.shaderFileInfo.fragmentShaderPath
 			);

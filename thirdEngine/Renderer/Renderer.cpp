@@ -321,7 +321,7 @@ void Renderer::drawInternal(RenderSpace space)
 				// In case of mesh under animated node
 				for (const int node : model.animationData.meshNodeId[i]) {
 					shaderCache.shader.SetModelMatrix(modelMatrix * nodeTransforms[node]);
-					model.material->Apply(shaderCache.shader);
+					if (model.material)model.material->Apply(shaderCache.shader);
 					model.meshes[i].material.Apply(shaderCache.shader);
 					model.meshes[i].Draw();
 					glCheckError();
@@ -331,7 +331,7 @@ void Renderer::drawInternal(RenderSpace space)
 			{
 				for (const glm::mat4& transform : model.meshesTransform[i]) {
 					shaderCache.shader.SetModelMatrix(modelMatrix * transform);
-					model.material->Apply(shaderCache.shader);
+					if (model.material)model.material->Apply(shaderCache.shader);
 					model.meshes[i].material.Apply(shaderCache.shader);
 					model.meshes[i].Draw();
 					glCheckError();

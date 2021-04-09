@@ -135,3 +135,40 @@ Texture TextureLoader::LoadCubemap(const std::string& directory, const std::vect
 	texture.impl->id = id;
 	return texture;
 }
+
+Texture TextureLoader::LoadHDR(const std::string& filename)
+{
+	unsigned int textureID = 0;
+	glGenTextures(1, &textureID);
+	glCheckError();
+
+	Texture texture;
+	texture.impl = std::make_unique<TextureImpl>();
+	texture.impl->type = TextureType::HDR;
+	texture.impl->id = textureID;
+
+	stbi_set_flip_vertically_on_load(true);
+	int width, height, nrComponents;
+	float* data = stbi_loadf(filename.c_str(), &width, &height, &nrComponents, 0);
+	if (data)
+	{
+		glBindTexture(GL_TEXTURE_2D, textureID);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, data);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glCheckError();
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+		stbi_image_free(data);
+	}
+	else
+	{
+		printf("Texture failed to load at path: %s \n", filename.c_str());
+	}
+
+	stbi_set_flip_vertically_on_load(false);
+	return texture;
+}

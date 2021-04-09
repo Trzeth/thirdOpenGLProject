@@ -24,5 +24,6 @@ struct Shader
 
 class ShaderLoader {
 public:
-	Shader CompileAndLink(const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
+	Shader BuildFromFile(const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
+	Shader BuildFromString(const std::string& vertexShader, const std::string& fragmentShader);
 };

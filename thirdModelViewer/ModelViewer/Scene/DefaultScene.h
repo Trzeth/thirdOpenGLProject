@@ -23,6 +23,7 @@ private:
 	ShaderLoader shaderLoader;
 
 	Shader shader;
+	Shader skyboxShader;
 
 	EventManager& eventManager;
 
@@ -32,4 +33,6 @@ private:
 	//UI Entity
 	Prefab inspectorPrefab;
 	Prefab cameraPrefab;
+
+	Renderer::RenderableHandle skybox;
 };

@@ -102,7 +102,10 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(ProjectDir)*.h $(SolutionDir)include\thirdEngine\ /S /E /y /exclude:$(ProjectDir)exclude.txt
+      <Command>for %%e in (h fs vs) do (
+  xcopy $(ProjectDir)*.%%e $(SolutionDir)include\thirdEngine\ /S /E /y /exclude:$(ProjectDir)exclude.txt
+)
+
 xcopy $(OutDir)$(TargetFileName) $(SolutionDir)lib\ /y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

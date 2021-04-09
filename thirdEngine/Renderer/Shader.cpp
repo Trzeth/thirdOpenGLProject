@@ -31,7 +31,7 @@ bool Shader::IsValid()
 	return impl->GetID() != 0;
 }
 
-Shader ShaderLoader::CompileAndLink(const std::string& vertexShaderPath, const std::string& fragmentShaderPath)
+Shader ShaderLoader::BuildFromFile(const std::string& vertexShaderPath, const std::string& fragmentShaderPath)
 {
 	// 1. 从文件路径中获取顶点/片段着色器
 	string vertexCode;
@@ -63,9 +63,14 @@ Shader ShaderLoader::CompileAndLink(const std::string& vertexShaderPath, const s
 		printf("ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ");
 	}
 
+	return BuildFromString(vertexCode, fragmentCode);
+}
+
+Shader ShaderLoader::BuildFromString(const std::string& vertexShader, const std::string& fragmentShader)
+{
 	// 2. 编译着色器
-	const char* vShaderCode = vertexCode.c_str();
-	const char* fShaderCode = fragmentCode.c_str();
+	const char* vShaderCode = vertexShader.c_str();
+	const char* fShaderCode = fragmentShader.c_str();
 
 	unsigned int vertex, fragment;
 	int success;
@@ -128,8 +133,6 @@ Shader ShaderLoader::CompileAndLink(const std::string& vertexShaderPath, const s
 	}
 #endif
 */
-
-	int i = glGetUniformLocation(ID, "model");
 
 	return Shader(make_unique<ShaderImpl>(ID));
 }

@@ -1,5 +1,7 @@
 #include "DefaultScene.h"
 
+#include <thirdEngine/Renderer/Box.h>
+
 #include "ModelViewer/Component/TransformComponent.h"
 #include "ModelViewer/Component/CameraComponent.h"
 #include "ModelViewer/Component/ModelRenderComponent.h"
@@ -36,11 +38,17 @@ void DefaultScene::setupPrefab()
 	if (prefabsSteup)
 		return;
 
-	shader = shaderLoader.CompileAndLink("ModelViewer/Shader/NoLight/shader.vs", "ModelViewer/Shader/NoLight/shader.fs");
+	shader = shaderLoader.BuildFromFile("ModelViewer/Shader/NoLight/shader.vs", "ModelViewer/Shader/NoLight/shader.fs");
 	Model model = modelLoader.LoadModel(u8"sphere.obj");
 	model.GenVAO();
 
 	Renderer::ModelHandle modelHandle = renderer.GetModelHandle(model);
+
+	skyboxShader = shaderLoader.BuildFromFile("ModelViewer/Shader/skybox.vs", "ModelViewer/Shader/skybox.fs");
+	Model skyboxModel = Box::GetHDRSkybox("photo_studio_01_1k.hdr");
+	skyboxModel.GenVAO();
+
+	skybox = renderer.GetRenderableHandle(renderer.GetModelHandle(skyboxModel), skyboxShader);
 
 	viewerPrefab.SetName("Viewer");
 	viewerPrefab.AddConstructor(new TransformComponentConstructor());

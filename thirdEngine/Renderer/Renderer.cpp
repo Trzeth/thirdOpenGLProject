@@ -160,16 +160,6 @@ void Renderer::SetViewport(int x, int y, int w, int h)
 	viewportHeight = h;
 }
 
-void Renderer::SetFBO(GLuint FBO)
-{
-	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-}
-
-GLuint Renderer::GetFBO() const
-{
-	return FBO;
-}
-
 int Renderer::GetViewportWidth() const
 {
 	return viewportWidth;
@@ -217,6 +207,7 @@ void Renderer::Draw()
 	ClearBuffer();
 
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
 	drawInternal(RenderSpace_World);
 }

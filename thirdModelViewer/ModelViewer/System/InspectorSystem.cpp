@@ -107,7 +107,7 @@ void InspectorSystem::updateEntity(float dt, eid_t entity)
 		glBindRenderbuffer(GL_RENDERBUFFER, 0);
 	}
 
-	renderer.SetFBO(inspectorComponent->frameBuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, inspectorComponent->frameBuffer);
 
 	// 将它附加到当前绑定的帧缓冲对象
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, inspectorComponent->texColorBuffer, 0);

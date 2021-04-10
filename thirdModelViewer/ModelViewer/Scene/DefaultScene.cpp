@@ -45,7 +45,8 @@ void DefaultScene::setupPrefab()
 	Renderer::ModelHandle modelHandle = renderer.GetModelHandle(model);
 
 	skyboxShader = shaderLoader.BuildFromFile("ModelViewer/Shader/skybox.vs", "ModelViewer/Shader/skybox.fs");
-	Model skyboxModel = Box::GetHDRSkybox("photo_studio_01_1k.hdr");
+	HDRSkyboxReturn skyboxReturn = Box::GetHDRSkybox("photo_studio_01_1k.hdr");
+	Model skyboxModel = skyboxReturn.HDRSkybox;
 	skyboxModel.GenVAO();
 
 	skybox = renderer.GetRenderableHandle(renderer.GetModelHandle(skyboxModel), skyboxShader);
@@ -55,6 +56,10 @@ void DefaultScene::setupPrefab()
 	viewerPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, modelHandle, shader));
 
 	std::vector<MaterialWrapper> materialList = getMaterialList();
+	materialList[0].material->SetProperty("irradianceMap", MaterialProperty(skyboxReturn.Irradiancemap));
+	materialList[0].material->SetProperty("prefilterMap", MaterialProperty(skyboxReturn.Prefiltermap));
+	materialList[0].material->SetProperty("brdfLUT", MaterialProperty(skyboxReturn.BRDFLUT));
+
 	viewerPrefab.AddConstructor(new ObjectViewerComponentConstructor(materialList));
 
 	cameraPrefab.SetName("Camera");

@@ -11,7 +11,7 @@ void ObjectViewer::Draw()
 	{
 		windowHeight = ImGui::GetContentRegionAvail().y;
 		windowWidth = ImGui::GetContentRegionAvail().x;
-		;
+
 		ImGui::Image((ImTextureID)textureID, ImVec2(windowWidth, windowHeight), ImVec2(0, 1), ImVec2(1, 0));
 	}
 	ImGui::End();

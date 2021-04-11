@@ -147,6 +147,26 @@ void Sidebar::drawMaterialProperties(std::map<std::string, MaterialProperty>& pr
 			break;
 		}
 		case MaterialPropertyType::Texture:
+			if (property.value->texture.type != TextureType::Cubemap)
+			{
+				if (ImGui::Button(std::string("New Texture:" + name).c_str()))
+					ImGuiFileDialog::Instance()->OpenModal("TextureDlg" + name, "Choose File", "Texture file format{.jpg,.png,.tga,.JPG,.PNG,.TGA}", ".");
+
+				if (ImGuiFileDialog::Instance()->Display("TextureDlg" + name))
+				{
+					// action if OK
+					if (ImGuiFileDialog::Instance()->IsOk())
+					{
+						TextureLoader textureLoader;
+						Texture texture = textureLoader.LoadFromFile(property.value->texture.type, ImGuiFileDialog::Instance()->GetFilePathName());
+						property.value = std::make_unique<MaterialPropertyValue>(texture);
+						// action
+					}
+
+					// close
+					ImGuiFileDialog::Instance()->Close();
+				}
+			}
 			break;
 		default:
 			//Invalid Property

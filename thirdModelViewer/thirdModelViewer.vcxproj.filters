@@ -71,6 +71,15 @@
     <ClCompile Include="ModelViewer\Material\PBRMaterial.cpp">
       <Filter>ModelViewer\Material</Filter>
     </ClCompile>
+    <ClCompile Include="ModelViewer\Material\TexturePBRMaterial.cpp">
+      <Filter>ModelViewer\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelViewer\Material\BlinPhongMaterial.cpp">
+      <Filter>ModelViewer\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelViewer\Material\MaterialLoader.cpp">
+      <Filter>ModelViewer\Material</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ModelViewer">
@@ -178,6 +187,15 @@
       <Filter>ModelViewer\Material</Filter>
     </ClInclude>
     <ClInclude Include="ModelViewer\Material\PBRMaterial.h">
+      <Filter>ModelViewer\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelViewer\Material\TexturePBRMaterial.h">
+      <Filter>ModelViewer\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelViewer\Material\BlinPhongMaterial.h">
+      <Filter>ModelViewer\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelViewer\Material\MaterialLoader.h">
       <Filter>ModelViewer\Material</Filter>
     </ClInclude>
   </ItemGroup>

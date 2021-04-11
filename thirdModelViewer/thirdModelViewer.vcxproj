@@ -156,8 +156,11 @@
     <ClCompile Include="ModelViewer\Extra\PrefabConstructionInfo.cpp" />
     <ClCompile Include="ModelViewer\Extra\Transform.cpp" />
     <ClCompile Include="ModelViewer\Extra\Util.cpp" />
+    <ClCompile Include="ModelViewer\Material\BlinPhongMaterial.cpp" />
+    <ClCompile Include="ModelViewer\Material\MaterialLoader.cpp" />
     <ClCompile Include="ModelViewer\Material\MaterialWrapper.cpp" />
     <ClCompile Include="ModelViewer\Material\PBRMaterial.cpp" />
+    <ClCompile Include="ModelViewer\Material\TexturePBRMaterial.cpp" />
     <ClCompile Include="ModelViewer\ModelViewer.cpp" />
     <ClCompile Include="ModelViewer\Scene\DefaultScene.cpp" />
     <ClCompile Include="ModelViewer\Scene\Scene.cpp" />
@@ -183,8 +186,11 @@
     <ClInclude Include="ModelViewer\Extra\PrefabConstructionInfo.h" />
     <ClInclude Include="ModelViewer\Extra\Transform.h" />
     <ClInclude Include="ModelViewer\Extra\Util.h" />
+    <ClInclude Include="ModelViewer\Material\BlinPhongMaterial.h" />
+    <ClInclude Include="ModelViewer\Material\MaterialLoader.h" />
     <ClInclude Include="ModelViewer\Material\MaterialWrapper.h" />
     <ClInclude Include="ModelViewer\Material\PBRMaterial.h" />
+    <ClInclude Include="ModelViewer\Material\TexturePBRMaterial.h" />
     <ClInclude Include="ModelViewer\ModelViewer.h" />
     <ClInclude Include="ModelViewer\Scene\DefaultScene.h" />
     <ClInclude Include="ModelViewer\Scene\Scene.h" />

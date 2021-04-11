@@ -27,8 +27,14 @@ ComponentConstructorInfo InspectorComponentConstructor::Construct(World& world, 
 
 	glGenTextures(1, &component->texColorBuffer);
 	glGenRenderbuffers(1, &component->renderBuffer);
+	glGenFramebuffers(1, &component->frameBuffer);
 
-	component->frameBuffer = 0;
+	glBindFramebuffer(GL_FRAMEBUFFER, component->frameBuffer);
+	glBindRenderbuffer(GL_RENDERBUFFER, component->renderBuffer);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, component->renderBuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	//component->frameBuffer = 0;
 	// component->texColorBuffer = component->renderBuffer = 0;
 	component->preWindowHeight = component->preWindowWidth = 0;
 

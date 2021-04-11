@@ -76,34 +76,33 @@ void InspectorSystem::updateEntity(float dt, eid_t entity)
 
 	if (h == 0 || w == 0)return;
 
-	if (lastResizeTime >= RESIZETHRESHOLD && ((inspectorComponent->frameBuffer == 0 || inspectorComponent->texColorBuffer == 0 || inspectorComponent->renderBuffer == 0)
-		|| (h != inspectorComponent->preWindowHeight || w != inspectorComponent->preWindowWidth))) {
+	if (lastResizeTime >= RESIZETHRESHOLD && (h != inspectorComponent->preWindowHeight || w != inspectorComponent->preWindowWidth))
+	{
+		//限制时间是因为 glTexImage2D 内存释放好像有问题 => 会延迟释放 => resize触发频繁 造成内存激增
 		lastResizeTime = 0.0f;
 
-		glDeleteFramebuffers(1, &inspectorComponent->frameBuffer);
-
-		glGenFramebuffers(1, &inspectorComponent->frameBuffer);
 		inspectorComponent->preWindowHeight = h;
 		inspectorComponent->preWindowWidth = w;
 
 		renderer.SetViewport(w, h);
 
-		/*
-		glDeleteTextures(1, &inspectorComponent->texColorBuffer);
-		glGenTextures(1, &inspectorComponent->texColorBuffer);
-		inspectorComponent->objectViewer->SetTextureID(inspectorComponent->texColorBuffer);
-		*/
-
 		glBindTexture(GL_TEXTURE_2D, inspectorComponent->texColorBuffer);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
-		glDeleteRenderbuffers(1, &inspectorComponent->renderBuffer);
-		glGenRenderbuffers(1, &inspectorComponent->renderBuffer);
+		glBindFramebuffer(GL_FRAMEBUFFER, inspectorComponent->frameBuffer);
 		glBindRenderbuffer(GL_RENDERBUFFER, inspectorComponent->renderBuffer);
+
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, 0);
+
+		//更改大小前先解绑？
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, w, h);
+
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, inspectorComponent->renderBuffer);
 		glBindRenderbuffer(GL_RENDERBUFFER, 0);
 	}
 
@@ -111,7 +110,6 @@ void InspectorSystem::updateEntity(float dt, eid_t entity)
 
 	// 将它附加到当前绑定的帧缓冲对象
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, inspectorComponent->texColorBuffer, 0);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, inspectorComponent->renderBuffer);
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;

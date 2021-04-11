@@ -60,7 +60,7 @@ Shader ShaderLoader::BuildFromFile(const std::string& vertexShaderPath, const st
 	}
 	catch (ifstream::failure e)
 	{
-		printf("ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ");
+		printf("ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ\n%s\n%s\n", vertexShaderPath.c_str(), fragmentShaderPath.c_str());
 	}
 
 	return BuildFromString(vertexCode, fragmentCode);

@@ -94,9 +94,6 @@
     <Filter Include="ModelViewer\Extra">
       <UniqueIdentifier>{61e16fa3-e82f-4ee8-b15d-2cd8c2ea3063}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ModelViewer\Shader">
-      <UniqueIdentifier>{89f60c31-2b3f-4852-8587-dee7f9f3d82a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ModelViewer\System">
       <UniqueIdentifier>{462c4d09-8c94-4d38-9b4e-765d370fac56}</UniqueIdentifier>
     </Filter>

@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="ChecklistGame.cpp" />
+    <ClCompile Include="Game\Window.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Game.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Game">
+      <UniqueIdentifier>{f09415ee-2920-4d57-b245-077d4d3f6ca1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Component">
+      <UniqueIdentifier>{c430f9a9-dc0f-476a-8a0d-3010a3406afd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Event">
+      <UniqueIdentifier>{c92b6f01-f5d0-4a61-b788-effb24f7d575}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Material">
+      <UniqueIdentifier>{df973776-361d-46e6-9fcc-4946627e9ffe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Scene">
+      <UniqueIdentifier>{3414523f-3208-4d5b-912e-22f7178f9232}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\System">
+      <UniqueIdentifier>{a376000e-0f83-44b4-8937-2b211de2466b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Extra">
+      <UniqueIdentifier>{4efccc6d-a002-4134-8af7-b8d15fa445f1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Game\Game.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Window.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

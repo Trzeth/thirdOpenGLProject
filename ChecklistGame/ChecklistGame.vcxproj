@@ -80,6 +80,7 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>..\include;$(IncludePath)</IncludePath>
     <LibraryPath>..\lib;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -118,6 +119,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir);</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -143,11 +147,38 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ChecklistGame.cpp" />
+    <ClCompile Include="Game\Component\CameraComponent.cpp" />
+    <ClCompile Include="Game\Component\ModelRenderComponent.cpp" />
+    <ClCompile Include="Game\Component\PlayerComponent.cpp" />
+    <ClCompile Include="Game\Component\TransformComponent.cpp" />
+    <ClCompile Include="Game\Extra\PrefabConstructionInfo.cpp" />
+    <ClCompile Include="Game\Extra\Transform.cpp" />
+    <ClCompile Include="Game\Extra\Util.cpp" />
     <ClCompile Include="Game\Game.cpp" />
+    <ClCompile Include="Game\Scene\Home\HouseScene.cpp" />
+    <ClCompile Include="Game\Scene\Home\YardScene.cpp" />
+    <ClCompile Include="Game\Scene\Scene.cpp" />
+    <ClCompile Include="Game\System\CameraSystem.cpp" />
+    <ClCompile Include="Game\System\ModelRenderSystem.cpp" />
+    <ClCompile Include="Game\System\PlayerInputSystem.cpp" />
     <ClCompile Include="Game\Window.cpp" />
+    <ClCompile Include="Lib\glad.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Game\Component\CameraComponent.h" />
+    <ClInclude Include="Game\Component\ModelRenderComponent.h" />
+    <ClInclude Include="Game\Component\PlayerComponent.h" />
+    <ClInclude Include="Game\Component\TransformComponent.h" />
+    <ClInclude Include="Game\Extra\PrefabConstructionInfo.h" />
+    <ClInclude Include="Game\Extra\Transform.h" />
+    <ClInclude Include="Game\Extra\Util.h" />
     <ClInclude Include="Game\Game.h" />
+    <ClInclude Include="Game\Scene\Home\HouseScene.h" />
+    <ClInclude Include="Game\Scene\Home\YardScene.h" />
+    <ClInclude Include="Game\Scene\Scene.h" />
+    <ClInclude Include="Game\System\CameraSystem.h" />
+    <ClInclude Include="Game\System\ModelRenderSystem.h" />
+    <ClInclude Include="Game\System\PlayerInputSystem.h" />
     <ClInclude Include="Game\Window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

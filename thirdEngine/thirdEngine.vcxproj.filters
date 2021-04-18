@@ -37,9 +37,6 @@
     <ClCompile Include="Renderer\Renderer.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\CollisionEvent.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
     <ClCompile Include="Framework\Component.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
@@ -53,9 +50,6 @@
       <Filter>Framework</Filter>
     </ClCompile>
     <ClCompile Include="Framework\EventManager.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="Framework\Physics.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
     <ClCompile Include="Framework\System.cpp">
@@ -153,9 +147,6 @@
     <ClInclude Include="Renderer\Renderer.h">
       <Filter>Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\CollisionEvent.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
     <ClInclude Include="Framework\Component.h">
       <Filter>Framework</Filter>
     </ClInclude>
@@ -169,9 +160,6 @@
       <Filter>Framework</Filter>
     </ClInclude>
     <ClInclude Include="Framework\EventManager.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Physics.h">
       <Filter>Framework</Filter>
     </ClInclude>
     <ClInclude Include="Framework\System.h">

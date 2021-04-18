@@ -80,14 +80,3 @@ public:
 	std::unique_ptr<MeshImpl> impl;
 	bool hasVertexBoneData;
 };
-
-namespace std
-{
-	template<> struct hash<Mesh>
-	{
-		std::size_t operator()(const Mesh& m) const noexcept
-		{
-			return  size_t(0);
-		}
-	};
-}

@@ -4,6 +4,8 @@
 1. thirdModelViewer -A simple model viewer for debug purpose.
 1. ChecklistGame - A simple game made for end term work.
 
+with C++17 Standard
+
 /lib/\* was built on Visual Studio 2019 x64 Debug
 
 box2d-2.4.1

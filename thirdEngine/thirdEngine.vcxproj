@@ -160,14 +160,12 @@ xcopy $(OutDir)$(TargetFileName) $(SolutionDir)lib\ /y</Command>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Framework\CollisionEvent.h" />
     <ClInclude Include="Framework\Component.h" />
     <ClInclude Include="Framework\ComponentBitmask.h" />
     <ClInclude Include="Framework\ComponentConstructor.h" />
     <ClInclude Include="Framework\DefaultComponentConstructor.h" />
     <ClInclude Include="Framework\Event.h" />
     <ClInclude Include="Framework\EventManager.h" />
-    <ClInclude Include="Framework\Physics.h" />
     <ClInclude Include="Framework\Prefab.h" />
     <ClInclude Include="Framework\System.h" />
     <ClInclude Include="Framework\World.h" />
@@ -202,14 +200,12 @@ xcopy $(OutDir)$(TargetFileName) $(SolutionDir)lib\ /y</Command>
     <ClInclude Include="Renderer\UI\UIRenderer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Framework\CollisionEvent.cpp" />
     <ClCompile Include="Framework\Component.cpp" />
     <ClCompile Include="Framework\ComponentBitmask.cpp" />
     <ClCompile Include="Framework\ComponentConstructor.cpp" />
     <ClCompile Include="Framework\DefaultComponentConstructor.cpp" />
     <ClCompile Include="Framework\Event.cpp" />
     <ClCompile Include="Framework\EventManager.cpp" />
-    <ClCompile Include="Framework\Physics.cpp" />
     <ClCompile Include="Framework\Prefab.cpp" />
     <ClCompile Include="Framework\System.cpp" />
     <ClCompile Include="Framework\World.cpp" />

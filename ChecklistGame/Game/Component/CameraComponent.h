@@ -6,10 +6,12 @@
 class CameraComponent :public Component
 {
 public:
-	CameraComponent() { }
+	CameraComponent() :isEnable(false) { }
 
 	typedef Camera Data;
 	Data data;
+
+	bool isEnable;
 };
 
 class CameraComponentConstructor :public DefaultComponentConstructor<CameraComponent> {

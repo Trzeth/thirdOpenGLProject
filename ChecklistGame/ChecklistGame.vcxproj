@@ -117,7 +117,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir);</AdditionalIncludeDirectories>
@@ -150,7 +150,10 @@
     <ClCompile Include="Game\Component\CameraComponent.cpp" />
     <ClCompile Include="Game\Component\ModelRenderComponent.cpp" />
     <ClCompile Include="Game\Component\PlayerComponent.cpp" />
+    <ClCompile Include="Game\Component\StoryboardDirectorComponent.cpp" />
     <ClCompile Include="Game\Component\TransformComponent.cpp" />
+    <ClCompile Include="Game\Event\CloseGameEvent.cpp" />
+    <ClCompile Include="Game\Event\StartGameEvent.cpp" />
     <ClCompile Include="Game\Extra\PrefabConstructionInfo.cpp" />
     <ClCompile Include="Game\Extra\Transform.cpp" />
     <ClCompile Include="Game\Extra\Util.cpp" />
@@ -158,9 +161,13 @@
     <ClCompile Include="Game\Scene\Home\HouseScene.cpp" />
     <ClCompile Include="Game\Scene\Home\YardScene.cpp" />
     <ClCompile Include="Game\Scene\Scene.cpp" />
+    <ClCompile Include="Game\Storyboard\Storyboard.cpp" />
+    <ClCompile Include="Game\Storyboard\StoryboardLoader.cpp" />
     <ClCompile Include="Game\System\CameraSystem.cpp" />
     <ClCompile Include="Game\System\ModelRenderSystem.cpp" />
     <ClCompile Include="Game\System\PlayerInputSystem.cpp" />
+    <ClCompile Include="Game\System\StoryboardDirectorSystem.cpp" />
+    <ClCompile Include="Game\UIElement\Home\StartMenu.cpp" />
     <ClCompile Include="Game\Window.cpp" />
     <ClCompile Include="Lib\glad.c" />
   </ItemGroup>
@@ -168,7 +175,10 @@
     <ClInclude Include="Game\Component\CameraComponent.h" />
     <ClInclude Include="Game\Component\ModelRenderComponent.h" />
     <ClInclude Include="Game\Component\PlayerComponent.h" />
+    <ClInclude Include="Game\Component\StoryboardDirectorComponent.h" />
     <ClInclude Include="Game\Component\TransformComponent.h" />
+    <ClInclude Include="Game\Event\CloseGameEvent.h" />
+    <ClInclude Include="Game\Event\StartGameEvent.h" />
     <ClInclude Include="Game\Extra\PrefabConstructionInfo.h" />
     <ClInclude Include="Game\Extra\Transform.h" />
     <ClInclude Include="Game\Extra\Util.h" />
@@ -176,9 +186,13 @@
     <ClInclude Include="Game\Scene\Home\HouseScene.h" />
     <ClInclude Include="Game\Scene\Home\YardScene.h" />
     <ClInclude Include="Game\Scene\Scene.h" />
+    <ClInclude Include="Game\Storyboard\Storyboard.h" />
+    <ClInclude Include="Game\Storyboard\StoryboardLoader.h" />
     <ClInclude Include="Game\System\CameraSystem.h" />
     <ClInclude Include="Game\System\ModelRenderSystem.h" />
     <ClInclude Include="Game\System\PlayerInputSystem.h" />
+    <ClInclude Include="Game\System\StoryboardDirectorSystem.h" />
+    <ClInclude Include="Game\UIElement\Home\StartMenu.h" />
     <ClInclude Include="Game\Window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

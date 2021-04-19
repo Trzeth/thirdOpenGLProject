@@ -1,6 +1,6 @@
-#include <glm/glm.hpp>
-
 #include "PlayerInputSystem.h"
+
+#include <glm/glm.hpp>
 
 #include "Game/Component/PlayerComponent.h"
 #include "Game/Component/TransformComponent.h"
@@ -15,7 +15,7 @@ void PlayerInputSystem::updateEntity(float dt, eid_t entity)
 {
 	PlayerComponent* playerComponent = world.GetComponent<PlayerComponent>(entity);
 
-	if (playerComponent->isBusy) {
+	if (playerComponent->playerState != PlayerState::PlayerState_Normal) {
 		return;
 	}
 

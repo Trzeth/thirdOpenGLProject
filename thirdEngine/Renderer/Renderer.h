@@ -76,7 +76,6 @@ public:
 		ShaderCache shaderCache;
 		glm::mat4 transform;
 
-		//AnimationContext context;
 		AnimationContext context;
 
 		/*! Which space to render the renderable in. Defaults to RenderSpace_World. */

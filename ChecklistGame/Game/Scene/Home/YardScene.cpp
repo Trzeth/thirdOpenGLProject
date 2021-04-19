@@ -6,6 +6,10 @@
 #include "Game/Component/ModelRenderComponent.h"
 #include "Game/Component/CameraComponent.h"
 #include "Game/Component/PlayerComponent.h"
+#include "Game/Component/StoryboardDirectorComponent.h"
+
+#include "Game/Event/StartGameEvent.h"
+
 #include "Game/Extra/PrefabConstructionInfo.h"
 
 void YardScene::Setup()
@@ -13,12 +17,18 @@ void YardScene::Setup()
 	setupPrefab();
 
 	PrefabConstructionInfo playerInfo = PrefabConstructionInfo(Transform(glm::vec3(0, 0, 0)));
-	eid_t player = world.ConstructPrefab(playerPrefab);
+	entityId.player = world.ConstructPrefab(playerPrefab);
 
-	eid_t camera = world.ConstructPrefab(cameraPrefab, player);
+	entityId.camera = world.ConstructPrefab(cameraPrefab, entityId.player);
 
-	PlayerComponent* playerComponent = world.GetComponent<PlayerComponent>(player);
-	playerComponent->data.camera = camera;
+	PlayerComponent* playerComponent = world.GetComponent<PlayerComponent>(entityId.player);
+	playerComponent->data.camera = entityId.camera;
+	playerComponent->playerState = PlayerState::PlayerState_InGUI;
+
+	entityId.storyboard = world.ConstructPrefab(storyboardPrefab);
+
+	CameraComponent* storyboardCamera = world.GetComponent<CameraComponent>(entityId.storyboard);
+	storyboardCamera->isEnable = true;
 
 	world.ConstructPrefab(yardPrefab);
 }
@@ -46,7 +56,6 @@ void YardScene::setupPrefab()
 	yardPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, yardModelHandle, plainShader));
 
 	/* Skybox */
-
 	Model skyboxModel = Box::GetSkybox("Resources/skybox/", std::vector<std::string>{"right.jpg", "left.jpg", "up.jpg", "down.jpg", "front.jpg", "back.jpg"});
 	skyboxModel.GenVAO();
 	skyboxShader = shaderLoader.BuildFromFile("Shaders/skybox.vs", "Shaders/skybox.fs");
@@ -54,7 +63,6 @@ void YardScene::setupPrefab()
 	skybox = renderer.GetRenderableHandle(renderer.GetModelHandle(skyboxModel), skyboxShader);
 
 	/* Player */
-
 	glm::mat4 playerModelMat4(1.0f);
 	playerModelMat4 *= glm::scale(playerModelMat4, glm::vec3(0.5f));
 	playerModelMat4 *= glm::mat4_cast(glm::angleAxis(glm::radians(180.0f), Transform::UP));
@@ -69,11 +77,34 @@ void YardScene::setupPrefab()
 	playerPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, playerModelHandle, skinnedShader));
 
 	/* Camera */
-	Transform cameraTransform;
-	cameraTransform.SetPosition(glm::vec3(0, 10, 10));
-	cameraPrefab.AddConstructor(new TransformComponentConstructor(cameraTransform));
-
+	cameraPrefab.AddConstructor(new TransformComponentConstructor());
 	cameraPrefab.AddConstructor(new CameraComponentConstructor(CameraComponent::Data()));
+
+	/* Storyboard */
+	storyboardPrefab.AddConstructor(new StoryboardDirectorComponentConstructor(StoryboardDirectorComponent::Data()));
+	storyboardPrefab.AddConstructor(new CameraComponentConstructor(CameraComponent::Data()));
+	Transform storyboardCameraTransform;
+	storyboardCameraTransform.SetPosition(glm::vec3(-4, 50, 30));
+	storyboardCameraTransform.SetRotation(glm::angleAxis(glm::radians(5.0f), glm::vec3(1, 0, 0)));
+	storyboardPrefab.AddConstructor(new TransformComponentConstructor(storyboardCameraTransform));
+
+	storyboards = storyboardLoader.LoadFromFile("Storyboards/Yard.thirdsbs");
+
+	/* UI */
+	startMenu = std::make_shared<StartMenu>(eventManager);
+	startMenuHandle = uiRenderer.GetEntityHandle(startMenu);
+
+	std::function<void(const StartGameEvent& event)> startGameCallback =
+		[scene = this, entityId = &entityId, world = &world, storyboards = &storyboards](const StartGameEvent& event) {
+		StoryboardDirectorComponent* component = world->GetComponent<StoryboardDirectorComponent>(entityId->storyboard);
+		component->data.currentStoryboard = (*storyboards)[0];
+		component->data.storyboardState = StoryboardState::BeginFlag;
+		component->data.nameIdMap.clear();
+		component->data.nameIdMap.emplace("Camera", entityId->storyboard);
+		component->data.nameIdMap.emplace("Player", entityId->player);
+		component->currentTime = 0;
+	};
+	eventManager.RegisterForEvent<StartGameEvent>(startGameCallback);
 
 	prefabsSteup = true;
 }

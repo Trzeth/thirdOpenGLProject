@@ -52,6 +52,9 @@ void UIRenderer::Draw()
 	ImGui::NewFrame();
 
 	for (auto iter = entityPool.begin(); iter != entityPool.end(); iter++) {
+		if (!iter->second.element->IsVisible()) {
+			continue;
+		}
 		iter->second.element->Draw();
 	}
 

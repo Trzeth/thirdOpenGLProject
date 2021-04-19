@@ -50,6 +50,27 @@
     <ClCompile Include="Game\System\PlayerInputSystem.cpp">
       <Filter>Game\System</Filter>
     </ClCompile>
+    <ClCompile Include="Game\UIElement\Home\StartMenu.cpp">
+      <Filter>Game\UIElement\Home</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Event\CloseGameEvent.cpp">
+      <Filter>Game\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Event\StartGameEvent.cpp">
+      <Filter>Game\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Storyboard\StoryboardLoader.cpp">
+      <Filter>Game\Storyboard</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Storyboard\Storyboard.cpp">
+      <Filter>Game\Storyboard</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\System\StoryboardDirectorSystem.cpp">
+      <Filter>Game\System</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Component\StoryboardDirectorComponent.cpp">
+      <Filter>Game\Component</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Game">
@@ -78,6 +99,15 @@
     </Filter>
     <Filter Include="Game\Scene\Home">
       <UniqueIdentifier>{dcc899ef-3bd0-4cc7-a500-cfb95ce3cde4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\UIElement">
+      <UniqueIdentifier>{43f4b44e-3d04-46ee-b8d5-7298ee61408f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\UIElement\Home">
+      <UniqueIdentifier>{f9928303-2d69-4398-a43f-2bb5c5223e02}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Storyboard">
+      <UniqueIdentifier>{504a08e3-656c-4f4d-95c4-30a47eae751d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -125,6 +155,27 @@
     </ClInclude>
     <ClInclude Include="Game\System\PlayerInputSystem.h">
       <Filter>Game\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\UIElement\Home\StartMenu.h">
+      <Filter>Game\UIElement\Home</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Event\StartGameEvent.h">
+      <Filter>Game\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Event\CloseGameEvent.h">
+      <Filter>Game\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Storyboard\StoryboardLoader.h">
+      <Filter>Game\Storyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Storyboard\Storyboard.h">
+      <Filter>Game\Storyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\System\StoryboardDirectorSystem.h">
+      <Filter>Game\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Component\StoryboardDirectorComponent.h">
+      <Filter>Game\Component</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -52,7 +52,7 @@ uint32_t EventManager::RegisterForEvent(std::function<void(const T&)> eventListe
 	auto iter = this->eventTypeMap.find(typeid(T).hash_code());
 
 	if (iter == this->eventTypeMap.end()) {
-		eventid = this->registerEventType<T>;
+		eventid = this->registerEventType<T>();
 	}
 	else
 	{

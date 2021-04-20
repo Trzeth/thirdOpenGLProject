@@ -99,6 +99,17 @@ void Renderer::SetRenderableAnimationTime(const RenderableHandle& handle, float 
 	renderable.time = time;
 }
 
+void Renderer::SetRenderableModelHandle(const RenderableHandle& handle, const ModelHandle& modelHandle)
+{
+	std::optional<std::reference_wrapper<Entity>> renderableOpt = entityPool.Get(handle);
+	if (!renderableOpt) {
+		return;
+	}
+
+	Entity& renderable = *renderableOpt;
+	renderable.modelHandle = modelHandle;
+}
+
 void Renderer::SetRenderableRenderSpace(const RenderableHandle& handle, RenderSpace space)
 {
 	std::optional<std::reference_wrapper<Entity>> renderableOpt = entityPool.Get(handle);

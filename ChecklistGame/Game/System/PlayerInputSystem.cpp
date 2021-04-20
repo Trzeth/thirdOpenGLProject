@@ -1,7 +1,7 @@
 #include "PlayerInputSystem.h"
 
 #include <glm/glm.hpp>
-
+#include <thirdEngine/Input/Input.h>
 #include "Game/Component/PlayerComponent.h"
 #include "Game/Component/TransformComponent.h"
 
@@ -15,7 +15,7 @@ void PlayerInputSystem::updateEntity(float dt, eid_t entity)
 {
 	PlayerComponent* playerComponent = world.GetComponent<PlayerComponent>(entity);
 
-	if (playerComponent->playerState != PlayerState::PlayerState_Normal) {
+	if (playerComponent->controlState != PlayerControlState::Normal) {
 		return;
 	}
 
@@ -43,4 +43,12 @@ void PlayerInputSystem::updateEntity(float dt, eid_t entity)
 	glm::vec3 pos = transformComponent->data->GetPosition();
 	pos += glm::vec3(horizontal, 0, -vertical);
 	transformComponent->data->SetPosition(pos);
+
+	if (horizontal < 0.0001f && vertical < 0.0001f) {
+		playerComponent->SetAnimationState(PlayerAnimationState::Idle);
+	}
+	else
+	{
+		playerComponent->SetAnimationState(PlayerAnimationState::Walk);
+	}
 }

@@ -4,7 +4,8 @@
 
 #include "Game/Component/TransformComponent.h"
 
-StoryboardDirectorSystem::StoryboardDirectorSystem(World& world) :System(world)
+StoryboardDirectorSystem::StoryboardDirectorSystem(World& world, EventManager& eventManager)
+	:System(world), eventManager(eventManager)
 {
 	require<StoryboardDirectorComponent>();
 }
@@ -17,6 +18,11 @@ glm::vec3 StoryboardDirectorSystem::interpolate(glm::vec3 a, glm::vec3 b, float 
 glm::quat StoryboardDirectorSystem::interpolate(glm::quat a, glm::quat b, float lerp)
 {
 	return glm::slerp(a, b, lerp);
+}
+
+PlayerAnimationState StoryboardDirectorSystem::interpolate(PlayerAnimationState a, PlayerAnimationState b, float lerp)
+{
+	return a;
 }
 
 template <class ValType>
@@ -68,8 +74,6 @@ void StoryboardDirectorSystem::updateEntity(float dt, eid_t entity)
 
 	if (storyboardDir->data.storyboardState == StoryboardState::BeginFlag) {
 		//Init component val
-		storyboardDir->animatedElementContexts.clear();
-
 		for (const auto& keypair : storyboardDir->data.nameIdMap) {
 			auto it = sb.AnimatedElementList.find(keypair.first);
 			if (it != sb.AnimatedElementList.end()) {
@@ -82,7 +86,14 @@ void StoryboardDirectorSystem::updateEntity(float dt, eid_t entity)
 
 	float duration = sb.EndTime - sb.StartTime;
 	if (storyboardDir->currentTime >= duration) {
-		if (storyboardDir->data.loopType == StoryboardLoopType::Disable) {}
+		if (storyboardDir->data.loopType == StoryboardLoopType::Disable)
+		{
+			storyboardDir->data.storyboardState = StoryboardState::End;
+			if (storyboardDir->endEventHashCode)
+			{
+				eventManager.SendEvent(storyboardDir->endEventHashCode);
+			}
+		}
 		if (storyboardDir->data.loopType == StoryboardLoopType::Forever) {
 			storyboardDir->currentTime -= duration;
 		}
@@ -92,6 +103,7 @@ void StoryboardDirectorSystem::updateEntity(float dt, eid_t entity)
 		auto it = sb.AnimatedElementList.find(keypair.first);
 		if (it != sb.AnimatedElementList.end()) {
 			TransformComponent* transformComponet = world.GetComponent<TransformComponent>(keypair.second);
+
 			const auto& animatedEle = it->second;
 			if (animatedEle.PositionChannel.size() > 0)
 			{
@@ -116,6 +128,16 @@ void StoryboardDirectorSystem::updateEntity(float dt, eid_t entity)
 						animatedEle.ScaleChannel,
 						currentTime,
 						storyboardDir->animatedElementContexts[keypair.second].rotationKey));
+			}
+
+			// Deal with PlayerAnimationState
+			if (keypair.first == "Player")
+			{
+				PlayerComponent* playerComponent = world.GetComponent<PlayerComponent>(keypair.second);
+				playerComponent->SetAnimationState(interpolateKeyframes<PlayerAnimationState>(
+					animatedEle.PlayerAnimationStateChannel,
+					currentTime,
+					storyboardDir->animatedElementContexts[keypair.second].playerAnimationStateKey));
 			}
 		}
 	}

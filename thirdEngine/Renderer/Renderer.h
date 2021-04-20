@@ -114,6 +114,8 @@ public:
 
 	void SetRenderableAnimationTime(const RenderableHandle& handle, float time);
 
+	void SetRenderableModelHandle(const RenderableHandle& handle, const ModelHandle& modelHandle);
+
 	void SetRenderableRenderSpace(const RenderableHandle& handle, RenderSpace space);
 
 	void SetRenderableTransform(const RenderableHandle& handle, const glm::mat4& transform);

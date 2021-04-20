@@ -31,15 +31,20 @@ struct AnimatedElementContext
 
 	/*! The last scale key we used. */
 	unsigned scaleKey;
+
+	unsigned playerAnimationStateKey;
 };
 
 class StoryboardDirectorComponent :public Component
 {
 public:
-	StoryboardDirectorComponent() { };
-
 	struct Data {
 		Data() :storyboardState(StoryboardState::End), loopType(StoryboardLoopType::Disable), currentStoryboard(), nameIdMap() { };
+		Data(Storyboard sb, std::unordered_map<std::string, eid_t> nameIdMap, StoryboardLoopType loopType = StoryboardLoopType::Disable)
+			:currentStoryboard(sb), nameIdMap(nameIdMap), loopType(loopType)
+		{
+			storyboardState = StoryboardState::BeginFlag;
+		}
 
 		StoryboardState storyboardState;
 		StoryboardLoopType loopType;
@@ -49,8 +54,35 @@ public:
 		std::unordered_map<std::string, eid_t> nameIdMap;
 	};
 
+	StoryboardDirectorComponent() :data(), currentTime(0), animatedElementContexts(), endEventHashCode(0)
+	{ }
+
+	void BeginStoryboard(Data d, float startTime = 0)
+	{
+		data = d;
+		currentTime = startTime;
+		animatedElementContexts.clear();
+	};
+
+	/*!
+	 * @brief BeginStoryboard With end event
+	 * @tparam T
+	 * @param d
+	 * @param startTime
+	*/
+	template<class T>
+	void BeginStoryboard(Data d, float startTime = 0)
+	{
+		endEventHashCode = typeid(T).hash_code();
+		BeginStoryboard(d, startTime);
+	}
+
+private:
+	friend class StoryboardDirectorSystem;
+	friend class DefaultComponentConstructor<StoryboardDirectorComponent>;
 	Data data;
 
+	size_t endEventHashCode;
 	float currentTime;
 
 	//Reset When System read BeginFlag

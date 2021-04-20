@@ -152,8 +152,9 @@
     <ClCompile Include="Game\Component\PlayerComponent.cpp" />
     <ClCompile Include="Game\Component\StoryboardDirectorComponent.cpp" />
     <ClCompile Include="Game\Component\TransformComponent.cpp" />
-    <ClCompile Include="Game\Event\CloseGameEvent.cpp" />
-    <ClCompile Include="Game\Event\StartGameEvent.cpp" />
+    <ClCompile Include="Game\Event\GameCloseEvent.cpp" />
+    <ClCompile Include="Game\Event\GameStartEvent.cpp" />
+    <ClCompile Include="Game\Event\YardSceneEndOpenSceneStoryboardEvent.cpp" />
     <ClCompile Include="Game\Extra\PrefabConstructionInfo.cpp" />
     <ClCompile Include="Game\Extra\Transform.cpp" />
     <ClCompile Include="Game\Extra\Util.cpp" />
@@ -165,8 +166,10 @@
     <ClCompile Include="Game\Storyboard\StoryboardLoader.cpp" />
     <ClCompile Include="Game\System\CameraSystem.cpp" />
     <ClCompile Include="Game\System\ModelRenderSystem.cpp" />
+    <ClCompile Include="Game\System\PlayerAnimationStateSystem.cpp" />
     <ClCompile Include="Game\System\PlayerInputSystem.cpp" />
     <ClCompile Include="Game\System\StoryboardDirectorSystem.cpp" />
+    <ClCompile Include="Game\UIElement\Home\Letter.cpp" />
     <ClCompile Include="Game\UIElement\Home\StartMenu.cpp" />
     <ClCompile Include="Game\Window.cpp" />
     <ClCompile Include="Lib\glad.c" />
@@ -177,8 +180,9 @@
     <ClInclude Include="Game\Component\PlayerComponent.h" />
     <ClInclude Include="Game\Component\StoryboardDirectorComponent.h" />
     <ClInclude Include="Game\Component\TransformComponent.h" />
-    <ClInclude Include="Game\Event\CloseGameEvent.h" />
-    <ClInclude Include="Game\Event\StartGameEvent.h" />
+    <ClInclude Include="Game\Event\GameCloseEvent.h" />
+    <ClInclude Include="Game\Event\GameStartEvent.h" />
+    <ClInclude Include="Game\Event\YardSceneEndOpenSceneStoryboardEvent.h" />
     <ClInclude Include="Game\Extra\PrefabConstructionInfo.h" />
     <ClInclude Include="Game\Extra\Transform.h" />
     <ClInclude Include="Game\Extra\Util.h" />
@@ -190,8 +194,10 @@
     <ClInclude Include="Game\Storyboard\StoryboardLoader.h" />
     <ClInclude Include="Game\System\CameraSystem.h" />
     <ClInclude Include="Game\System\ModelRenderSystem.h" />
+    <ClInclude Include="Game\System\PlayerAnimationStateSystem.h" />
     <ClInclude Include="Game\System\PlayerInputSystem.h" />
     <ClInclude Include="Game\System\StoryboardDirectorSystem.h" />
+    <ClInclude Include="Game\UIElement\Home\Letter.h" />
     <ClInclude Include="Game\UIElement\Home\StartMenu.h" />
     <ClInclude Include="Game\Window.h" />
   </ItemGroup>

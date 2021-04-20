@@ -1,6 +1,5 @@
 #pragma once
 #include <thirdEngine/Framework/System.h>
-#include <thirdEngine/Input/Input.h>
 
 class Input;
 class EventManager;

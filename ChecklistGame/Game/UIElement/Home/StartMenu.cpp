@@ -50,11 +50,11 @@ namespace ImGui
 	}
 };
 
-#include "Game/Event/StartGameEvent.h"
-#include "Game/Event/CloseGameEvent.h"
+#include "Game/Event/GameStartEvent.h"
+#include "Game/Event/GameCloseEvent.h"
 
 StartMenu::StartMenu(EventManager& eventManager)
-	:eventManager(eventManager)
+	:eventManager(eventManager), isVisible(true)
 {
 	TextureLoader textureLoader;
 	titleTexture = textureLoader.LoadFromFile(TextureType::Diffuse, "GUI/Title.png");
@@ -88,7 +88,7 @@ void StartMenu::Draw()
 
 		if (ImGui::ImageAnimButton((void*)(intptr_t)playBtnTexture.impl->id, (void*)(intptr_t)playBtnHoverTexture.impl->id, ImVec2(400, 121)))
 		{
-			StartGameEvent evt;
+			GameStartEvent evt;
 			eventManager.SendEvent(evt);
 
 			isVisible = false;
@@ -101,7 +101,7 @@ void StartMenu::Draw()
 
 		if (ImGui::ImageAnimButton((void*)(intptr_t)exitBtnTexture.impl->id, (void*)(intptr_t)exitBtnHoverTexture.impl->id, ImVec2(400, 121)))
 		{
-			CloseGameEvent evt;
+			GameCloseEvent evt;
 			eventManager.SendEvent(evt);
 			isVisible = false;
 		}

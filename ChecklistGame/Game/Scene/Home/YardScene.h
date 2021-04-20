@@ -9,8 +9,10 @@
 #include "Game/Storyboard/Storyboard.h"
 #include "Game/Storyboard/StoryboardLoader.h"
 
-#include "Game/Scene/Scene.h"
 #include "Game/UIElement/Home/StartMenu.h"
+#include "Game/UIElement/Home/Letter.h"
+
+#include "Game/Scene/Scene.h"
 
 class YardScene :public Scene
 {
@@ -52,5 +54,7 @@ private:
 
 	/* GUI */
 	std::shared_ptr<StartMenu> startMenu;
+	std::shared_ptr<Letter> letter;
 	UIRenderer::UIElementHandle startMenuHandle;
+	UIRenderer::UIElementHandle letterHandle;
 };

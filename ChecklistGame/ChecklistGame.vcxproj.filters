@@ -47,17 +47,8 @@
     <ClCompile Include="Game\Component\PlayerComponent.cpp">
       <Filter>Game\Component</Filter>
     </ClCompile>
-    <ClCompile Include="Game\System\PlayerInputSystem.cpp">
-      <Filter>Game\System</Filter>
-    </ClCompile>
     <ClCompile Include="Game\UIElement\Home\StartMenu.cpp">
       <Filter>Game\UIElement\Home</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\Event\CloseGameEvent.cpp">
-      <Filter>Game\Event</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\Event\StartGameEvent.cpp">
-      <Filter>Game\Event</Filter>
     </ClCompile>
     <ClCompile Include="Game\Storyboard\StoryboardLoader.cpp">
       <Filter>Game\Storyboard</Filter>
@@ -70,6 +61,24 @@
     </ClCompile>
     <ClCompile Include="Game\Component\StoryboardDirectorComponent.cpp">
       <Filter>Game\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\System\PlayerAnimationStateSystem.cpp">
+      <Filter>Game\System</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\System\PlayerInputSystem.cpp">
+      <Filter>Game\System</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Event\YardSceneEndOpenSceneStoryboardEvent.cpp">
+      <Filter>Game\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Event\GameCloseEvent.cpp">
+      <Filter>Game\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Event\GameStartEvent.cpp">
+      <Filter>Game\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\UIElement\Home\Letter.cpp">
+      <Filter>Game\UIElement\Home</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -153,17 +162,8 @@
     <ClInclude Include="Game\Component\PlayerComponent.h">
       <Filter>Game\Component</Filter>
     </ClInclude>
-    <ClInclude Include="Game\System\PlayerInputSystem.h">
-      <Filter>Game\System</Filter>
-    </ClInclude>
     <ClInclude Include="Game\UIElement\Home\StartMenu.h">
       <Filter>Game\UIElement\Home</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\Event\StartGameEvent.h">
-      <Filter>Game\Event</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\Event\CloseGameEvent.h">
-      <Filter>Game\Event</Filter>
     </ClInclude>
     <ClInclude Include="Game\Storyboard\StoryboardLoader.h">
       <Filter>Game\Storyboard</Filter>
@@ -176,6 +176,24 @@
     </ClInclude>
     <ClInclude Include="Game\Component\StoryboardDirectorComponent.h">
       <Filter>Game\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\System\PlayerAnimationStateSystem.h">
+      <Filter>Game\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\System\PlayerInputSystem.h">
+      <Filter>Game\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Event\GameCloseEvent.h">
+      <Filter>Game\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Event\GameStartEvent.h">
+      <Filter>Game\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Event\YardSceneEndOpenSceneStoryboardEvent.h">
+      <Filter>Game\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\UIElement\Home\Letter.h">
+      <Filter>Game\UIElement\Home</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

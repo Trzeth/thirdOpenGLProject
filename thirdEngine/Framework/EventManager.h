@@ -15,6 +15,8 @@ public:
 	template<class T>
 	void SendEvent(const T& event);
 
+	void SendEvent(size_t hash);
+
 	template<class T>
 	uint32_t RegisterForEvent(std::function<void(const T&)> eventListener);
 private:
@@ -32,7 +34,7 @@ private:
 };
 
 template<class T>
-void EventManager::SendEvent(const T& event)
+inline void EventManager::SendEvent(const T& event)
 {
 	auto iter = this->eventTypeMap.find(typeid(T).hash_code());
 	if (iter == this->eventTypeMap.end()) {
@@ -45,8 +47,21 @@ void EventManager::SendEvent(const T& event)
 	}
 }
 
+inline void EventManager::SendEvent(size_t hash)
+{
+	auto iter = this->eventTypeMap.find(hash);
+	if (iter == this->eventTypeMap.end()) {
+		return;
+	}
+
+	EventCallbackList& list = eventListeners[iter->second];
+	for (EventCallbackInternal& callback : list) {
+		callback(new Event());
+	}
+}
+
 template<class T>
-uint32_t EventManager::RegisterForEvent(std::function<void(const T&)> eventListener)
+inline uint32_t EventManager::RegisterForEvent(std::function<void(const T&)> eventListener)
 {
 	eventid_t eventid;
 	auto iter = this->eventTypeMap.find(typeid(T).hash_code());
@@ -68,7 +83,7 @@ uint32_t EventManager::RegisterForEvent(std::function<void(const T&)> eventListe
 }
 
 template<class T>
-eventid_t EventManager::registerEventType()
+inline eventid_t EventManager::registerEventType()
 {
 	size_t hash = typeid(T).hash_code();
 	eventTypeMap.emplace(hash, nextEventId);

@@ -10,6 +10,7 @@
 #include "System/CameraSystem.h"
 #include "System/PlayerInputSystem.h"
 #include "System/StoryboardDirectorSystem.h"
+#include "System/PlayerAnimationStateSystem.h"
 
 #include "Window.h"
 
@@ -39,6 +40,7 @@ private:
 	std::unique_ptr<ModelRenderSystem> modelRenderSystem;
 	std::unique_ptr<CameraSystem> cameraSystem;
 	std::unique_ptr<PlayerInputSystem> playerInputSystem;
+	std::unique_ptr<PlayerAnimationStateSystem> playerAnimationStateSystem;
 	std::unique_ptr<StoryboardDirectorSystem> storyboardDirectorSystem;
 
 	std::unique_ptr<Scene> defaultScene;

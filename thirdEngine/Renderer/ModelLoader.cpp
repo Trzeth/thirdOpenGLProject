@@ -103,19 +103,23 @@ Model ModelLoader::LoadModel(const std::string& path, glm::mat4 preDefineTransfo
 		}
 		this->impl->curDir = path.substr(0, path.find_last_of('/') + 1);
 
-		glm::mat4 m = glm::matrixCompMult(glm::transpose(glm::make_mat4(&scene->mRootNode->mTransformation.a1)), preDefineTransform);
-		aiMatrix4x4 mat4{
-			m[0][0], m[1][0], m[2][0], m[3][0],
-			m[0][1], m[1][1], m[2][1], m[3][1],
-			m[0][2], m[1][2], m[2][2], m[3][2],
-			m[0][3], m[1][3], m[2][3], m[3][3]
-		};
+		if (preDefineTransform != glm::mat4(1.0f))
+		{
+			glm::mat4 m = glm::transpose(glm::make_mat4(&scene->mRootNode->mTransformation.a1)) * preDefineTransform;
+			aiMatrix4x4 mat4{
+				m[0][0], m[1][0], m[2][0], m[3][0],
+				m[0][1], m[1][1], m[2][1], m[3][1],
+				m[0][2], m[1][2], m[2][2], m[3][2],
+				m[0][3], m[1][3], m[2][3], m[3][3]
+			};
 
-		scene->mRootNode->mTransformation = mat4;
+			scene->mRootNode->mTransformation = mat4;
+		}
 
 		Model model = this->impl->processModel(scene->mRootNode, scene);
 		model.material = impl->defaultMaterial;
 		this->impl->modelIdCache.emplace(std::make_pair(path, model));
+
 		return model;
 	}
 }

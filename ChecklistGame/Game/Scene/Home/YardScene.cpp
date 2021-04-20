@@ -8,7 +8,8 @@
 #include "Game/Component/PlayerComponent.h"
 #include "Game/Component/StoryboardDirectorComponent.h"
 
-#include "Game/Event/StartGameEvent.h"
+#include "Game/Event/GameStartEvent.h"
+#include "Game/Event/YardSceneEndOpenSceneStoryboardEvent.h"
 
 #include "Game/Extra/PrefabConstructionInfo.h"
 
@@ -23,7 +24,7 @@ void YardScene::Setup()
 
 	PlayerComponent* playerComponent = world.GetComponent<PlayerComponent>(entityId.player);
 	playerComponent->data.camera = entityId.camera;
-	playerComponent->playerState = PlayerState::PlayerState_InGUI;
+	playerComponent->controlState = PlayerControlState::InGUI;
 
 	entityId.storyboard = world.ConstructPrefab(storyboardPrefab);
 
@@ -67,44 +68,64 @@ void YardScene::setupPrefab()
 	playerModelMat4 *= glm::scale(playerModelMat4, glm::vec3(0.5f));
 	playerModelMat4 *= glm::mat4_cast(glm::angleAxis(glm::radians(180.0f), Transform::UP));
 
-	Model playerModel = modelLoader.LoadModel("Resources/Walk.DAE", playerModelMat4);
-	playerModel.GenVAO();
+	Model playerWalkModel = modelLoader.LoadModel("Resources/Walk.DAE", playerModelMat4);
+	Model playerPickLetterModel = modelLoader.LoadModel("Resources/PickLetter.DAE", playerModelMat4);
+	Model playerPutLetterModel = modelLoader.LoadModel("Resources/PutLetter.DAE", playerModelMat4);
+	Model playerTurnAroundModel = modelLoader.LoadModel("Resources/TurnAround.DAE", playerModelMat4);
+
+	playerWalkModel.GenVAO();
+	playerPickLetterModel.GenVAO();
+	playerPutLetterModel.GenVAO();
+	playerTurnAroundModel.GenVAO();
 
 	playerPrefab.SetName("Player");
-	Renderer::ModelHandle playerModelHandle = renderer.GetModelHandle(playerModel);
 	playerPrefab.AddConstructor(new TransformComponentConstructor());
-	playerPrefab.AddConstructor(new PlayerComponentConstructor(PlayerComponent::Data()));
-	playerPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, playerModelHandle, skinnedShader));
+
+	PlayerComponent::Data playerData;
+	playerData.walk = renderer.GetModelHandle(playerWalkModel);
+	playerData.pickLetter = renderer.GetModelHandle(playerPickLetterModel);
+	playerData.putLetter = renderer.GetModelHandle(playerPutLetterModel);
+	playerData.turnAround = renderer.GetModelHandle(playerTurnAroundModel);
+
+	playerPrefab.AddConstructor(new PlayerComponentConstructor(playerData));
+	playerPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, playerData.walk, skinnedShader));
 
 	/* Camera */
 	cameraPrefab.AddConstructor(new TransformComponentConstructor());
 	cameraPrefab.AddConstructor(new CameraComponentConstructor(CameraComponent::Data()));
 
 	/* Storyboard */
+	storyboards = storyboardLoader.LoadFromFile("Storyboards/Yard.thirdsbs");
+
 	storyboardPrefab.AddConstructor(new StoryboardDirectorComponentConstructor(StoryboardDirectorComponent::Data()));
 	storyboardPrefab.AddConstructor(new CameraComponentConstructor(CameraComponent::Data()));
-	Transform storyboardCameraTransform;
-	storyboardCameraTransform.SetPosition(glm::vec3(-4, 50, 30));
-	storyboardCameraTransform.SetRotation(glm::angleAxis(glm::radians(5.0f), glm::vec3(1, 0, 0)));
-	storyboardPrefab.AddConstructor(new TransformComponentConstructor(storyboardCameraTransform));
 
-	storyboards = storyboardLoader.LoadFromFile("Storyboards/Yard.thirdsbs");
+	// First Position
+	Transform storyboardCameraTransform;
+	storyboardCameraTransform.SetPosition(storyboards[0].AnimatedElementList["Camera"].PositionChannel[0].value);
+	storyboardCameraTransform.SetRotation(storyboards[0].AnimatedElementList["Camera"].RotationChannel[0].value);
+	storyboardPrefab.AddConstructor(new TransformComponentConstructor(storyboardCameraTransform));
 
 	/* UI */
 	startMenu = std::make_shared<StartMenu>(eventManager);
 	startMenuHandle = uiRenderer.GetEntityHandle(startMenu);
+	letter = std::make_shared<Letter>();
+	letterHandle = uiRenderer.GetEntityHandle(letter);
 
-	std::function<void(const StartGameEvent& event)> startGameCallback =
-		[scene = this, entityId = &entityId, world = &world, storyboards = &storyboards](const StartGameEvent& event) {
+	std::function<void(const GameStartEvent& event)> startGameCallback =
+		[scene = this, entityId = &entityId, world = &world, storyboards = &storyboards](const GameStartEvent& event) {
 		StoryboardDirectorComponent* component = world->GetComponent<StoryboardDirectorComponent>(entityId->storyboard);
-		component->data.currentStoryboard = (*storyboards)[0];
-		component->data.storyboardState = StoryboardState::BeginFlag;
-		component->data.nameIdMap.clear();
-		component->data.nameIdMap.emplace("Camera", entityId->storyboard);
-		component->data.nameIdMap.emplace("Player", entityId->player);
-		component->currentTime = 0;
+		StoryboardDirectorComponent::Data data((*storyboards)[0], std::unordered_map<std::string, eid_t>{ {"Camera", entityId->storyboard}, { "Player", entityId->player }});
+		component->BeginStoryboard<YardSceneEndOpenSceneStoryboardEvent>(data);
 	};
-	eventManager.RegisterForEvent<StartGameEvent>(startGameCallback);
+
+	eventManager.RegisterForEvent<GameStartEvent>(startGameCallback);
+
+	std::function<void(const YardSceneEndOpenSceneStoryboardEvent& event)> endOpenSceneCallback =
+		[scene = this, letter = letter](const YardSceneEndOpenSceneStoryboardEvent& event) {
+		letter->Show();
+	};
+	eventManager.RegisterForEvent<YardSceneEndOpenSceneStoryboardEvent>(endOpenSceneCallback);
 
 	prefabsSteup = true;
 }

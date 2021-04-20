@@ -2,38 +2,72 @@
 #include <vector>
 
 #include <thirdEngine/Framework/World.h>
+#include <thirdEngine/Renderer/Renderer.h>
 #include <thirdEngine/Framework/Component.h>
 #include <thirdEngine/Framework/DefaultComponentConstructor.h>
 
-enum class PlayerState
+enum class PlayerControlState
 {
-	PlayerState_Normal,
-	PlayerState_InStoryboard,
-	PlayerState_InGUI
+	Normal,
+	InStoryboard,
+	InGUI
 };
 
 enum class PlayerTaskState {
-	PlayerTaskState_Finished,
-	PlayerTaskState_NotFinished
+	Finished,
+	NotFinished
+};
+
+enum class PlayerAnimationState {
+	Idle,
+	Walk,
+	WalkWithMower,
+	TurnAround,
+	PickLetter,
+	PutLetter,
+	EndPlaceHolder
 };
 
 class PlayerComponent :public Component
 {
 public:
-	PlayerComponent() { };
+	PlayerComponent()
+		:animationState(PlayerAnimationState::EndPlaceHolder),
+		preAnimationState(PlayerAnimationState::EndPlaceHolder),
+		animationTimer(0)
+	{ };
 
 	struct Data
 	{
 		Data() :camera(World::NullEntity) { }
 
 		eid_t camera;
+
+		Renderer::ModelHandle walk;
+		Renderer::ModelHandle turnAround;
+		Renderer::ModelHandle pickLetter;
+		Renderer::ModelHandle putLetter;
 	};
 
 	Data data;
 
-	PlayerState playerState;
-	bool isBusy;
+	PlayerControlState controlState;
 
+	void SetAnimationState(PlayerAnimationState newState)
+	{
+		preAnimationState = animationState;
+		animationState = newState;
+	}
+
+private:
+	friend class PlayerAnimationStateSystem;
+
+	PlayerAnimationState animationState;
+	PlayerAnimationState preAnimationState;
+
+	float animationTimer;
+
+	bool isBusy;
 	std::vector<PlayerTaskState> taskState;
 };
 

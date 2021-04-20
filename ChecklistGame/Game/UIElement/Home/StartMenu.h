@@ -13,7 +13,7 @@ public:
 private:
 	EventManager& eventManager;
 
-	bool isVisible = true;
+	bool isVisible;
 
 	Texture titleTexture;
 	Texture playBtnTexture;

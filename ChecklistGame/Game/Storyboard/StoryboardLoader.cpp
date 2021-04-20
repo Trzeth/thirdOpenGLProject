@@ -48,9 +48,20 @@ std::vector<Storyboard> StoryboardLoader::LoadFromFile(const std::string& filepa
 			if (obj.HasMember("PositionChannel"))animatedEle.PositionChannel = parseJsonArray<KeyFrame<glm::vec3>>(obj["PositionChannel"].GetArray());
 			if (obj.HasMember("RotationChannel"))animatedEle.RotationChannel = parseJsonArray<KeyFrame<glm::quat>>(obj["RotationChannel"].GetArray());
 			if (obj.HasMember("ScaleChannel"))animatedEle.ScaleChannel = parseJsonArray<KeyFrame<glm::vec3>>(obj["ScaleChannel"].GetArray());
+			if (obj.HasMember("PlayerAnimationStateChannel")) animatedEle.PlayerAnimationStateChannel = parseJsonArray<KeyFrame<PlayerAnimationState>>(obj["PlayerAnimationStateChannel"].GetArray());
 
 			sb.AnimatedElementList.emplace(name, animatedEle);
 		}
+
+		float max = sb.StartTime;
+		for (auto& v : sb.AnimatedElementList) {
+			if (v.second.PositionChannel.size() > 0)max = std::max(v.second.PositionChannel.rbegin()->time, max);
+			if (v.second.RotationChannel.size() > 0)max = std::max(v.second.RotationChannel.rbegin()->time, max);
+			if (v.second.ScaleChannel.size() > 0)max = std::max(v.second.ScaleChannel.rbegin()->time, max);
+			if (v.second.PlayerAnimationStateChannel.size() > 0)max = std::max(v.second.PlayerAnimationStateChannel.rbegin()->time, max);
+		}
+
+		sb.EndTime = max;
 
 		sbs.push_back(sb);
 	}
@@ -91,6 +102,41 @@ inline std::vector<KeyFrame<glm::quat>> StoryboardLoader::parseJsonArray(const G
 			// quat
 			v.push_back(KeyFrame<glm::quat>(glm::quat(val[0].GetFloat(), val[1].GetFloat(), val[2].GetFloat(), val[3].GetFloat()), obj["Time"].GetFloat()));
 		}
+	}
+
+	return v;
+}
+
+template<>
+inline std::vector<KeyFrame<PlayerAnimationState>> StoryboardLoader::parseJsonArray(const GenericArray<true, Value>& arr)
+{
+	std::vector<KeyFrame<PlayerAnimationState>> v;
+	for (auto& obj : arr) {
+		assert(obj["Value"].IsString());
+
+		auto val = string(obj["Value"].GetString());
+		PlayerAnimationState state = PlayerAnimationState::EndPlaceHolder;
+
+		if (val == "Walk") {
+			state = PlayerAnimationState::Walk;
+		}
+		else if (val == "PickLetter") {
+			state = PlayerAnimationState::PickLetter;
+		}
+		else if (val == "PutLetter") {
+			state = PlayerAnimationState::PutLetter;
+		}
+		else if (val == "TurnAround") {
+			state = PlayerAnimationState::TurnAround;
+		}
+		else if (val == "WalkWithMower") {
+			state = PlayerAnimationState::WalkWithMower;
+		}
+		else if (val == "EndPlaceHolder") {
+			state = PlayerAnimationState::EndPlaceHolder;
+		}
+
+		v.push_back(KeyFrame<PlayerAnimationState>(state, obj["Time"].GetFloat()));
 	}
 
 	return v;

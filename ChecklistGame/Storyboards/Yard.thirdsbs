@@ -200,5 +200,78 @@
 				]
 			}
 		]
+	},
+	{
+		"Name": "TurnAround",
+		"StartTime": 0,
+		"AnimatedElements": [
+			{
+				"Name": "Player",
+				"RotationChannel": [
+					{
+						"Time": 0,
+						"Value": [
+							-90,
+							0,
+							0
+						]
+					},
+					{
+						"Time": 1.4,
+						"Value": [
+							-90,
+							0,
+							0
+						]
+					},
+					{
+						"Time": 1.401,
+						"Value": [
+							90,
+							0,
+							0
+						]
+					},
+					{
+						"Time": 4.99,
+						"Value": [
+							90,
+							0,
+							0
+						]
+					},
+					{
+						"Time": 5,
+						"Value": [
+							180,
+							0,
+							0
+						]
+					},
+					{
+						"Time": 6,
+						"Value": [
+							0,
+							0,
+							0
+						]
+					}
+				],
+				"PlayerAnimationStateChannel": [
+					{
+						"Time": 0,
+						"Value": "PutLetter"
+					},
+					{
+						"Time": 1.4,
+						"Value": "TurnAround"
+					},
+					{
+						"Time": 5,
+						"Value": "Idle"
+					}
+				]
+			}
+		]
 	}
 ]

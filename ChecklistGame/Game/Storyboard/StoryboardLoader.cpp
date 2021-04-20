@@ -132,6 +132,9 @@ inline std::vector<KeyFrame<PlayerAnimationState>> StoryboardLoader::parseJsonAr
 		else if (val == "WalkWithMower") {
 			state = PlayerAnimationState::WalkWithMower;
 		}
+		else if (val == "Idle") {
+			state = PlayerAnimationState::Idle;
+		}
 		else if (val == "EndPlaceHolder") {
 			state = PlayerAnimationState::EndPlaceHolder;
 		}

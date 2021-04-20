@@ -68,9 +68,6 @@
     <ClCompile Include="Game\System\PlayerInputSystem.cpp">
       <Filter>Game\System</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Event\YardSceneEndOpenSceneStoryboardEvent.cpp">
-      <Filter>Game\Event</Filter>
-    </ClCompile>
     <ClCompile Include="Game\Event\GameCloseEvent.cpp">
       <Filter>Game\Event</Filter>
     </ClCompile>
@@ -79,6 +76,15 @@
     </ClCompile>
     <ClCompile Include="Game\UIElement\Home\Letter.cpp">
       <Filter>Game\UIElement\Home</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Event\YardSceneLetterCloseEvent.cpp">
+      <Filter>Game\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Event\YardSceneOpenSceneStoryboardEndEvent.cpp">
+      <Filter>Game\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Event\YardSceneTurnAroundStoryboardEndEvent.cpp">
+      <Filter>Game\Event</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -189,11 +195,17 @@
     <ClInclude Include="Game\Event\GameStartEvent.h">
       <Filter>Game\Event</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Event\YardSceneEndOpenSceneStoryboardEvent.h">
-      <Filter>Game\Event</Filter>
-    </ClInclude>
     <ClInclude Include="Game\UIElement\Home\Letter.h">
       <Filter>Game\UIElement\Home</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Event\YardSceneLetterCloseEvent.h">
+      <Filter>Game\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Event\YardSceneOpenSceneStoryboardEndEvent.h">
+      <Filter>Game\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Event\YardSceneTurnAroundStoryboardEndEvent.h">
+      <Filter>Game\Event</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

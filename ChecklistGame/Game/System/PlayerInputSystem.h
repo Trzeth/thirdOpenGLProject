@@ -14,6 +14,7 @@ private:
 	Input& input;
 	EventManager& eventManager;
 
-	float horizontalRad;
-	float verticalRad;
+	float horizontalRad = 0.0f;
+
+	float verticalRad = 0.79f;
 };

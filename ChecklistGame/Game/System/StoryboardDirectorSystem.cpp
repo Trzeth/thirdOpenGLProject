@@ -93,6 +93,7 @@ void StoryboardDirectorSystem::updateEntity(float dt, eid_t entity)
 			{
 				eventManager.SendEvent(storyboardDir->endEventHashCode);
 			}
+			return;
 		}
 		if (storyboardDir->data.loopType == StoryboardLoopType::Forever) {
 			storyboardDir->currentTime -= duration;
@@ -134,10 +135,13 @@ void StoryboardDirectorSystem::updateEntity(float dt, eid_t entity)
 			if (keypair.first == "Player")
 			{
 				PlayerComponent* playerComponent = world.GetComponent<PlayerComponent>(keypair.second);
-				playerComponent->SetAnimationState(interpolateKeyframes<PlayerAnimationState>(
+				PlayerAnimationState state = interpolateKeyframes<PlayerAnimationState>(
 					animatedEle.PlayerAnimationStateChannel,
 					currentTime,
-					storyboardDir->animatedElementContexts[keypair.second].playerAnimationStateKey));
+					storyboardDir->animatedElementContexts[keypair.second].playerAnimationStateKey);
+
+				if (state != PlayerAnimationState::EndPlaceHolder)
+					playerComponent->SetAnimationState(state);
 			}
 		}
 	}

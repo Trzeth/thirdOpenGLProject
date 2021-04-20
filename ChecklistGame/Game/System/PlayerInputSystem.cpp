@@ -33,11 +33,12 @@ void PlayerInputSystem::updateEntity(float dt, eid_t entity)
 	glm::vec3 cameraPos = cameraTransformComponent->data->GetPosition();
 	float r = 10;
 
-	cameraPos.x = sin(horizontalRad) * r;
-	cameraPos.y = sin(verticalRad) * r + 10;
-	cameraPos.z = cos(horizontalRad) * r;
+	cameraPos.x = cos(horizontalRad) * r;
+	cameraPos.y = sin(horizontalRad) * cos(verticalRad) * r + 5;
+	cameraPos.z = sin(verticalRad) * sin(horizontalRad) * r;
+
 	cameraTransformComponent->data->SetPosition(cameraPos);
-	cameraTransformComponent->data->SetRotation(glm::angleAxis(-verticalRad, Transform::RIGHT) * glm::angleAxis(horizontalRad, Transform::UP));
+	cameraTransformComponent->data->SetRotation(glm::angleAxis(verticalRad - glm::pi<float>() / 2, Transform::RIGHT) * glm::angleAxis(glm::pi<float>() / 2 - horizontalRad, Transform::UP));
 
 	TransformComponent* transformComponent = world.GetComponent<TransformComponent>(entity);
 	glm::vec3 pos = transformComponent->data->GetPosition();

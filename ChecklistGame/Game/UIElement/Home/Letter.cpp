@@ -2,9 +2,10 @@
 
 #include <thirdEngine/Renderer/TextureImpl.h>
 #include <thirdEngine/Renderer/UI/ImGui/imgui.h>
+#include "Game/Event/YardSceneLetterCloseEvent.h"
 
-Letter::Letter()
-	:isVisible(false)
+Letter::Letter(EventManager& eventManager)
+	:isVisible(false), eventManager(eventManager)
 {
 	TextureLoader textureLoader;
 	letterTexture = textureLoader.LoadFromFile(TextureType::Diffuse, "GUI/Letter.png");
@@ -27,6 +28,9 @@ void Letter::Draw()
 
 		if (ImGui::ImageButton((void*)(intptr_t)letterTexture.impl->id, ImVec2(1280, 768))) {
 			isVisible = false;
+
+			YardSceneLetterCloseEvent evt;
+			eventManager.SendEvent<YardSceneLetterCloseEvent>(evt);
 		}
 
 		ImGui::PopStyleColor(3);

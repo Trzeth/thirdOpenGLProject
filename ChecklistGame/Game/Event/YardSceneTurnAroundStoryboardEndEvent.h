@@ -1,5 +1,6 @@
 #pragma once
 #include <thirdEngine/Framework/Event.h>
-class YardSceneEndOpenSceneStoryboardEvent :public Event
+
+class YardSceneTurnAroundStoryboardEndEvent :public Event
 {
 };

@@ -154,7 +154,9 @@
     <ClCompile Include="Game\Component\TransformComponent.cpp" />
     <ClCompile Include="Game\Event\GameCloseEvent.cpp" />
     <ClCompile Include="Game\Event\GameStartEvent.cpp" />
-    <ClCompile Include="Game\Event\YardSceneEndOpenSceneStoryboardEvent.cpp" />
+    <ClCompile Include="Game\Event\YardSceneOpenSceneStoryboardEndEvent.cpp" />
+    <ClCompile Include="Game\Event\YardSceneLetterCloseEvent.cpp" />
+    <ClCompile Include="Game\Event\YardSceneTurnAroundStoryboardEndEvent.cpp" />
     <ClCompile Include="Game\Extra\PrefabConstructionInfo.cpp" />
     <ClCompile Include="Game\Extra\Transform.cpp" />
     <ClCompile Include="Game\Extra\Util.cpp" />
@@ -182,7 +184,9 @@
     <ClInclude Include="Game\Component\TransformComponent.h" />
     <ClInclude Include="Game\Event\GameCloseEvent.h" />
     <ClInclude Include="Game\Event\GameStartEvent.h" />
-    <ClInclude Include="Game\Event\YardSceneEndOpenSceneStoryboardEvent.h" />
+    <ClInclude Include="Game\Event\YardSceneOpenSceneStoryboardEndEvent.h" />
+    <ClInclude Include="Game\Event\YardSceneLetterCloseEvent.h" />
+    <ClInclude Include="Game\Event\YardSceneTurnAroundStoryboardEndEvent.h" />
     <ClInclude Include="Game\Extra\PrefabConstructionInfo.h" />
     <ClInclude Include="Game\Extra\Transform.h" />
     <ClInclude Include="Game\Extra\Util.h" />

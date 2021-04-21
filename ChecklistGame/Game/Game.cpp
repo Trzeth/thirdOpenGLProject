@@ -55,8 +55,9 @@ int Game::setup()
 	modelRenderSystem = std::make_unique<ModelRenderSystem>(world, renderer);
 	cameraSystem = std::make_unique<CameraSystem>(world, renderer);
 	playerInputSystem = std::make_unique<PlayerInputSystem>(world, input, eventManager);
-	storyboardDirectorSystem = std::make_unique<StoryboardDirectorSystem>(world, eventManager);
 	playerAnimationStateSystem = std::make_unique<PlayerAnimationStateSystem>(world, renderer);
+	playerControlStateSystem = std::make_unique<PlayerControlStateSystem>(world, window);
+	storyboardDirectorSystem = std::make_unique<StoryboardDirectorSystem>(world, eventManager);
 
 	SceneInfo sceneInfo;
 	sceneInfo.world = &world;
@@ -100,6 +101,7 @@ void Game::update()
 	/* Display */
 	storyboardDirectorSystem->Update(deltaTime);
 	playerAnimationStateSystem->Update(deltaTime);
+	playerControlStateSystem->Update(deltaTime);
 
 	modelRenderSystem->Update(deltaTime);
 	cameraSystem->Update(deltaTime);

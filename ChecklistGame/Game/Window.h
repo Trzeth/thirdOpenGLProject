@@ -1,4 +1,6 @@
 #pragma once
+#ifndef _Window_h_
+#define _Window_h_
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -45,3 +47,4 @@ private:
 	friend struct MouseButtonCallBack;
 #pragma endregion
 };
+#endif // !_Window_h_

@@ -34,6 +34,8 @@ public:
 	PlayerComponent()
 		:animationState(PlayerAnimationState::EndPlaceHolder),
 		preAnimationState(PlayerAnimationState::EndPlaceHolder),
+		controlState(PlayerControlState::Normal),
+		preControlState(PlayerControlState::Normal),
 		animationTimer(0)
 	{ };
 
@@ -51,19 +53,28 @@ public:
 
 	Data data;
 
-	PlayerControlState controlState;
-
 	void SetAnimationState(PlayerAnimationState newState)
 	{
 		preAnimationState = animationState;
 		animationState = newState;
 	}
 
+	void SetControlState(PlayerControlState newState)
+	{
+		preControlState = controlState;
+		controlState = newState;
+	}
+
 private:
 	friend class PlayerAnimationStateSystem;
+	friend class PlayerControlStateSystem;
+	friend class PlayerInputSystem;
 
 	PlayerAnimationState animationState;
 	PlayerAnimationState preAnimationState;
+
+	PlayerControlState controlState;
+	PlayerControlState preControlState;
 
 	float animationTimer;
 

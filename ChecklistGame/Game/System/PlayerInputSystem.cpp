@@ -30,15 +30,19 @@ void PlayerInputSystem::updateEntity(float dt, eid_t entity)
 	verticalRad += lookVertical * dt;
 	verticalRad = glm::clamp(verticalRad, -glm::half_pi<float>() + 0.01f, glm::half_pi<float>() - 0.01f);
 
-	glm::vec3 cameraPos = cameraTransformComponent->data->GetPosition();
-	float r = 10;
-
+	float r = 15;
+	glm::vec3 cameraPos;
 	cameraPos.x = cos(horizontalRad) * r;
-	cameraPos.y = sin(horizontalRad) * cos(verticalRad) * r + 5;
-	cameraPos.z = sin(verticalRad) * sin(horizontalRad) * r;
+	cameraPos.y = sin(horizontalRad) * cos(verticalRad) * r + 8;
+	cameraPos.z = sin(verticalRad) * sin(horizontalRad) * r + 3;
 
 	cameraTransformComponent->data->SetPosition(cameraPos);
 	cameraTransformComponent->data->SetRotation(glm::angleAxis(verticalRad - glm::pi<float>() / 2, Transform::RIGHT) * glm::angleAxis(glm::pi<float>() / 2 - horizontalRad, Transform::UP));
+
+	glm::vec3 v = cameraTransformComponent->data->GetPosition();
+	glm::quat q = cameraTransformComponent->data->GetRotation();
+	printf("Position:%f %f %f\n", v.x, v.y, v.z);
+	printf("R:%f %f %f %f\n", q.x, q.y, q.z, q.w);
 
 	TransformComponent* transformComponent = world.GetComponent<TransformComponent>(entity);
 	glm::vec3 pos = transformComponent->data->GetPosition();

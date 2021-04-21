@@ -169,6 +169,7 @@
     <ClCompile Include="Game\System\CameraSystem.cpp" />
     <ClCompile Include="Game\System\ModelRenderSystem.cpp" />
     <ClCompile Include="Game\System\PlayerAnimationStateSystem.cpp" />
+    <ClCompile Include="Game\System\PlayerControlStateSystem.cpp" />
     <ClCompile Include="Game\System\PlayerInputSystem.cpp" />
     <ClCompile Include="Game\System\StoryboardDirectorSystem.cpp" />
     <ClCompile Include="Game\UIElement\Home\Letter.cpp" />
@@ -199,6 +200,7 @@
     <ClInclude Include="Game\System\CameraSystem.h" />
     <ClInclude Include="Game\System\ModelRenderSystem.h" />
     <ClInclude Include="Game\System\PlayerAnimationStateSystem.h" />
+    <ClInclude Include="Game\System\PlayerControlStateSystem.h" />
     <ClInclude Include="Game\System\PlayerInputSystem.h" />
     <ClInclude Include="Game\System\StoryboardDirectorSystem.h" />
     <ClInclude Include="Game\UIElement\Home\Letter.h" />

@@ -26,7 +26,7 @@ void YardScene::Setup()
 
 	PlayerComponent* playerComponent = world.GetComponent<PlayerComponent>(entityId.player);
 	playerComponent->data.camera = entityId.camera;
-	playerComponent->controlState = PlayerControlState::InGUI;
+	playerComponent->SetControlState(PlayerControlState::InGUI);
 
 	entityId.storyboard = world.ConstructPrefab(storyboardPrefab);
 
@@ -93,10 +93,7 @@ void YardScene::setupPrefab()
 	playerPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, playerData.walk, skinnedShader));
 
 	/* Camera */
-	Transform cameraTransform;
-	cameraTransform.SetPosition(glm::vec3(0.0, 17.07f, 7.07f));
-	//cameraTransform.SetRotation(glm::quat(0.92, 0, 0, 0.38));
-	cameraPrefab.AddConstructor(new TransformComponentConstructor(cameraTransform));
+	cameraPrefab.AddConstructor(new TransformComponentConstructor());
 	cameraPrefab.AddConstructor(new CameraComponentConstructor(CameraComponent::Data()));
 
 	/* Storyboard */
@@ -137,19 +134,18 @@ void YardScene::setupPrefab()
 		[scene = this, entityId = &entityId, world = &world, storyboards = &storyboards](const YardSceneLetterCloseEvent& event) {
 		StoryboardDirectorComponent* component = world->GetComponent<StoryboardDirectorComponent>(entityId->storyboard);
 		auto sbCameraTransfrorm = world->GetComponent<TransformComponent>(entityId->storyboard)->data;
-		auto cameraTransfrom = Transform(*world->GetComponent<TransformComponent>(entityId->camera)->data);
 
-		/*
 		Storyboard::AnimatedElement animElement;
 		auto& sb = (*storyboards)[1];
+
 		animElement.PositionChannel.push_back(KeyFrame<glm::vec3>(sbCameraTransfrorm->GetPosition(), 0.0f));
-		animElement.PositionChannel.push_back(KeyFrame<glm::vec3>(cameraTransfrom.GetWorldPosition(), sb.EndTime));
+		animElement.PositionChannel.push_back(KeyFrame<glm::vec3>(glm::vec3(-9.554, 15.607, 41.592), sb.EndTime));
 
 		animElement.RotationChannel.push_back(KeyFrame<glm::quat>(sbCameraTransfrorm->GetRotation(), 0.0f));
-		animElement.RotationChannel.push_back(KeyFrame<glm::quat>(cameraTransfrom.GetWorldRotation(), sb.EndTime));
+		animElement.RotationChannel.push_back(KeyFrame<glm::quat>(glm::quat(0.9239, -0.382683, 0.0, 0.0), sb.EndTime));
 
 		sb.AnimatedElementList.emplace("Camera", animElement);
-		*/
+
 		StoryboardDirectorComponent::Data data((*storyboards)[1], std::unordered_map<std::string, eid_t>{ {"Camera", entityId->storyboard}, { "Player", entityId->player }});
 		component->BeginStoryboard<YardSceneTurnAroundStoryboardEndEvent>(data);
 	};
@@ -159,7 +155,7 @@ void YardScene::setupPrefab()
 	std::function<void(const YardSceneTurnAroundStoryboardEndEvent& event)> turnAroundSBEndCallback =
 		[scene = this, entityId = &entityId, world = &world, storyboards = &storyboards](const YardSceneTurnAroundStoryboardEndEvent& event) {
 		PlayerComponent* playerComponent = world->GetComponent<PlayerComponent>(entityId->player);
-		playerComponent->controlState = PlayerControlState::Normal;
+		playerComponent->SetControlState(PlayerControlState::Normal);
 
 		CameraComponent* storyboardCamera = world->GetComponent<CameraComponent>(entityId->storyboard);
 		storyboardCamera->isEnable = false;

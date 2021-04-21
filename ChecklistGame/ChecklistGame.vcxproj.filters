@@ -86,6 +86,9 @@
     <ClCompile Include="Game\Event\YardSceneTurnAroundStoryboardEndEvent.cpp">
       <Filter>Game\Event</Filter>
     </ClCompile>
+    <ClCompile Include="Game\System\PlayerControlStateSystem.cpp">
+      <Filter>Game\System</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Game">
@@ -206,6 +209,9 @@
     </ClInclude>
     <ClInclude Include="Game\Event\YardSceneTurnAroundStoryboardEndEvent.h">
       <Filter>Game\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\System\PlayerControlStateSystem.h">
+      <Filter>Game\System</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

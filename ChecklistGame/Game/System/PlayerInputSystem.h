@@ -14,7 +14,7 @@ private:
 	Input& input;
 	EventManager& eventManager;
 
-	float horizontalRad = 0.0f;
-
-	float verticalRad = 0.79f;
+	const float PI = 3.14159265358979323846264338327950288;
+	float horizontalRad = PI / 2;
+	float verticalRad = PI / 4;
 };

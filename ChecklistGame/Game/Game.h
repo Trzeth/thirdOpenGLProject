@@ -12,12 +12,18 @@
 #include "System/StoryboardDirectorSystem.h"
 #include "System/PlayerAnimationStateSystem.h"
 #include "System/PlayerControlStateSystem.h"
+#include "System/CollisionUpdateSystem.h"
+#include "System/RigidbodyMotorSystem.h"
 
 #include "Window.h"
+#include "Physics.h"
+#include "PhysicsDebugDrawer.h"
 
 #include "Scene/Scene.h"
 
 constexpr double FRAMEDURATION = 1.0 / 60;
+constexpr int VELOCITYITERATION = 10;
+constexpr int POSITIONITERATION = 8;
 
 class Game
 {
@@ -44,10 +50,15 @@ private:
 	std::unique_ptr<PlayerAnimationStateSystem> playerAnimationStateSystem;
 	std::unique_ptr<PlayerControlStateSystem> playerControlStateSystem;
 	std::unique_ptr<StoryboardDirectorSystem> storyboardDirectorSystem;
+	std::unique_ptr<CollisionUpdateSystem> collisionUpdateSystem;
+	std::unique_ptr<RigidbodyMotorSystem> rigidbodyMotorSystem;
 
 	std::unique_ptr<Scene> defaultScene;
+	std::shared_ptr<b2World> dynamicsWorld;
 
 	Renderer renderer;
+	Physics physics;
+	PhysicsDebugDrawer debugDrawer;
 	UIRenderer uiRenderer;
 	World world;
 	Input input;

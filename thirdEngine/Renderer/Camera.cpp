@@ -5,7 +5,15 @@
 #include <glm/gtx/orthonormalize.hpp>
 #include <glm/gtx/projection.hpp>
 
-Camera::Camera() { }
+Camera::Camera()
+	: fieldOfView(glm::radians(45.0f)),
+	width(0),
+	height(0),
+	nearClip(0.1f),
+	farClip(10000),
+	inverseViewMatrix(1.0f),
+	frustumIsDirty(true)
+{ }
 
 Camera::Camera(float fieldOfView, unsigned int width, unsigned int height, float nearClip, float farClip)
 	: fieldOfView(fieldOfView),
@@ -13,9 +21,9 @@ Camera::Camera(float fieldOfView, unsigned int width, unsigned int height, float
 	height(height),
 	nearClip(nearClip),
 	farClip(farClip),
+	inverseViewMatrix(1.0f),
 	frustumIsDirty(true)
-{
-}
+{ }
 
 glm::mat4 Camera::GetViewMatrix()
 {
@@ -24,12 +32,15 @@ glm::mat4 Camera::GetViewMatrix()
 
 glm::mat4 Camera::GetProjectionMatrix()
 {
+	if (height == 0)
+		return glm::mat4(1.0f);
+
 	return glm::perspective(fieldOfView, (float)width / (float)height, nearClip, farClip);
 }
 
 glm::mat4 Camera::GetViewMatrixOrtho()
 {
-	return glm::mat4();
+	return glm::mat4(1.0f);
 }
 
 glm::mat4 Camera::GetProjectionMatrixOrtho()
@@ -66,6 +77,23 @@ Frustum Camera::GetFrustum() const
 	else {
 		return this->cachedFrustum;
 	}
+}
+
+void Camera::SetFOV(float fov)
+{
+	fieldOfView = fov;
+}
+
+void Camera::SetScreenSize(unsigned int w, unsigned int h)
+{
+	width = w;
+	height = h;
+}
+
+void Camera::SetClip(float near, float far)
+{
+	nearClip = near;
+	farClip = far;
 }
 
 Frustum Camera::GetFrustum()

@@ -1,4 +1,5 @@
 #pragma once
+#include <box2d/box2d.h>
 #include <thirdEngine/Framework/World.h>
 #include <thirdEngine/Renderer/Renderer.h>
 #include <thirdEngine/Renderer/UI/UIRenderer.h>
@@ -7,12 +8,13 @@ struct SceneInfo {
 	World* world;
 	Renderer* renderer;
 	UIRenderer* uiRenderer;
+	b2World* dynamicsWorld;
 };
 
 class Scene
 {
 public:
-	Scene(const SceneInfo& info) :world(*info.world), renderer(*info.renderer), uiRenderer(*info.uiRenderer), prefabsSteup(false) { };
+	Scene(const SceneInfo& info) :world(*info.world), renderer(*info.renderer), uiRenderer(*info.uiRenderer), dynamicsWorld(*info.dynamicsWorld), prefabsSteup(false) { };
 	virtual void Setup() = 0;
 
 	/*!
@@ -27,4 +29,5 @@ protected:
 	World& world;
 	Renderer& renderer;
 	UIRenderer& uiRenderer;
+	b2World& dynamicsWorld;
 };

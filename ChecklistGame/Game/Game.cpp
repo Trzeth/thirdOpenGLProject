@@ -1,8 +1,13 @@
 #include "Game.h"
 
 #include "Scene/Home/YardScene.h"
+#include "Component/PlayerComponent.h"
+#include "Component/CameraComponent.h"
 
-Game::Game() :renderer(), uiRenderer(), world(), input(), window(input, renderer), eventManager(world)
+Game::Game() :
+	renderer(), uiRenderer(), world(), input(),
+	window(input, renderer), eventManager(world),
+	dynamicsWorld(new b2World(b2Vec2())), physics(dynamicsWorld.get(), eventManager), debugDrawer()
 {
 	restart = false;
 	running = false;
@@ -51,6 +56,11 @@ int Game::setup()
 	renderer.Initialize(window.GetWidth(), window.GetHeight());
 	uiRenderer.Initialize(window.GetWindow());
 
+	/* Physics */
+	debugDrawer.Initialize();
+	debugDrawer.SetFlags(b2Draw::e_shapeBit);
+	dynamicsWorld->SetDebugDraw(&debugDrawer);
+
 	/* System */
 	modelRenderSystem = std::make_unique<ModelRenderSystem>(world, renderer);
 	cameraSystem = std::make_unique<CameraSystem>(world, renderer);
@@ -58,13 +68,28 @@ int Game::setup()
 	playerAnimationStateSystem = std::make_unique<PlayerAnimationStateSystem>(world, renderer);
 	playerControlStateSystem = std::make_unique<PlayerControlStateSystem>(world, window);
 	storyboardDirectorSystem = std::make_unique<StoryboardDirectorSystem>(world, eventManager);
+	collisionUpdateSystem = std::make_unique<CollisionUpdateSystem>(world);
+	rigidbodyMotorSystem = std::make_unique<RigidbodyMotorSystem>(world);
 
 	SceneInfo sceneInfo;
 	sceneInfo.world = &world;
 	sceneInfo.renderer = &renderer;
 	sceneInfo.uiRenderer = &uiRenderer;
+	sceneInfo.dynamicsWorld = dynamicsWorld.get();
 	defaultScene = std::make_unique<YardScene>(sceneInfo, eventManager);
 	defaultScene->Setup();
+
+	std::vector<eid_t> playerEntities = world.GetEntitiesWithComponent<PlayerComponent>();
+	if (playerEntities.size() < 0)
+	{
+		printf("WARNING: No camera in scene");
+	}
+	else
+	{
+		PlayerComponent* playerComponent = world.GetComponent<PlayerComponent>(playerEntities[0]);
+		CameraComponent* cameraComponent = world.GetComponent<CameraComponent>(playerComponent->data.camera);
+		debugDrawer.SetCamera(&cameraComponent->data);
+	}
 
 	return 0;
 }
@@ -98,22 +123,32 @@ void Game::update()
 	input.Update();
 	playerInputSystem->Update(deltaTime);
 
+	/* Physics */
+	rigidbodyMotorSystem->Update(deltaTime);
+	dynamicsWorld->Step(deltaTime, VELOCITYITERATION, POSITIONITERATION);
+	physics.Update(deltaTime);
+
 	/* Display */
 	storyboardDirectorSystem->Update(deltaTime);
 	playerAnimationStateSystem->Update(deltaTime);
 	playerControlStateSystem->Update(deltaTime);
+	collisionUpdateSystem->Update(deltaTime);
 
 	modelRenderSystem->Update(deltaTime);
 	cameraSystem->Update(deltaTime);
 
 	renderer.Update(deltaTime);
 	uiRenderer.Update(deltaTime);
+
 	world.CleanupEntities();
 }
 
 void Game::draw()
 {
 	renderer.Draw();
+	dynamicsWorld->DebugDraw();
+	debugDrawer.Draw();
+	debugDrawer.Reset();
 	uiRenderer.Draw();
 	window.NextFrame();
 }

@@ -89,6 +89,27 @@
     <ClCompile Include="Game\System\PlayerControlStateSystem.cpp">
       <Filter>Game\System</Filter>
     </ClCompile>
+    <ClCompile Include="Game\Event\CollisionEvent.cpp">
+      <Filter>Game\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Physics.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Component\CollisionComponent.cpp">
+      <Filter>Game\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Component\RigidbodyMotorComponent.cpp">
+      <Filter>Game\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\System\CollisionUpdateSystem.cpp">
+      <Filter>Game\System</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\System\RigidbodyMotorSystem.cpp">
+      <Filter>Game\System</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\PhysicsDebugDrawer.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Game">
@@ -212,6 +233,27 @@
     </ClInclude>
     <ClInclude Include="Game\System\PlayerControlStateSystem.h">
       <Filter>Game\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Event\CollisionEvent.h">
+      <Filter>Game\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Physics.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Component\CollisionComponent.h">
+      <Filter>Game\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Component\RigidbodyMotorComponent.h">
+      <Filter>Game\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\System\CollisionUpdateSystem.h">
+      <Filter>Game\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\System\RigidbodyMotorSystem.h">
+      <Filter>Game\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\PhysicsDebugDrawer.h">
+      <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

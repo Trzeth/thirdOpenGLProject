@@ -7,6 +7,8 @@
 #include "Game/Component/CameraComponent.h"
 #include "Game/Component/PlayerComponent.h"
 #include "Game/Component/StoryboardDirectorComponent.h"
+#include "Game/Component/CollisionComponent.h"
+#include "Game/Component/RigidbodyMotorComponent.h"
 
 #include "Game/Event/GameStartEvent.h"
 #include "Game/Event/YardSceneOpenSceneStoryboardEndEvent.h"
@@ -22,11 +24,13 @@ void YardScene::Setup()
 	PrefabConstructionInfo playerInfo = PrefabConstructionInfo(Transform(glm::vec3(0, 0, 0)));
 	entityId.player = world.ConstructPrefab(playerPrefab);
 
-	entityId.camera = world.ConstructPrefab(cameraPrefab, entityId.player);
+	entityId.camera = world.ConstructPrefab(cameraPrefab);
 
 	PlayerComponent* playerComponent = world.GetComponent<PlayerComponent>(entityId.player);
 	playerComponent->data.camera = entityId.camera;
 	playerComponent->SetControlState(PlayerControlState::InGUI);
+
+	Camera* cam = &world.GetComponent<CameraComponent>(entityId.camera)->data;
 
 	entityId.storyboard = world.ConstructPrefab(storyboardPrefab);
 
@@ -91,7 +95,17 @@ void YardScene::setupPrefab()
 
 	playerPrefab.AddConstructor(new PlayerComponentConstructor(playerData));
 	playerPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, playerData.walk, skinnedShader));
+	b2BodyDef bodyDef;
+	bodyDef.type = b2BodyType::b2_dynamicBody;
+	bodyDef.allowSleep = false;
 
+	b2FixtureDef fixtureDef;
+	b2CircleShape* shape = new b2CircleShape();
+	shape->m_radius = 2.0f;
+	fixtureDef.shape = shape;
+
+	playerPrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(bodyDef, std::vector<b2FixtureDef>{fixtureDef})));
+	playerPrefab.AddConstructor(new RigidbodyMotorComponentConstructor(RigidbodyMotorComponent::Data()));
 	/* Camera */
 	cameraPrefab.AddConstructor(new TransformComponentConstructor());
 	cameraPrefab.AddConstructor(new CameraComponentConstructor(CameraComponent::Data()));
@@ -116,9 +130,15 @@ void YardScene::setupPrefab()
 
 	std::function<void(const GameStartEvent& event)> startGameCallback =
 		[scene = this, entityId = &entityId, world = &world, storyboards = &storyboards](const GameStartEvent& event) {
+		CollisionComponent* collision = world->GetComponent<CollisionComponent>(entityId->player);
+		collision->controlMovement = false;
 		StoryboardDirectorComponent* component = world->GetComponent<StoryboardDirectorComponent>(entityId->storyboard);
 		StoryboardDirectorComponent::Data data((*storyboards)[0], std::unordered_map<std::string, eid_t>{ {"Camera", entityId->storyboard}, { "Player", entityId->player }});
+#ifndef _DEBUG
+		component->BeginStoryboard<YardSceneOpenSceneStoryboardEndEvent>(data, (*storyboards)[0].EndTime);
+#else
 		component->BeginStoryboard<YardSceneOpenSceneStoryboardEndEvent>(data);
+#endif // DEBUG
 	};
 
 	eventManager.RegisterForEvent<GameStartEvent>(startGameCallback);
@@ -147,13 +167,21 @@ void YardScene::setupPrefab()
 		sb.AnimatedElementList.emplace("Camera", animElement);
 
 		StoryboardDirectorComponent::Data data((*storyboards)[1], std::unordered_map<std::string, eid_t>{ {"Camera", entityId->storyboard}, { "Player", entityId->player }});
+
+#ifndef _DEBUG
+		component->BeginStoryboard<YardSceneTurnAroundStoryboardEndEvent>(data, (*storyboards)[0].EndTime);
+#else
 		component->BeginStoryboard<YardSceneTurnAroundStoryboardEndEvent>(data);
+#endif // DEBUG
 	};
 
 	eventManager.RegisterForEvent<YardSceneLetterCloseEvent>(letterCloseCallback);
 
 	std::function<void(const YardSceneTurnAroundStoryboardEndEvent& event)> turnAroundSBEndCallback =
 		[scene = this, entityId = &entityId, world = &world, storyboards = &storyboards](const YardSceneTurnAroundStoryboardEndEvent& event) {
+		CollisionComponent* collision = world->GetComponent<CollisionComponent>(entityId->player);
+		collision->controlMovement = true;
+
 		PlayerComponent* playerComponent = world->GetComponent<PlayerComponent>(entityId->player);
 		playerComponent->SetControlState(PlayerControlState::Normal);
 

@@ -2,8 +2,10 @@
 
 #include <glm/glm.hpp>
 #include <thirdEngine/Input/Input.h>
+
 #include "Game/Component/PlayerComponent.h"
 #include "Game/Component/TransformComponent.h"
+#include "Game/Component/RigidbodyMotorComponent.h"
 
 PlayerInputSystem::PlayerInputSystem(World& world, Input& input, EventManager& eventManager) :System(world), input(input), eventManager(eventManager)
 {
@@ -14,12 +16,14 @@ PlayerInputSystem::PlayerInputSystem(World& world, Input& input, EventManager& e
 void PlayerInputSystem::updateEntity(float dt, eid_t entity)
 {
 	PlayerComponent* playerComponent = world.GetComponent<PlayerComponent>(entity);
+	RigidbodyMotorComponent* rigidbodyMotorComponent = world.GetComponent<RigidbodyMotorComponent>(entity);
 
 	if (playerComponent->controlState != PlayerControlState::Normal) {
 		return;
 	}
 
 	TransformComponent* cameraTransformComponent = world.GetComponent<TransformComponent>(playerComponent->data.camera);
+	TransformComponent* playerTransformComponent = world.GetComponent<TransformComponent>(entity);
 
 	float horizontal = input.GetAxis("Horizontal", Device_Kbm);
 	float vertical = input.GetAxis("Vertical", Device_Kbm);
@@ -31,23 +35,13 @@ void PlayerInputSystem::updateEntity(float dt, eid_t entity)
 	verticalRad = glm::clamp(verticalRad, -glm::half_pi<float>() + 0.01f, glm::half_pi<float>() - 0.01f);
 
 	float r = 15;
-	glm::vec3 cameraPos;
-	cameraPos.x = cos(horizontalRad) * r;
-	cameraPos.y = sin(horizontalRad) * cos(verticalRad) * r + 8;
-	cameraPos.z = sin(verticalRad) * sin(horizontalRad) * r + 3;
+	glm::vec3 cameraPos = playerTransformComponent->data->GetPosition();
+	cameraPos.x += cos(horizontalRad) * r;
+	cameraPos.y += sin(horizontalRad) * cos(verticalRad) * r + 8;
+	cameraPos.z += sin(verticalRad) * sin(horizontalRad) * r + 3;
 
 	cameraTransformComponent->data->SetPosition(cameraPos);
 	cameraTransformComponent->data->SetRotation(glm::angleAxis(verticalRad - glm::pi<float>() / 2, Transform::RIGHT) * glm::angleAxis(glm::pi<float>() / 2 - horizontalRad, Transform::UP));
-
-	glm::vec3 v = cameraTransformComponent->data->GetPosition();
-	glm::quat q = cameraTransformComponent->data->GetRotation();
-	printf("Position:%f %f %f\n", v.x, v.y, v.z);
-	printf("R:%f %f %f %f\n", q.x, q.y, q.z, q.w);
-
-	TransformComponent* transformComponent = world.GetComponent<TransformComponent>(entity);
-	glm::vec3 pos = transformComponent->data->GetPosition();
-	pos += glm::vec3(horizontal, 0, -vertical);
-	transformComponent->data->SetPosition(pos);
 
 	if (horizontal < 0.0001f && vertical < 0.0001f) {
 		playerComponent->SetAnimationState(PlayerAnimationState::Idle);
@@ -56,4 +50,17 @@ void PlayerInputSystem::updateEntity(float dt, eid_t entity)
 	{
 		playerComponent->SetAnimationState(PlayerAnimationState::Walk);
 	}
+
+	if (abs(vertical) > 0.0001f) {
+		if (vertical > 0)
+			rigidbodyMotorComponent->facing = glm::angleAxis(-glm::atan(horizontal / vertical), Transform::UP);
+		else
+			rigidbodyMotorComponent->facing = glm::angleAxis(glm::pi<float>() - glm::atan(horizontal / vertical), Transform::UP);
+	}
+	else if (abs(horizontal) > 0.0001f)
+	{
+		rigidbodyMotorComponent->facing = glm::angleAxis(-glm::pi<float>() / 2 * horizontal, Transform::UP);
+	}
+
+	rigidbodyMotorComponent->movement = glm::vec2(vertical, horizontal);
 }

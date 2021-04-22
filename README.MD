@@ -6,7 +6,7 @@
 
 with C++17 Standard
 
-/lib/\* was built on Visual Studio 2019 x64 Debug
+/lib/\* was built on Visual Studio 2019 x64 Debug Mtd
 
 box2d-2.4.1
 assimp-5.0.1

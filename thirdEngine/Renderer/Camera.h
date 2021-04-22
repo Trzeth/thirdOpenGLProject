@@ -21,6 +21,10 @@ public:
 
 	Frustum GetFrustum();
 	Frustum GetFrustum() const;
+
+	void SetFOV(float fov);
+	void SetScreenSize(unsigned int w, unsigned int h);
+	void SetClip(float near, float far);
 private:
 	float fieldOfView;
 	unsigned int width;

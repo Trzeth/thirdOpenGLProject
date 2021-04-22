@@ -22,12 +22,10 @@ void CameraSystem::updateEntity(float dt, eid_t entity)
 	glm::mat4 matrix = transformComponent->data->Matrix();
 	cameraComponent->data.SetInverseViewMatrix(matrix);
 
-	float ratio = 1;
-
 	if (renderer.GetViewportHeight() != 0)
-		ratio = (float)renderer.GetViewportWidth() / renderer.GetViewportHeight();
+		cameraComponent->data.SetScreenSize(renderer.GetViewportWidth(), renderer.GetViewportHeight());
 
-	renderer.SetProjectionMatrix(glm::perspective(glm::radians(45.0f), ratio, 0.1f, 100.0f));
+	renderer.SetProjectionMatrix(cameraComponent->data.GetProjectionMatrix());
 	renderer.SetViewMatrix(cameraComponent->data.GetViewMatrix());
 	renderer.SetViewPos(transformComponent->data->GetWorldPosition());
 }

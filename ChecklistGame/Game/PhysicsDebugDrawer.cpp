@@ -87,8 +87,8 @@ void PhysicsDebugDrawer::SetCamera(Camera* camera)
 
 void PhysicsDebugDrawer::DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color)
 {
-	for (int i = 1; i != vertexCount; i++) {
-		DrawSegment(vertices[i - 1], vertices[i], color);
+	for (int i = 0; i != vertexCount; i++) {
+		DrawSegment(vertices[(i - 1 + vertexCount) % vertexCount], vertices[i], color);
 	}
 }
 
@@ -104,6 +104,7 @@ void PhysicsDebugDrawer::DrawCircle(const b2Vec2& center, float radius, const b2
 	down.x -= radius;
 	left.y -= radius;
 	right.y += radius;
+
 	DrawSegment(up, left, color);
 	DrawSegment(left, down, color);
 	DrawSegment(down, right, color);

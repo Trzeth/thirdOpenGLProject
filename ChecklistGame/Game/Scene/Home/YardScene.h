@@ -11,6 +11,7 @@
 
 #include "Game/UIElement/Home/StartMenu.h"
 #include "Game/UIElement/Home/Letter.h"
+#include "Game/UIElement/Checklist.h"
 
 #include "Game/Scene/Scene.h"
 
@@ -19,6 +20,7 @@ class YardScene :public Scene
 public:
 	YardScene(const SceneInfo& info, EventManager& evtMgr)
 		:Scene(info), eventManager(evtMgr) { }
+
 	void Setup();
 protected:
 	void setupPrefab();
@@ -55,6 +57,8 @@ private:
 	/* GUI */
 	std::shared_ptr<StartMenu> startMenu;
 	std::shared_ptr<Letter> letter;
+	std::shared_ptr<Checklist> checklist;
 	UIRenderer::UIElementHandle startMenuHandle;
 	UIRenderer::UIElementHandle letterHandle;
+	UIRenderer::UIElementHandle checklistHandle;
 };

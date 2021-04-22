@@ -110,6 +110,12 @@
     <ClCompile Include="Game\PhysicsDebugDrawer.cpp">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="Game\GlobalVariable.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\UIElement\Checklist.cpp">
+      <Filter>Game\UIElement</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Game">
@@ -254,6 +260,12 @@
     </ClInclude>
     <ClInclude Include="Game\PhysicsDebugDrawer.h">
       <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\GlobalVariable.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\UIElement\Checklist.h">
+      <Filter>Game\UIElement</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

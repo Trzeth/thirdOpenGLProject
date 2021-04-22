@@ -7,7 +7,8 @@
 Game::Game() :
 	renderer(), uiRenderer(), world(), input(),
 	window(input, renderer), eventManager(world),
-	dynamicsWorld(new b2World(b2Vec2())), physics(dynamicsWorld.get(), eventManager), debugDrawer()
+	dynamicsWorld(new b2World(b2Vec2(0, 0))), physics(dynamicsWorld.get(), eventManager), debugDrawer(),
+	globalVariable(4)
 {
 	restart = false;
 	running = false;
@@ -76,6 +77,7 @@ int Game::setup()
 	sceneInfo.renderer = &renderer;
 	sceneInfo.uiRenderer = &uiRenderer;
 	sceneInfo.dynamicsWorld = dynamicsWorld.get();
+	sceneInfo.globalVariable = &globalVariable;
 	defaultScene = std::make_unique<YardScene>(sceneInfo, eventManager);
 	defaultScene->Setup();
 
@@ -119,6 +121,9 @@ int Game::teardown()
 
 void Game::update()
 {
+	/* Time */
+	globalVariable.currentTime += deltaTime;
+
 	/* Input */
 	input.Update();
 	playerInputSystem->Update(deltaTime);

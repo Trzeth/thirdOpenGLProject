@@ -18,6 +18,7 @@
 #include "Window.h"
 #include "Physics.h"
 #include "PhysicsDebugDrawer.h"
+#include "GlobalVariable.h"
 
 #include "Scene/Scene.h"
 
@@ -64,6 +65,7 @@ private:
 	Input input;
 	Window window;
 	EventManager eventManager;
+	GlobalVariable globalVariable;
 
 	//两帧之间的时间差
 	double currentFrame;

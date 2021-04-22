@@ -164,6 +164,7 @@
     <ClCompile Include="Game\Extra\Transform.cpp" />
     <ClCompile Include="Game\Extra\Util.cpp" />
     <ClCompile Include="Game\Game.cpp" />
+    <ClCompile Include="Game\GlobalVariable.cpp" />
     <ClCompile Include="Game\Physics.cpp" />
     <ClCompile Include="Game\PhysicsDebugDrawer.cpp" />
     <ClCompile Include="Game\Scene\Home\HouseScene.cpp" />
@@ -179,6 +180,7 @@
     <ClCompile Include="Game\System\PlayerInputSystem.cpp" />
     <ClCompile Include="Game\System\RigidbodyMotorSystem.cpp" />
     <ClCompile Include="Game\System\StoryboardDirectorSystem.cpp" />
+    <ClCompile Include="Game\UIElement\Checklist.cpp" />
     <ClCompile Include="Game\UIElement\Home\Letter.cpp" />
     <ClCompile Include="Game\UIElement\Home\StartMenu.cpp" />
     <ClCompile Include="Game\Window.cpp" />
@@ -202,6 +204,7 @@
     <ClInclude Include="Game\Extra\Transform.h" />
     <ClInclude Include="Game\Extra\Util.h" />
     <ClInclude Include="Game\Game.h" />
+    <ClInclude Include="Game\GlobalVariable.h" />
     <ClInclude Include="Game\Physics.h" />
     <ClInclude Include="Game\PhysicsDebugDrawer.h" />
     <ClInclude Include="Game\Scene\Home\HouseScene.h" />
@@ -217,6 +220,7 @@
     <ClInclude Include="Game\System\PlayerInputSystem.h" />
     <ClInclude Include="Game\System\RigidbodyMotorSystem.h" />
     <ClInclude Include="Game\System\StoryboardDirectorSystem.h" />
+    <ClInclude Include="Game\UIElement\Checklist.h" />
     <ClInclude Include="Game\UIElement\Home\Letter.h" />
     <ClInclude Include="Game\UIElement\Home\StartMenu.h" />
     <ClInclude Include="Game\Window.h" />

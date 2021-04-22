@@ -13,11 +13,6 @@ enum class PlayerControlState
 	InGUI
 };
 
-enum class PlayerTaskState {
-	Finished,
-	NotFinished
-};
-
 enum class PlayerAnimationState {
 	Idle,
 	Walk,
@@ -79,7 +74,6 @@ private:
 	float animationTimer;
 
 	bool isBusy;
-	std::vector<PlayerTaskState> taskState;
 };
 
 class PlayerComponentConstructor :public DefaultComponentConstructor<PlayerComponent> {

@@ -3,18 +3,28 @@
 #include <thirdEngine/Framework/World.h>
 #include <thirdEngine/Renderer/Renderer.h>
 #include <thirdEngine/Renderer/UI/UIRenderer.h>
+#include <thirdEngine/Input/Input.h>
+
+class GlobalVariable;
 
 struct SceneInfo {
 	World* world;
 	Renderer* renderer;
 	UIRenderer* uiRenderer;
 	b2World* dynamicsWorld;
+	Input* input;
+	GlobalVariable* globalVariable;
 };
 
 class Scene
 {
 public:
-	Scene(const SceneInfo& info) :world(*info.world), renderer(*info.renderer), uiRenderer(*info.uiRenderer), dynamicsWorld(*info.dynamicsWorld), prefabsSteup(false) { };
+	Scene(const SceneInfo& info)
+		:world(*info.world), renderer(*info.renderer), uiRenderer(*info.uiRenderer),
+		input(*info.input), dynamicsWorld(*info.dynamicsWorld),
+		globalVariable(*info.globalVariable), prefabsSteup(false)
+	{ };
+
 	virtual void Setup() = 0;
 
 	/*!
@@ -29,5 +39,7 @@ protected:
 	World& world;
 	Renderer& renderer;
 	UIRenderer& uiRenderer;
+	Input& input;
 	b2World& dynamicsWorld;
+	GlobalVariable& globalVariable;
 };

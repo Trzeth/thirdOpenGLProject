@@ -68,29 +68,11 @@
     <ClCompile Include="Game\System\PlayerInputSystem.cpp">
       <Filter>Game\System</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Event\GameCloseEvent.cpp">
-      <Filter>Game\Event</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\Event\GameStartEvent.cpp">
-      <Filter>Game\Event</Filter>
-    </ClCompile>
     <ClCompile Include="Game\UIElement\Home\Letter.cpp">
       <Filter>Game\UIElement\Home</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Event\YardSceneLetterCloseEvent.cpp">
-      <Filter>Game\Event</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\Event\YardSceneOpenSceneStoryboardEndEvent.cpp">
-      <Filter>Game\Event</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\Event\YardSceneTurnAroundStoryboardEndEvent.cpp">
-      <Filter>Game\Event</Filter>
-    </ClCompile>
     <ClCompile Include="Game\System\PlayerControlStateSystem.cpp">
       <Filter>Game\System</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\Event\CollisionEvent.cpp">
-      <Filter>Game\Event</Filter>
     </ClCompile>
     <ClCompile Include="Game\Physics.cpp">
       <Filter>Game</Filter>
@@ -115,6 +97,9 @@
     </ClCompile>
     <ClCompile Include="Game\UIElement\Checklist.cpp">
       <Filter>Game\UIElement</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Scene\SceneManager.cpp">
+      <Filter>Game\Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -266,6 +251,15 @@
     </ClInclude>
     <ClInclude Include="Game\UIElement\Checklist.h">
       <Filter>Game\UIElement</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Scene\SceneManager.h">
+      <Filter>Game\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Event\LoadSceneStartEvent.h">
+      <Filter>Game\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Event\LoadSceneEndEvent.h">
+      <Filter>Game\Event</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

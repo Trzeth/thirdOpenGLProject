@@ -54,10 +54,10 @@ void YardScene::setupPrefab()
 		yardModelMat4 *= glm::scale(yardModelMat4, glm::vec3(0.1f));
 		yardModelMat4 *= glm::mat4_cast(glm::angleAxis(glm::radians(180.0f), Transform::UP));
 
-		Model yardModel = modelLoader.LoadModel("Resources/Scene/Scene_1_3.FBX", yardModelMat4);
-		yardModel.GenVAO();
+		std::shared_ptr<Model> yardModel = std::make_shared<Model>(modelLoader.LoadModel("Resources/Scene/Scene_1_3.FBX", yardModelMat4));
+		models.push_back(yardModel);
 
-		Renderer::ModelHandle yardModelHandle = renderer.GetModelHandle(yardModel);
+		Renderer::ModelHandle yardModelHandle = renderer.GetModelHandle(*yardModel);
 		yardPrefab.SetName("YardModel");
 
 		yardPrefab.AddConstructor(new TransformComponentConstructor());
@@ -116,11 +116,11 @@ void YardScene::setupPrefab()
 
 	/* Skybox */
 	{
-		Model skyboxModel = Box::GetSkybox("Resources/skybox/", std::vector<std::string>{"right.jpg", "left.jpg", "up.jpg", "down.jpg", "front.jpg", "back.jpg"});
-		skyboxModel.GenVAO();
+		std::shared_ptr<Model> skyboxModel = std::make_shared<Model>(Box::GetSkybox("Resources/skybox/", std::vector<std::string>{"right.jpg", "left.jpg", "up.jpg", "down.jpg", "front.jpg", "back.jpg"}));
+		models.push_back(skyboxModel);
 		skyboxShader = shaderLoader.BuildFromFile("Shaders/skybox.vs", "Shaders/skybox.fs");
 
-		skybox = renderer.GetRenderableHandle(renderer.GetModelHandle(skyboxModel), skyboxShader);
+		skybox = renderer.GetRenderableHandle(renderer.GetModelHandle(*skyboxModel), skyboxShader);
 	}
 
 	/* Player */
@@ -129,24 +129,24 @@ void YardScene::setupPrefab()
 		playerModelMat4 *= glm::scale(playerModelMat4, glm::vec3(0.5f));
 		playerModelMat4 *= glm::mat4_cast(glm::angleAxis(glm::radians(180.0f), Transform::UP));
 
-		Model playerWalkModel = modelLoader.LoadModel("Resources/Walk.DAE", playerModelMat4);
-		Model playerPickLetterModel = modelLoader.LoadModel("Resources/PickLetter.DAE", playerModelMat4);
-		Model playerPutLetterModel = modelLoader.LoadModel("Resources/PutLetter.DAE", playerModelMat4);
-		Model playerTurnAroundModel = modelLoader.LoadModel("Resources/TurnAround.DAE", playerModelMat4);
+		std::shared_ptr<Model> playerWalkModel = std::make_shared<Model>(modelLoader.LoadModel("Resources/Walk.DAE", playerModelMat4));
+		std::shared_ptr<Model> playerPickLetterModel = std::make_shared<Model>(modelLoader.LoadModel("Resources/PickLetter.DAE", playerModelMat4));
+		std::shared_ptr<Model> playerPutLetterModel = std::make_shared<Model>(modelLoader.LoadModel("Resources/PutLetter.DAE", playerModelMat4));
+		std::shared_ptr<Model> playerTurnAroundModel = std::make_shared<Model>(modelLoader.LoadModel("Resources/TurnAround.DAE", playerModelMat4));
 
-		playerWalkModel.GenVAO();
-		playerPickLetterModel.GenVAO();
-		playerPutLetterModel.GenVAO();
-		playerTurnAroundModel.GenVAO();
+		models.push_back(playerWalkModel);
+		models.push_back(playerPickLetterModel);
+		models.push_back(playerPutLetterModel);
+		models.push_back(playerTurnAroundModel);
 
 		playerPrefab.SetName("Player");
 		playerPrefab.AddConstructor(new TransformComponentConstructor());
 
 		PlayerComponent::Data playerData;
-		playerData.walk = renderer.GetModelHandle(playerWalkModel);
-		playerData.pickLetter = renderer.GetModelHandle(playerPickLetterModel);
-		playerData.putLetter = renderer.GetModelHandle(playerPutLetterModel);
-		playerData.turnAround = renderer.GetModelHandle(playerTurnAroundModel);
+		playerData.walk = renderer.GetModelHandle(*playerWalkModel);
+		playerData.pickLetter = renderer.GetModelHandle(*playerPickLetterModel);
+		playerData.putLetter = renderer.GetModelHandle(*playerPutLetterModel);
+		playerData.turnAround = renderer.GetModelHandle(*playerTurnAroundModel);
 
 		playerPrefab.AddConstructor(new PlayerComponentConstructor(playerData));
 		playerPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, playerData.walk, skinnedShader));
@@ -265,4 +265,9 @@ void YardScene::setupPrefab()
 	}
 
 	prefabsSteup = true;
+}
+
+void YardScene::Finish()
+{
+	renderer.GenVAO();
 }

@@ -154,12 +154,6 @@
     <ClCompile Include="Game\Component\RigidbodyMotorComponent.cpp" />
     <ClCompile Include="Game\Component\StoryboardDirectorComponent.cpp" />
     <ClCompile Include="Game\Component\TransformComponent.cpp" />
-    <ClCompile Include="Game\Event\CollisionEvent.cpp" />
-    <ClCompile Include="Game\Event\GameCloseEvent.cpp" />
-    <ClCompile Include="Game\Event\GameStartEvent.cpp" />
-    <ClCompile Include="Game\Event\YardSceneOpenSceneStoryboardEndEvent.cpp" />
-    <ClCompile Include="Game\Event\YardSceneLetterCloseEvent.cpp" />
-    <ClCompile Include="Game\Event\YardSceneTurnAroundStoryboardEndEvent.cpp" />
     <ClCompile Include="Game\Extra\PrefabConstructionInfo.cpp" />
     <ClCompile Include="Game\Extra\Transform.cpp" />
     <ClCompile Include="Game\Extra\Util.cpp" />
@@ -170,6 +164,7 @@
     <ClCompile Include="Game\Scene\Home\HouseScene.cpp" />
     <ClCompile Include="Game\Scene\Home\YardScene.cpp" />
     <ClCompile Include="Game\Scene\Scene.cpp" />
+    <ClCompile Include="Game\Scene\SceneManager.cpp" />
     <ClCompile Include="Game\Storyboard\Storyboard.cpp" />
     <ClCompile Include="Game\Storyboard\StoryboardLoader.cpp" />
     <ClCompile Include="Game\System\CameraSystem.cpp" />
@@ -197,6 +192,8 @@
     <ClInclude Include="Game\Event\CollisionEvent.h" />
     <ClInclude Include="Game\Event\GameCloseEvent.h" />
     <ClInclude Include="Game\Event\GameStartEvent.h" />
+    <ClInclude Include="Game\Event\LoadSceneEndEvent.h" />
+    <ClInclude Include="Game\Event\LoadSceneStartEvent.h" />
     <ClInclude Include="Game\Event\YardSceneOpenSceneStoryboardEndEvent.h" />
     <ClInclude Include="Game\Event\YardSceneLetterCloseEvent.h" />
     <ClInclude Include="Game\Event\YardSceneTurnAroundStoryboardEndEvent.h" />
@@ -210,6 +207,7 @@
     <ClInclude Include="Game\Scene\Home\HouseScene.h" />
     <ClInclude Include="Game\Scene\Home\YardScene.h" />
     <ClInclude Include="Game\Scene\Scene.h" />
+    <ClInclude Include="Game\Scene\SceneManager.h" />
     <ClInclude Include="Game\Storyboard\Storyboard.h" />
     <ClInclude Include="Game\Storyboard\StoryboardLoader.h" />
     <ClInclude Include="Game\System\CameraSystem.h" />

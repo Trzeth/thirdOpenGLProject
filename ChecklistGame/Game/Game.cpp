@@ -1,9 +1,12 @@
 #include "Game.h"
 
-#include "Scene/Home/YardScene.h"
 #include "Component/PlayerComponent.h"
 #include "Component/CameraComponent.h"
 
+#include "Event/LoadSceneStartEvent.h"
+#include "Event/LoadSceneEndEvent.h"
+
+#include "Scene/Home/YardScene.h"
 Game::Game() :
 	renderer(), uiRenderer(), world(), input(),
 	window(input, renderer), eventManager(world),
@@ -14,6 +17,8 @@ Game::Game() :
 	running = false;
 	wireframe = false;
 	started = false;
+	loadingScene = false;
+	loadingSceneEnd = false;
 
 	lastFrame = 0;
 	currentFrame = 0;
@@ -78,20 +83,24 @@ int Game::setup()
 	sceneInfo.uiRenderer = &uiRenderer;
 	sceneInfo.dynamicsWorld = dynamicsWorld.get();
 	sceneInfo.globalVariable = &globalVariable;
-	defaultScene = std::make_unique<YardScene>(sceneInfo, eventManager);
-	defaultScene->Setup();
+	sceneInfo.input = &input;
+	sceneInfo.eventManager = &eventManager;
 
-	std::vector<eid_t> playerEntities = world.GetEntitiesWithComponent<PlayerComponent>();
-	if (playerEntities.size() < 0)
-	{
-		printf("WARNING: No camera in scene");
-	}
-	else
-	{
-		PlayerComponent* playerComponent = world.GetComponent<PlayerComponent>(playerEntities[0]);
-		CameraComponent* cameraComponent = world.GetComponent<CameraComponent>(playerComponent->data.camera);
-		debugDrawer.SetCamera(&cameraComponent->data);
-	}
+	sceneManager = std::make_unique<SceneManager>(window, sceneInfo);
+
+	std::function<void(const LoadSceneStartEvent& event)> LoadSceneStartCallback =
+		[&loadingScene = loadingScene](const LoadSceneStartEvent& event) {
+		loadingScene = true;
+	};
+	eventManager.RegisterForEvent<LoadSceneStartEvent>(LoadSceneStartCallback);
+
+	std::function<void(const LoadSceneEndEvent& event)> LoadSceneEndCallback =
+		[&loadingScene = loadingScene, &loadingSceneEnd = loadingSceneEnd, &sceneManager = sceneManager, &world = world, &debugDrawer = debugDrawer](const LoadSceneEndEvent& event) {
+		loadingSceneEnd = true;
+	};
+	eventManager.RegisterForEvent<LoadSceneEndEvent>(LoadSceneEndCallback);
+
+	sceneManager->LoadScene<YardScene>(LoadingScreenInfo());
 
 	return 0;
 }
@@ -121,6 +130,36 @@ int Game::teardown()
 
 void Game::update()
 {
+	/* SceneManager */
+	if (loadingScene)
+	{
+		sceneManager->Update(deltaTime);
+
+		if (loadingSceneEnd)
+		{
+			sceneManager->LoadFinish();
+			loadingScene = false;
+
+			std::vector<eid_t> playerEntities = world.GetEntitiesWithComponent<PlayerComponent>();
+			if (playerEntities.size() < 0)
+			{
+				printf("WARNING: No camera in scene");
+			}
+			else
+			{
+				PlayerComponent* playerComponent = world.GetComponent<PlayerComponent>(playerEntities[0]);
+				CameraComponent* cameraComponent = world.GetComponent<CameraComponent>(playerComponent->data.camera);
+				debugDrawer.SetCamera(&cameraComponent->data);
+			}
+
+			glfwMakeContextCurrent(window.GetWindow());
+
+			loadingScene = false;
+			loadingSceneEnd = false;
+		}
+		return;
+	}
+
 	/* Time */
 	globalVariable.currentTime += deltaTime;
 
@@ -150,6 +189,13 @@ void Game::update()
 
 void Game::draw()
 {
+	if (loadingScene)
+	{
+		sceneManager->Draw();
+		window.NextFrame();
+		return;
+	}
+
 	renderer.Draw();
 	dynamicsWorld->DebugDraw();
 	debugDrawer.Draw();

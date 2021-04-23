@@ -129,6 +129,8 @@ public:
 	// low left corner
 	void SetViewport(int x, int y, int w, int h);
 
+	void GenVAO();
+
 	int GetViewportWidth() const;
 	int GetViewportHeight() const;
 

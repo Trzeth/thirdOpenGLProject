@@ -18,10 +18,11 @@
 class YardScene :public Scene
 {
 public:
-	YardScene(const SceneInfo& info, EventManager& evtMgr)
-		:Scene(info), eventManager(evtMgr) { }
+	YardScene(const SceneInfo& info) :Scene(info) { }
 
 	void Setup();
+
+	void Finish();
 protected:
 	void setupPrefab();
 private:
@@ -48,11 +49,11 @@ private:
 	Prefab cameraPrefab;
 	Prefab storyboardPrefab;
 
-	EventManager& eventManager;
-
 	Renderer::RenderableHandle skybox;
 
 	std::vector<Storyboard> storyboards;
+
+	std::vector<std::shared_ptr<Model>> models;
 
 	/* GUI */
 	std::shared_ptr<StartMenu> startMenu;

@@ -20,7 +20,7 @@
 #include "PhysicsDebugDrawer.h"
 #include "GlobalVariable.h"
 
-#include "Scene/Scene.h"
+#include "Scene/SceneManager.h"
 
 constexpr double FRAMEDURATION = 1.0 / 60;
 constexpr int VELOCITYITERATION = 10;
@@ -44,6 +44,8 @@ private:
 	bool running;
 	bool restart;
 	bool started;
+	bool loadingScene;
+	bool loadingSceneEnd;
 
 	std::unique_ptr<ModelRenderSystem> modelRenderSystem;
 	std::unique_ptr<CameraSystem> cameraSystem;
@@ -54,7 +56,6 @@ private:
 	std::unique_ptr<CollisionUpdateSystem> collisionUpdateSystem;
 	std::unique_ptr<RigidbodyMotorSystem> rigidbodyMotorSystem;
 
-	std::unique_ptr<Scene> defaultScene;
 	std::shared_ptr<b2World> dynamicsWorld;
 
 	Renderer renderer;
@@ -66,6 +67,8 @@ private:
 	Window window;
 	EventManager eventManager;
 	GlobalVariable globalVariable;
+
+	std::unique_ptr<SceneManager> sceneManager;
 
 	//两帧之间的时间差
 	double currentFrame;

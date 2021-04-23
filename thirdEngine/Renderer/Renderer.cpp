@@ -171,6 +171,14 @@ void Renderer::SetViewport(int x, int y, int w, int h)
 	viewportHeight = h;
 }
 
+void Renderer::GenVAO()
+{
+	for (auto iter = modelPool.begin(); iter != modelPool.end(); iter++) {
+		Model& model = iter->second;
+		model.GenVAO();
+	}
+}
+
 int Renderer::GetViewportWidth() const
 {
 	return viewportWidth;

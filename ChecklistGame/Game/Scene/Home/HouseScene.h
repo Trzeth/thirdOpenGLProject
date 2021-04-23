@@ -3,14 +3,17 @@
 #include <thirdEngine/Renderer/Model.h>
 #include <thirdEngine/Renderer/ModelLoader.h>
 #include <thirdEngine/Framework/EventManager.h>
+
 #include "Game/Scene/Scene.h"
 
 class HouseScene :public Scene
 {
 public:
-	HouseScene(const SceneInfo& info, EventManager& evtMgr)
-		:Scene(info), eventManager(evtMgr) { }
+	HouseScene(const SceneInfo& info) :Scene(info) { }
+
 	void Setup();
+
+	void Finish();
 protected:
 	void setupPrefab();
 private:
@@ -18,10 +21,12 @@ private:
 	TextureLoader textureLoader;
 	ShaderLoader shaderLoader;
 
-	Shader shader;
-	Shader skyboxShader;
+	Shader skinnedShader;
+	Shader plainShader;
 
-	EventManager& eventManager;
+	Prefab housePrefab;
+	Prefab playerPrefab;
+	Prefab cameraPrefab;
 
-	Renderer::RenderableHandle skybox;
+	std::vector<std::shared_ptr<Model>> models;
 };

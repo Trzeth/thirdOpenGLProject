@@ -99,7 +99,8 @@ int Game::setup()
 	};
 	eventManager.RegisterForEvent<LoadSceneEndEvent>(LoadSceneEndCallback);
 
-	sceneManager->LoadScene<YardScene>(LoadingScreenInfo());
+	sceneManager->LoadScene<YardScene>(LoadingScreenInfo(
+		std::vector<std::string>{"GUI/Loading0.png", "GUI/Loading1.png", "GUI/Loading2.png", "GUI/Loading3.png", "GUI/Loading4.png", "GUI/Loading5.png"}, 0.5));
 
 	return 0;
 }

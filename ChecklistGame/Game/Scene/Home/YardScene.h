@@ -53,8 +53,6 @@ private:
 
 	std::vector<Storyboard> storyboards;
 
-	std::vector<std::shared_ptr<Model>> models;
-
 	/* GUI */
 	std::shared_ptr<StartMenu> startMenu;
 	std::shared_ptr<Letter> letter;

@@ -46,6 +46,9 @@ public:
 		:sceneInfo(sceneInfo), eventManager(*sceneInfo.eventManager),
 		window(window), loadingWindow(nullptr)
 	{
+		//Don't forget to set it
+		sceneInfo.sceneManager = this;
+
 		glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
 		loadingWindow = glfwCreateWindow(1, 1, "loadingThread", NULL, window.GetWindow());
 		glfwWindowHint(GLFW_VISIBLE, GL_TRUE);
@@ -71,6 +74,7 @@ private:
 
 	LoadingScreenInfo loadingScreenInfo;
 	std::vector<Texture> loadingImage;
+
 	float currentTime;
 	float totalTime;
 };
@@ -78,28 +82,29 @@ private:
 template<class T>
 inline void SceneManager::LoadScene(LoadingScreenInfo info)
 {
+	loadingScreenInfo = info;
+
 	currentTime = 0;
 	totalTime = loadingScreenInfo.LoadingImagePath.size() * loadingScreenInfo.LoopTime;
 
 	loadingImage.clear();
-	loadingScreenInfo = info;
+
+	TextureLoader loader;
+	for (const auto& path : loadingScreenInfo.LoadingImagePath)
+	{
+		loadingImage.push_back(loader.LoadFromFile(TextureType::Diffuse, path));
+	}
 
 	loadingThread = std::thread([
 		&loadingWindow = loadingWindow, &loadingImage = loadingImage,
 			&info = loadingScreenInfo, &eventManager = eventManager,
 			&currentScene = currentScene, &sceneInfo = sceneInfo]()
 		{
-			glfwMakeContextCurrent(loadingWindow);
-			std::unique_ptr<Scene> loadingScene = std::make_unique<T>(sceneInfo);
-
-			TextureLoader loader;
-			for (const auto& path : info.LoadingImagePath)
-			{
-				loadingImage.push_back(loader.LoadFromFile(TextureType::Diffuse, path));
-			}
-
 			LoadSceneStartEvent startEvt;
 			eventManager.SendEvent<LoadSceneStartEvent>(startEvt);
+
+			glfwMakeContextCurrent(loadingWindow);
+			std::unique_ptr<Scene> loadingScene = std::make_unique<T>(sceneInfo);
 
 			loadingScene->Setup();
 

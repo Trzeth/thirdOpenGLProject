@@ -5,6 +5,7 @@
 #include <thirdEngine/Renderer/UI/UIRenderer.h>
 #include <thirdEngine/Input/Input.h>
 #include <thirdEngine/Framework/EventManager.h>
+#include "SceneManager.h"
 
 class GlobalVariable;
 
@@ -15,6 +16,7 @@ struct SceneInfo {
 	b2World* dynamicsWorld;
 	Input* input;
 	EventManager* eventManager;
+	SceneManager* sceneManager;
 	GlobalVariable* globalVariable;
 };
 
@@ -23,7 +25,7 @@ class Scene
 public:
 	Scene(const SceneInfo& info)
 		:world(*info.world), renderer(*info.renderer), uiRenderer(*info.uiRenderer),
-		input(*info.input), dynamicsWorld(*info.dynamicsWorld), eventManager(*info.eventManager),
+		input(*info.input), dynamicsWorld(*info.dynamicsWorld), eventManager(*info.eventManager), sceneManager(*info.sceneManager),
 		globalVariable(*info.globalVariable), prefabsSteup(false)
 	{ };
 
@@ -44,5 +46,6 @@ protected:
 	Input& input;
 	b2World& dynamicsWorld;
 	EventManager& eventManager;
+	SceneManager& sceneManager;
 	GlobalVariable& globalVariable;
 };

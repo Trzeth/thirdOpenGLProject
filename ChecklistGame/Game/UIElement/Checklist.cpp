@@ -27,9 +27,8 @@ void Checklist::Draw()
 
 		drawList->AddImage(ImTextureID(checklistTexture.impl->id), image_bb.Min, image_bb.Max);
 
-		ImGui::Text("%.0f / %f", globalVariable.currentTime, globalVariable.totalTime);
-
 		ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(221, 0, 27, 255));
+		ImGui::Text("%.0f / %f", globalVariable.currentTime, globalVariable.totalTime);
 
 		for (int i = 0; i != globalVariable.taskState.size(); i++)
 		{

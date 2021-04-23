@@ -92,7 +92,7 @@ void Window::create()
 
 	if (window == NULL)
 	{
-		// std::cout << "Failed to create GLFW window" << std::endl;
+		std::cout << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
 		assert(0);
 	}
@@ -101,7 +101,6 @@ void Window::create()
 
 void Window::setupCallBack()
 {
-	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
 
 	ScrollCallback::obj = this;

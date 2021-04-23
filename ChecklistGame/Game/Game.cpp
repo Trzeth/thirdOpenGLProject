@@ -56,8 +56,6 @@ int Game::setup()
 	input.SetDefaultMapping("R", KbmAxis_R, KbmAxis_None);
 	input.SetDefaultMapping("Return", KbmAxis_Return, KbmAxis_None);
 
-	/* Event Manager */
-
 	/* Renderer*/
 	renderer.Initialize(window.GetWidth(), window.GetHeight());
 	uiRenderer.Initialize(window.GetWindow());
@@ -77,6 +75,7 @@ int Game::setup()
 	collisionUpdateSystem = std::make_unique<CollisionUpdateSystem>(world);
 	rigidbodyMotorSystem = std::make_unique<RigidbodyMotorSystem>(world);
 
+	/* Scene Manager */
 	SceneInfo sceneInfo;
 	sceneInfo.world = &world;
 	sceneInfo.renderer = &renderer;
@@ -151,8 +150,6 @@ void Game::update()
 				CameraComponent* cameraComponent = world.GetComponent<CameraComponent>(playerComponent->data.camera);
 				debugDrawer.SetCamera(&cameraComponent->data);
 			}
-
-			glfwMakeContextCurrent(window.GetWindow());
 
 			loadingScene = false;
 			loadingSceneEnd = false;

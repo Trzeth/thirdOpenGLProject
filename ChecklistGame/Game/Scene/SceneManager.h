@@ -25,7 +25,7 @@ enum class Effect {
 struct LoadingScreenInfo
 {
 	LoadingScreenInfo()
-		:LoadingImagePath(std::vector<std::string>()), LoopTime(), EnterEffect(), ExitEffect()
+		:LoadingImagePath(), LoopTime(), EnterEffect(), ExitEffect()
 	{ }
 
 	LoadingScreenInfo(std::vector<std::string> loadingImagePath, float loopTime, Effect enter = Effect::None, Effect exit = Effect::None)
@@ -86,24 +86,27 @@ inline void SceneManager::LoadScene(LoadingScreenInfo info)
 
 	loadingThread = std::thread([
 		&loadingWindow = loadingWindow, &loadingImage = loadingImage,
-			&info = info, &eventManager = eventManager,
+			&info = loadingScreenInfo, &eventManager = eventManager,
 			&currentScene = currentScene, &sceneInfo = sceneInfo]()
 		{
 			glfwMakeContextCurrent(loadingWindow);
 			std::unique_ptr<Scene> loadingScene = std::make_unique<T>(sceneInfo);
 
-			/*
 			TextureLoader loader;
 			for (const auto& path : info.LoadingImagePath)
 			{
 				loadingImage.push_back(loader.LoadFromFile(TextureType::Diffuse, path));
 			}
-			*/
 
 			LoadSceneStartEvent startEvt;
 			eventManager.SendEvent<LoadSceneStartEvent>(startEvt);
 
 			loadingScene->Setup();
+
+			/* 别问我为什么知道 我也不知道 但是你不写材质就是黑的 keyword:mutlithread glFlush */
+			glFinish();
+			glFlush();
+
 			currentScene = std::move(loadingScene);
 
 			LoadSceneEndEvent endEvt;

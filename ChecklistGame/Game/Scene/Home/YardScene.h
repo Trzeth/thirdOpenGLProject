@@ -25,6 +25,8 @@ public:
 	void Setup();
 
 	void Finish();
+
+	void PreDestruct();
 protected:
 	void setupPrefab();
 private:

@@ -349,3 +349,14 @@ void YardScene::Finish()
 {
 	renderer.GenVAO();
 }
+
+void YardScene::PreDestruct()
+{
+	eventManager.ClearEventListener<GameStartEvent>();
+	eventManager.ClearEventListener<YardSceneOpenSceneStoryboardEndEvent>();
+	eventManager.ClearEventListener<YardSceneLetterCloseEvent>();
+	eventManager.ClearEventListener<YardSceneTurnAroundStoryboardEndEvent>();
+	eventManager.ClearEventListener<YardSceneBrushInteractEvent>();
+	eventManager.ClearEventListener<YardSceneWaterPotInteractEvent>();
+	eventManager.ClearEventListener<YardSceneDoorInteractEvent>();
+}

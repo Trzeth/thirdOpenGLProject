@@ -18,6 +18,9 @@ void SceneManager::LoadBegin()
 	loadingWindow = glfwCreateWindow(1, 1, "loadingThread", NULL, window.GetWindow());
 	glfwWindowHint(GLFW_VISIBLE, GL_TRUE);
 
+	if (currentScene)
+		currentScene->PreDestruct();
+
 	sceneInfo.world->Clear();
 
 	loadingThread = std::thread([

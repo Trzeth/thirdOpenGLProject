@@ -1,5 +1,7 @@
 #include "HouseScene.h"
 
+#include "Game/Scene/SceneManager.h"
+
 #include "Game/Component/TransformComponent.h"
 #include "Game/Component/ModelRenderComponent.h"
 #include "Game/Component/CameraComponent.h"
@@ -7,6 +9,11 @@
 #include "Game/Component/StoryboardDirectorComponent.h"
 #include "Game/Component/CollisionComponent.h"
 #include "Game/Component/RigidbodyMotorComponent.h"
+#include "Game/Component/InteractComponent.h"
+
+#include "Game/Event/HouseSceneEvent.h"
+
+#include "YardScene.h"
 
 void HouseScene::Setup()
 {
@@ -23,6 +30,7 @@ void HouseScene::Setup()
 	cameraComponent->isEnable = true;
 
 	world.ConstructPrefab(housePrefab);
+	world.ConstructPrefab(doorInteractPrefab);
 }
 
 void HouseScene::setupPrefab()
@@ -41,7 +49,7 @@ void HouseScene::setupPrefab()
 		Model houseModel = modelLoader.LoadModel("Resources/Room/Room.FBX", houseModelMat4);
 		Renderer::ModelHandle houseModelHandle = renderer.GetModelHandle(houseModel);
 
-		housePrefab.SetName("YardModel");
+		housePrefab.SetName("HouseModel");
 
 		housePrefab.AddConstructor(new TransformComponentConstructor());
 		housePrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, houseModelHandle, plainShader));
@@ -76,6 +84,22 @@ void HouseScene::setupPrefab()
 		fixtures.push_back(front);
 
 		housePrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(bodyDef, fixtures)));
+	}
+
+	/* Scene Interact Object */
+	{
+		/* Door */
+		b2BodyDef doorDef;
+
+		b2FixtureDef door;
+		door.isSensor = true;
+		b2PolygonShape* s1 = new b2PolygonShape();
+		s1->SetAsBox(5.0f, 5.0f, b2Vec2(-4.0f, -19.0f), 0);
+		door.shape = s1;
+
+		doorInteractPrefab.SetName("Brush Interact");
+		doorInteractPrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(doorDef, door)));
+		doorInteractPrefab.AddConstructor(new InteractComponentConstructor(InteractComponent::Data(typeid(HouseSceneDoorInteractEvent).hash_code())));
 	}
 
 	/* Player */
@@ -126,10 +150,30 @@ void HouseScene::setupPrefab()
 		cameraPrefab.AddConstructor(new CameraComponentConstructor(CameraComponent::Data()));
 	}
 
+	/* Callback */
+	{
+		std::function<void(const HouseSceneDoorInteractEvent& event)> doorInteractCallback =
+			[scene = this, &sceneManager = sceneManager](const HouseSceneDoorInteractEvent& event) {
+			LoadingScreenInfo info;
+			info.LoopTime = 1.0f;
+			info.LoadingImagePath = std::vector<std::string>{ "GUI/Loading1.png" };
+
+			sceneManager.LoadScene<YardScene>(info);
+		};
+
+		eventManager.RegisterForEvent<HouseSceneDoorInteractEvent>(doorInteractCallback);
+	}
+
 	prefabsSteup = true;
 }
 
 void HouseScene::Finish()
 {
+	glEnable(GL_CULL_FACE);
 	renderer.GenVAO();
+}
+
+void HouseScene::PreDestruct()
+{
+	glDisable(GL_CULL_FACE);
 }

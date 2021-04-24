@@ -194,6 +194,7 @@
     <ClInclude Include="Game\Component\TransformComponent.h" />
     <ClInclude Include="Game\Event\CollisionEvent.h" />
     <ClInclude Include="Game\Event\GameEvent.h" />
+    <ClInclude Include="Game\Event\HouseSceneEvent.h" />
     <ClInclude Include="Game\Event\LoadSceneEvent.h" />
     <ClInclude Include="Game\Event\YardSceneEvent.h" />
     <ClInclude Include="Game\Extra\PrefabConstructionInfo.h" />

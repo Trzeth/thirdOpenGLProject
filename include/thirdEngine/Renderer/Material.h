@@ -38,6 +38,7 @@ union MaterialPropertyValue {
 	MaterialPropertyValue(glm::vec4 vec4) : vec4(vec4) { }
 	MaterialPropertyValue(float flt) : flt(flt) { }
 	MaterialPropertyValue(const Texture& texture) : texture(*texture.impl) { }
+	~MaterialPropertyValue() { }
 
 	glm::vec3 vec3;
 	glm::vec4 vec4;

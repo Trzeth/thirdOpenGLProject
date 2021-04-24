@@ -33,9 +33,13 @@ public:
 
 	/*!
 	 * @brief Run on main thread
-	 * for GenVAO
 	*/
 	virtual void Finish() { };
+
+	/*!
+	 * @brief Run on main thread
+	*/
+	virtual void PreDestruct() { }
 protected:
 	virtual void setupPrefab() = 0;
 	bool prefabsSteup;

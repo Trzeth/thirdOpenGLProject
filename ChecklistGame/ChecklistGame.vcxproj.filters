@@ -264,5 +264,8 @@
     <ClInclude Include="Game\Event\LoadSceneEvent.h">
       <Filter>Game\Event</Filter>
     </ClInclude>
+    <ClInclude Include="Game\Event\HouseSceneEvent.h">
+      <Filter>Game\Event</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -19,6 +19,9 @@ public:
 
 	template<class T>
 	uint32_t RegisterForEvent(std::function<void(const T&)> eventListener);
+
+	template<class T>
+	void ClearEventListener();
 private:
 
 	template<class T>
@@ -80,6 +83,18 @@ inline uint32_t EventManager::RegisterForEvent(std::function<void(const T&)> eve
 		});
 
 	return list.size() - 1;
+}
+
+template<class T>
+inline void EventManager::ClearEventListener()
+{
+	auto iter = this->eventTypeMap.find(typeid(T).hash_code());
+
+	if (iter == this->eventTypeMap.end()) {
+		return;
+	}
+
+	eventListeners[iter->second].clear();
 }
 
 template<class T>

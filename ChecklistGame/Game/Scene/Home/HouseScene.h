@@ -14,6 +14,8 @@ public:
 	void Setup();
 
 	void Finish();
+
+	void PreDestruct();
 protected:
 	void setupPrefab();
 private:
@@ -27,6 +29,8 @@ private:
 	Prefab housePrefab;
 	Prefab playerPrefab;
 	Prefab cameraPrefab;
+
+	Prefab doorInteractPrefab;
 
 	std::vector<std::shared_ptr<Model>> models;
 };

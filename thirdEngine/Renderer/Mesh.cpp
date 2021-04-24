@@ -46,7 +46,16 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned> indices, Material
 }
 
 Mesh::~Mesh()
-{ }
+{
+	glDeleteBuffers(1, &impl->VBO);
+	glDeleteBuffers(1, &impl->EBO);
+	glDeleteVertexArrays(1, &impl->VAO);
+
+	if (this->hasVertexBoneData)
+	{
+		glDeleteBuffers(1, &impl->VBO_bone);
+	}
+}
 
 void Mesh::operator=(const Mesh& mesh)
 {

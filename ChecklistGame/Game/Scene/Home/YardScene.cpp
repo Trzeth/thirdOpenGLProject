@@ -9,11 +9,14 @@
 #include "Game/Component/StoryboardDirectorComponent.h"
 #include "Game/Component/CollisionComponent.h"
 #include "Game/Component/RigidbodyMotorComponent.h"
+#include "Game/Component/InteractComponent.h"
 
-#include "Game/Event/GameStartEvent.h"
-#include "Game/Event/YardSceneOpenSceneStoryboardEndEvent.h"
-#include "Game/Event/YardSceneTurnAroundStoryboardEndEvent.h"
-#include "Game/Event/YardSceneLetterCloseEvent.h"
+#include "Game/Event/YardSceneEvent.h"
+#include "Game/Event/GameEvent.h"
+
+#include "Game/Scene/Home/HouseScene.h"
+
+#include "Game/Scene/SceneManager.h"
 
 void YardScene::Setup()
 {
@@ -34,6 +37,11 @@ void YardScene::Setup()
 	storyboardCamera->isEnable = true;
 
 	world.ConstructPrefab(yardPrefab);
+	world.ConstructPrefab(skyboxPrefab);
+
+	world.ConstructPrefab(brushInteractPrefab);
+	world.ConstructPrefab(waterPotInteractPrefab);
+	world.ConstructPrefab(doorInteractPrefab);
 }
 
 void YardScene::setupPrefab()
@@ -109,12 +117,60 @@ void YardScene::setupPrefab()
 		yardPrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(bodyDef, fixtures)));
 	}
 
+	interactEventResponder = std::make_shared<InteractEventResponder>(world, eventManager);
+
+	/* Scene Interact Object */
+	{
+		/* Brush */
+		b2BodyDef brushDef;
+
+		b2FixtureDef brush;
+		brush.isSensor = true;
+		b2PolygonShape* s1 = new b2PolygonShape();
+		s1->SetAsBox(0.2f, 0.2f, b2Vec2(-19.4f, 29.0f), 0);
+		brush.shape = s1;
+
+		brushInteractPrefab.SetName("Brush Interact");
+		brushInteractPrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(brushDef, brush)));
+		brushInteractPrefab.AddConstructor(new InteractComponentConstructor(InteractComponent::Data(typeid(YardSceneBrushInteractEvent).hash_code())));
+
+		/* Water Pot */
+		b2BodyDef waterPotDef;
+
+		b2FixtureDef waterPot;
+		waterPot.isSensor = true;
+		b2CircleShape* s2 = new b2CircleShape();
+		s2->m_p = b2Vec2(-18.69f, -25.63f);
+		s2->m_radius = 0.2;
+		waterPot.shape = s2;
+
+		waterPotInteractPrefab.SetName("WaterPot Interact");
+		waterPotInteractPrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(waterPotDef, waterPot)));
+		waterPotInteractPrefab.AddConstructor(new InteractComponentConstructor(InteractComponent::Data(typeid(YardSceneWaterPotInteractEvent).hash_code())));
+
+		/* Door */
+		b2BodyDef doorDef;
+
+		b2FixtureDef door;
+		door.isSensor = true;
+		b2PolygonShape* s3 = new b2PolygonShape();
+		s3->SetAsBox(4.5f, 0.2f, b2Vec2(-3.0f, -28.5f), 0);
+		door.shape = s3;
+
+		doorInteractPrefab.SetName("WaterPot Interact");
+		doorInteractPrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(doorDef, door)));
+		doorInteractPrefab.AddConstructor(new InteractComponentConstructor(InteractComponent::Data(typeid(YardSceneDoorInteractEvent).hash_code())));
+	}
+
 	/* Skybox */
 	{
 		Model skyboxModel = Box::GetSkybox("Resources/skybox/", std::vector<std::string>{"right.jpg", "left.jpg", "up.jpg", "down.jpg", "front.jpg", "back.jpg"});
 		skyboxShader = shaderLoader.BuildFromFile("Shaders/skybox.vs", "Shaders/skybox.fs");
 
-		skybox = renderer.GetRenderableHandle(renderer.GetModelHandle(skyboxModel), skyboxShader);
+		Renderer::ModelHandle skyboxModelHandle = renderer.GetModelHandle(skyboxModel);
+
+		skyboxPrefab.AddConstructor(new TransformComponentConstructor());
+		skyboxPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, skyboxModelHandle, skyboxShader));
 	}
 
 	/* Player */
@@ -150,7 +206,7 @@ void YardScene::setupPrefab()
 		fixtureDef.density = 0.1f;
 		fixtureDef.friction = 0.3f;
 
-		playerPrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(bodyDef, std::vector<b2FixtureDef>{fixtureDef})));
+		playerPrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(bodyDef, fixtureDef)));
 		playerPrefab.AddConstructor(new RigidbodyMotorComponentConstructor(RigidbodyMotorComponent::Data()));
 	}
 
@@ -186,6 +242,8 @@ void YardScene::setupPrefab()
 
 	/* Callback */
 	{
+#pragma region Start Scene
+
 		std::function<void(const GameStartEvent& event)> startGameCallback =
 			[scene = this, entityId = &entityId, world = &world, storyboards = &storyboards](const GameStartEvent& event) {
 			CollisionComponent* collision = world->GetComponent<CollisionComponent>(entityId->player);
@@ -251,6 +309,37 @@ void YardScene::setupPrefab()
 		};
 
 		eventManager.RegisterForEvent<YardSceneTurnAroundStoryboardEndEvent>(turnAroundSBEndCallback);
+
+#pragma endregion
+
+#pragma region In Scene Interact
+
+		std::function<void(const YardSceneBrushInteractEvent& event)> brushInteractCallback =
+			[scene = this, &sceneManager = sceneManager](const YardSceneBrushInteractEvent& event) {
+			printf("Brush Interact.\n");
+		};
+
+		eventManager.RegisterForEvent<YardSceneBrushInteractEvent>(brushInteractCallback);
+
+		std::function<void(const YardSceneWaterPotInteractEvent& event)> waterPotInteractCallback =
+			[scene = this, &sceneManager = sceneManager](const YardSceneWaterPotInteractEvent& event) {
+			printf("Waterpot Interact.\n");
+		};
+
+		eventManager.RegisterForEvent<YardSceneWaterPotInteractEvent>(waterPotInteractCallback);
+
+		std::function<void(const YardSceneDoorInteractEvent& event)> doorInteractCallback =
+			[scene = this, &sceneManager = sceneManager](const YardSceneDoorInteractEvent& event) {
+			LoadingScreenInfo info;
+			info.LoopTime = 1.0f;
+			info.LoadingImagePath = std::vector<std::string>{ "GUI/Loading0.png" };
+
+			sceneManager.LoadScene<HouseScene>(info);
+		};
+
+		eventManager.RegisterForEvent<YardSceneDoorInteractEvent>(doorInteractCallback);
+
+#pragma endregion
 	}
 
 	prefabsSteup = true;

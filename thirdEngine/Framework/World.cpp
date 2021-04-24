@@ -92,7 +92,7 @@ bool World::OrderEntities(eid_t& e1, eid_t& e2, const ComponentBitmask& b1, cons
 	ComponentBitmask eb1 = this->getEntityBitmask(e1);
 	ComponentBitmask eb2 = this->getEntityBitmask(e2);
 
-	if (eb1.HasComponents(b2) && eb2.HasComponents(b1)) {
+	if (eb1.HasComponents(b1) && eb2.HasComponents(b2)) {
 		return true;
 	}
 	else if (eb1.HasComponents(b2) && eb2.HasComponents(b1)) {

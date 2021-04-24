@@ -19,6 +19,9 @@ void HouseScene::Setup()
 	playerComponent->data.camera = camera;
 	playerComponent->SetControlState(PlayerControlState::Normal);
 
+	CameraComponent* cameraComponent = world.GetComponent<CameraComponent>(camera);
+	cameraComponent->isEnable = true;
+
 	world.ConstructPrefab(housePrefab);
 }
 
@@ -33,7 +36,7 @@ void HouseScene::setupPrefab()
 	/* House */
 	{
 		glm::mat4 houseModelMat4(1.0f);
-		houseModelMat4 *= glm::scale(houseModelMat4, glm::vec3(0.1f));
+		houseModelMat4 *= glm::scale(houseModelMat4, glm::vec3(0.4f));
 
 		Model houseModel = modelLoader.LoadModel("Resources/Room/Room.FBX", houseModelMat4);
 		Renderer::ModelHandle houseModelHandle = renderer.GetModelHandle(houseModel);
@@ -124,4 +127,9 @@ void HouseScene::setupPrefab()
 	}
 
 	prefabsSteup = true;
+}
+
+void HouseScene::Finish()
+{
+	renderer.GenVAO();
 }

@@ -18,6 +18,8 @@ enum class CollisionCategory {
 struct CollisionConstructorInfo {
 	CollisionConstructorInfo(const b2BodyDef& bodyDef, const std::vector<b2FixtureDef>& fixtureDefs, CollisionCategory category, CollisionCategory mask, bool controlMovement)
 		: bodyDef(bodyDef), fixtureDefs(fixtureDefs), collisionFlags(0), category(category), mask(mask), controlMovement(controlMovement) {	}
+	CollisionConstructorInfo(const b2BodyDef& bodyDef, const b2FixtureDef& fixtureDefs)
+		: CollisionConstructorInfo(bodyDef, std::vector<b2FixtureDef>{fixtureDefs}, CollisionCategory::Default, CollisionCategory::All, true) { }
 	CollisionConstructorInfo(const b2BodyDef& bodyDef, const std::vector<b2FixtureDef>& fixtureDefs)
 		: CollisionConstructorInfo(bodyDef, fixtureDefs, CollisionCategory::Default, CollisionCategory::All, true) { }
 

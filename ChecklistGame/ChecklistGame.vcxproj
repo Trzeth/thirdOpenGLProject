@@ -149,6 +149,7 @@
     <ClCompile Include="ChecklistGame.cpp" />
     <ClCompile Include="Game\Component\CameraComponent.cpp" />
     <ClCompile Include="Game\Component\CollisionComponent.cpp" />
+    <ClCompile Include="Game\Component\InteractComponent.cpp" />
     <ClCompile Include="Game\Component\ModelRenderComponent.cpp" />
     <ClCompile Include="Game\Component\PlayerComponent.cpp" />
     <ClCompile Include="Game\Component\RigidbodyMotorComponent.cpp" />
@@ -161,6 +162,7 @@
     <ClCompile Include="Game\GlobalVariable.cpp" />
     <ClCompile Include="Game\Physics.cpp" />
     <ClCompile Include="Game\PhysicsDebugDrawer.cpp" />
+    <ClCompile Include="Game\Responder\InteractEventResponder.cpp" />
     <ClCompile Include="Game\Scene\Home\HouseScene.cpp" />
     <ClCompile Include="Game\Scene\Home\YardScene.cpp" />
     <ClCompile Include="Game\Scene\Scene.cpp" />
@@ -184,19 +186,16 @@
   <ItemGroup>
     <ClInclude Include="Game\Component\CameraComponent.h" />
     <ClInclude Include="Game\Component\CollisionComponent.h" />
+    <ClInclude Include="Game\Component\InteractComponent.h" />
     <ClInclude Include="Game\Component\ModelRenderComponent.h" />
     <ClInclude Include="Game\Component\PlayerComponent.h" />
     <ClInclude Include="Game\Component\RigidbodyMotorComponent.h" />
     <ClInclude Include="Game\Component\StoryboardDirectorComponent.h" />
     <ClInclude Include="Game\Component\TransformComponent.h" />
     <ClInclude Include="Game\Event\CollisionEvent.h" />
-    <ClInclude Include="Game\Event\GameCloseEvent.h" />
-    <ClInclude Include="Game\Event\GameStartEvent.h" />
-    <ClInclude Include="Game\Event\LoadSceneEndEvent.h" />
-    <ClInclude Include="Game\Event\LoadSceneStartEvent.h" />
-    <ClInclude Include="Game\Event\YardSceneOpenSceneStoryboardEndEvent.h" />
-    <ClInclude Include="Game\Event\YardSceneLetterCloseEvent.h" />
-    <ClInclude Include="Game\Event\YardSceneTurnAroundStoryboardEndEvent.h" />
+    <ClInclude Include="Game\Event\GameEvent.h" />
+    <ClInclude Include="Game\Event\LoadSceneEvent.h" />
+    <ClInclude Include="Game\Event\YardSceneEvent.h" />
     <ClInclude Include="Game\Extra\PrefabConstructionInfo.h" />
     <ClInclude Include="Game\Extra\Transform.h" />
     <ClInclude Include="Game\Extra\Util.h" />
@@ -204,6 +203,7 @@
     <ClInclude Include="Game\GlobalVariable.h" />
     <ClInclude Include="Game\Physics.h" />
     <ClInclude Include="Game\PhysicsDebugDrawer.h" />
+    <ClInclude Include="Game\Responder\InteractEventResponder.h" />
     <ClInclude Include="Game\Scene\Home\HouseScene.h" />
     <ClInclude Include="Game\Scene\Home\YardScene.h" />
     <ClInclude Include="Game\Scene\Scene.h" />

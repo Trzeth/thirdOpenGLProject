@@ -2,7 +2,7 @@
 
 #include <thirdEngine/Renderer/TextureImpl.h>
 #include <thirdEngine/Renderer/UI/ImGui/imgui.h>
-#include "Game/Event/YardSceneLetterCloseEvent.h"
+#include "Game/Event/YardSceneEvent.h"
 
 Letter::Letter(EventManager& eventManager)
 	:isVisible(false), eventManager(eventManager)

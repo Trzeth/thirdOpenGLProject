@@ -4,6 +4,48 @@
 #include <thirdEngine/Renderer/UI/ImGui/imgui_impl_glfw.h>
 #include <thirdEngine/Renderer/UI/ImGui/imgui_impl_opengl3.h>
 
+void SceneManager::LoadBegin()
+{
+	loadingImage.clear();
+
+	TextureLoader loader;
+	for (const auto& path : loadingScreenInfo.LoadingImagePath)
+	{
+		loadingImage.push_back(loader.LoadFromFile(TextureType::Diffuse, path));
+	}
+
+	glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
+	loadingWindow = glfwCreateWindow(1, 1, "loadingThread", NULL, window.GetWindow());
+	glfwWindowHint(GLFW_VISIBLE, GL_TRUE);
+
+	sceneInfo.world->Clear();
+
+	loadingThread = std::thread([
+		&loadingWindow = loadingWindow, &eventManager = eventManager,
+			&currentScene = currentScene, &currentLoadingScene = currentLoadingScene]()
+		{
+			LoadSceneStartEvent startEvt;
+			eventManager.SendEvent<LoadSceneStartEvent>(startEvt);
+
+			glfwMakeContextCurrent(loadingWindow);
+
+			currentLoadingScene->Setup();
+
+			/* 别问我为什么知道 我也不知道 但是你不写材质就是黑的 keyword:mutlithread glFlush */
+			glFinish();
+			glFlush();
+
+			glfwDestroyWindow(loadingWindow);
+
+			currentScene = std::move(currentLoadingScene);
+
+			LoadSceneEndEvent endEvt;
+			eventManager.SendEvent<LoadSceneEndEvent>(endEvt);
+		});
+
+	loadingThread.detach();
+}
+
 void SceneManager::LoadFinish()
 {
 	currentScene->Finish();

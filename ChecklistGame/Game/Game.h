@@ -44,8 +44,10 @@ private:
 	bool running;
 	bool restart;
 	bool started;
-	bool loadingScene;
-	bool loadingSceneEnd;
+
+	bool loadSceneWait;
+	bool loadScene;
+	bool loadSceneEnd;
 
 	std::unique_ptr<ModelRenderSystem> modelRenderSystem;
 	std::unique_ptr<CameraSystem> cameraSystem;

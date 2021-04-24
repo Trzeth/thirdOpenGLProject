@@ -36,9 +36,9 @@ public:
 	 \brief Orders entities depending on the expected components.
 	 This is used when you have two known entities, but don't know which order they are in (e.g. collision detection).
 	 \param e1 Upon calling, one of the entities to check. On return, this is the entity that has components in b1.
-	 \param e1 Upon calling, one of the entities to check. On return, this is the entity that has components in b2.
+	 \param e2 Upon calling, one of the entities to check. On return, this is the entity that has components in b2.
 	 \param b1 The components of the first entity.
-	 \param b1 The components of the second entity.
+	 \param b2 The components of the second entity.
 	 \return True if either e1 or e2 had the components in b1 and b2, false otherwise.
 	 */
 	bool OrderEntities(eid_t& e1, eid_t& e2, const ComponentBitmask& b1, const ComponentBitmask& b2)const;

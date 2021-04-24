@@ -38,6 +38,8 @@ Texture TextureLoader::LoadFromFile(TextureType type, const std::string& imageLo
 	texture.impl = std::make_unique<TextureImpl>();
 	texture.impl->type = type;
 
+	glCheckError();
+
 	unsigned int textureID = 0;
 	glGenTextures(1, &textureID);
 	glCheckError();

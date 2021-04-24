@@ -3,8 +3,7 @@
 #include "Component/PlayerComponent.h"
 #include "Component/CameraComponent.h"
 
-#include "Event/LoadSceneStartEvent.h"
-#include "Event/LoadSceneEndEvent.h"
+#include "Event/LoadSceneEvent.h"
 
 #include "Scene/Home/YardScene.h"
 Game::Game() :
@@ -17,8 +16,9 @@ Game::Game() :
 	running = false;
 	wireframe = false;
 	started = false;
-	loadingScene = false;
-	loadingSceneEnd = false;
+	loadSceneWait = false;
+	loadScene = false;
+	loadSceneEnd = false;
 
 	lastFrame = 0;
 	currentFrame = 0;
@@ -64,6 +64,7 @@ int Game::setup()
 	debugDrawer.Initialize();
 	debugDrawer.SetFlags(b2Draw::e_shapeBit);
 	dynamicsWorld->SetDebugDraw(&debugDrawer);
+	dynamicsWorld->SetContactListener(&physics);
 
 	/* System */
 	modelRenderSystem = std::make_unique<ModelRenderSystem>(world, renderer);
@@ -87,15 +88,21 @@ int Game::setup()
 
 	sceneManager = std::make_unique<SceneManager>(window, sceneInfo);
 
+	std::function<void(const LoadSceneWaitEvent& event)> LoadSceneWaitCallback =
+		[&loadSceneWait = loadSceneWait](const LoadSceneWaitEvent& event) {
+		loadSceneWait = true;
+	};
+	eventManager.RegisterForEvent<LoadSceneWaitEvent>(LoadSceneWaitCallback);
+
 	std::function<void(const LoadSceneStartEvent& event)> LoadSceneStartCallback =
-		[&loadingScene = loadingScene](const LoadSceneStartEvent& event) {
-		loadingScene = true;
+		[&loadScene = loadScene](const LoadSceneStartEvent& event) {
+		loadScene = true;
 	};
 	eventManager.RegisterForEvent<LoadSceneStartEvent>(LoadSceneStartCallback);
 
 	std::function<void(const LoadSceneEndEvent& event)> LoadSceneEndCallback =
-		[&loadingScene = loadingScene, &loadingSceneEnd = loadingSceneEnd, &sceneManager = sceneManager, &world = world, &debugDrawer = debugDrawer](const LoadSceneEndEvent& event) {
-		loadingSceneEnd = true;
+		[&loadSceneEnd = loadSceneEnd](const LoadSceneEndEvent& event) {
+		loadSceneEnd = true;
 	};
 	eventManager.RegisterForEvent<LoadSceneEndEvent>(LoadSceneEndCallback);
 
@@ -130,15 +137,27 @@ int Game::teardown()
 
 void Game::update()
 {
-	/* SceneManager */
-	if (loadingScene)
-	{
-		sceneManager->Update(deltaTime);
+	if (deltaTime > FRAMEDURATION)
+		deltaTime = FRAMEDURATION;
 
-		if (loadingSceneEnd)
+	/* SceneManager */
+	if (loadSceneWait || loadScene || loadSceneEnd)
+	{
+		if (loadSceneWait)
 		{
+			sceneManager->LoadBegin();
+			loadSceneWait = false;
+		}
+
+		if (loadScene) {
+			sceneManager->Update(deltaTime);
+		}
+
+		if (loadSceneEnd) {
+			loadScene = false;
+
 			sceneManager->LoadFinish();
-			loadingScene = false;
+			loadSceneEnd = false;
 
 			std::vector<eid_t> playerEntities = world.GetEntitiesWithComponent<PlayerComponent>();
 			if (playerEntities.size() < 0)
@@ -151,10 +170,8 @@ void Game::update()
 				CameraComponent* cameraComponent = world.GetComponent<CameraComponent>(playerComponent->data.camera);
 				debugDrawer.SetCamera(&cameraComponent->data);
 			}
-
-			loadingScene = false;
-			loadingSceneEnd = false;
 		}
+
 		return;
 	}
 
@@ -168,7 +185,6 @@ void Game::update()
 	/* Physics */
 	rigidbodyMotorSystem->Update(deltaTime);
 	dynamicsWorld->Step(deltaTime, VELOCITYITERATION, POSITIONITERATION);
-	physics.Update(deltaTime);
 
 	/* Display */
 	storyboardDirectorSystem->Update(deltaTime);
@@ -187,7 +203,7 @@ void Game::update()
 
 void Game::draw()
 {
-	if (loadingScene)
+	if (loadScene)
 	{
 		sceneManager->Draw();
 		window.NextFrame();

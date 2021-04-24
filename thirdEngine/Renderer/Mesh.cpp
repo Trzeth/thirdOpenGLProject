@@ -41,6 +41,8 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned> indices, Material
 		glBindBuffer(GL_ARRAY_BUFFER, impl->VBO_bone);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(VertexBoneData) * vertexBoneData.size(), &vertexBoneData[0], GL_STATIC_DRAW);
 	}
+
+	glCheckError();
 }
 
 Mesh::~Mesh()

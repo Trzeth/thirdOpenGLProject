@@ -6,6 +6,8 @@
 #include <thirdEngine/Renderer/ModelLoader.h>
 #include <thirdEngine/Framework/EventManager.h>
 
+#include "Game/Responder/InteractEventResponder.h"
+
 #include "Game/Storyboard/Storyboard.h"
 #include "Game/Storyboard/StoryboardLoader.h"
 
@@ -44,12 +46,17 @@ private:
 	Shader plainShader;
 	Shader skyboxShader;
 
+	Prefab skyboxPrefab;
 	Prefab yardPrefab;
 	Prefab playerPrefab;
 	Prefab cameraPrefab;
 	Prefab storyboardPrefab;
 
-	Renderer::RenderableHandle skybox;
+	Prefab brushInteractPrefab;
+	Prefab waterPotInteractPrefab;
+	Prefab doorInteractPrefab;
+
+	std::shared_ptr<InteractEventResponder> interactEventResponder;
 
 	std::vector<Storyboard> storyboards;
 

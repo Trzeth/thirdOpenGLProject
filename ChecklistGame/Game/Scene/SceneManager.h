@@ -7,9 +7,9 @@
 #include <GLFW/glfw3.h>
 #include <thirdEngine/Framework/EventManager.h>
 #include <thirdEngine/Renderer/Texture.h>
+#include <thirdEngine/Renderer/RenderUtil.h>
 
-#include "Game/Event/LoadSceneEndEvent.h"
-#include "Game/Event/LoadSceneStartEvent.h"
+#include "Game/Event/LoadSceneEvent.h"
 #include "Game/Window.h"
 
 #include "Scene.h"
@@ -42,22 +42,27 @@ struct LoadingScreenInfo
 class SceneManager
 {
 public:
-	SceneManager(Window& window, SceneInfo& sceneInfo)
+	SceneManager(Window& window, const SceneInfo& sceneInfo)
 		:sceneInfo(sceneInfo), eventManager(*sceneInfo.eventManager),
 		window(window), loadingWindow(nullptr)
 	{
 		//Don't forget to set it
-		sceneInfo.sceneManager = this;
+		this->sceneInfo.sceneManager = this;
 
+		/*
 		glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
 		loadingWindow = glfwCreateWindow(1, 1, "loadingThread", NULL, window.GetWindow());
 		glfwWindowHint(GLFW_VISIBLE, GL_TRUE);
 		assert(loadingWindow);
+		*/
 	}
 
 	template<class T>
 	void LoadScene(LoadingScreenInfo info);
 
+	void LoadBegin();
+
+	// On Main thread
 	void LoadFinish();
 
 	void Update(float dt);
@@ -65,10 +70,13 @@ public:
 	/* Draw Loading Screen */
 	void Draw();
 private:
-	SceneInfo& sceneInfo;
+	SceneInfo sceneInfo;
 	EventManager& eventManager;
 	Window& window;
+
 	std::unique_ptr<Scene> currentScene;
+	std::unique_ptr<Scene> currentLoadingScene;
+
 	GLFWwindow* loadingWindow;
 	std::thread loadingThread;
 
@@ -87,36 +95,8 @@ inline void SceneManager::LoadScene(LoadingScreenInfo info)
 	currentTime = 0;
 	totalTime = loadingScreenInfo.LoadingImagePath.size() * loadingScreenInfo.LoopTime;
 
-	loadingImage.clear();
+	currentLoadingScene = std::make_unique<T>(sceneInfo);
 
-	TextureLoader loader;
-	for (const auto& path : loadingScreenInfo.LoadingImagePath)
-	{
-		loadingImage.push_back(loader.LoadFromFile(TextureType::Diffuse, path));
-	}
-
-	loadingThread = std::thread([
-		&loadingWindow = loadingWindow, &loadingImage = loadingImage,
-			&info = loadingScreenInfo, &eventManager = eventManager,
-			&currentScene = currentScene, &sceneInfo = sceneInfo]()
-		{
-			LoadSceneStartEvent startEvt;
-			eventManager.SendEvent<LoadSceneStartEvent>(startEvt);
-
-			glfwMakeContextCurrent(loadingWindow);
-			std::unique_ptr<Scene> loadingScene = std::make_unique<T>(sceneInfo);
-
-			loadingScene->Setup();
-
-			/* 别问我为什么知道 我也不知道 但是你不写材质就是黑的 keyword:mutlithread glFlush */
-			glFinish();
-			glFlush();
-
-			currentScene = std::move(loadingScene);
-
-			LoadSceneEndEvent endEvt;
-			eventManager.SendEvent<LoadSceneEndEvent>(endEvt);
-		});
-
-	loadingThread.detach();
+	LoadSceneWaitEvent evt;
+	eventManager.SendEvent<LoadSceneWaitEvent>(evt);
 }

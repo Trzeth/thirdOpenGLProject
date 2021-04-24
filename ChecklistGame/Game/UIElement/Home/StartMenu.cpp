@@ -50,8 +50,7 @@ namespace ImGui
 	}
 };
 
-#include "Game/Event/GameStartEvent.h"
-#include "Game/Event/GameCloseEvent.h"
+#include "Game/Event/GameEvent.h"
 
 StartMenu::StartMenu(EventManager& eventManager)
 	:eventManager(eventManager), isVisible(true)

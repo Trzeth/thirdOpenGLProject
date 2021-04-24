@@ -101,6 +101,12 @@
     <ClCompile Include="Game\Scene\SceneManager.cpp">
       <Filter>Game\Scene</Filter>
     </ClCompile>
+    <ClCompile Include="Game\Responder\InteractEventResponder.cpp">
+      <Filter>Game\Responder</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Component\InteractComponent.cpp">
+      <Filter>Game\Component</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Game">
@@ -138,6 +144,9 @@
     </Filter>
     <Filter Include="Game\Storyboard">
       <UniqueIdentifier>{504a08e3-656c-4f4d-95c4-30a47eae751d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Responder">
+      <UniqueIdentifier>{34e0b26c-638a-4643-8d8c-dc88ee690206}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -204,23 +213,8 @@
     <ClInclude Include="Game\System\PlayerInputSystem.h">
       <Filter>Game\System</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Event\GameCloseEvent.h">
-      <Filter>Game\Event</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\Event\GameStartEvent.h">
-      <Filter>Game\Event</Filter>
-    </ClInclude>
     <ClInclude Include="Game\UIElement\Home\Letter.h">
       <Filter>Game\UIElement\Home</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\Event\YardSceneLetterCloseEvent.h">
-      <Filter>Game\Event</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\Event\YardSceneOpenSceneStoryboardEndEvent.h">
-      <Filter>Game\Event</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\Event\YardSceneTurnAroundStoryboardEndEvent.h">
-      <Filter>Game\Event</Filter>
     </ClInclude>
     <ClInclude Include="Game\System\PlayerControlStateSystem.h">
       <Filter>Game\System</Filter>
@@ -255,10 +249,19 @@
     <ClInclude Include="Game\Scene\SceneManager.h">
       <Filter>Game\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Event\LoadSceneStartEvent.h">
+    <ClInclude Include="Game\Responder\InteractEventResponder.h">
+      <Filter>Game\Responder</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Component\InteractComponent.h">
+      <Filter>Game\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Event\YardSceneEvent.h">
       <Filter>Game\Event</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Event\LoadSceneEndEvent.h">
+    <ClInclude Include="Game\Event\GameEvent.h">
+      <Filter>Game\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Event\LoadSceneEvent.h">
       <Filter>Game\Event</Filter>
     </ClInclude>
   </ItemGroup>

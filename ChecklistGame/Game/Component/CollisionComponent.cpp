@@ -52,4 +52,6 @@ void CollisionComponentConstructor::Finish(World& world, eid_t entity)
 	CollisionComponent* component = world.GetComponent<CollisionComponent>(entity);
 
 	component->collisionObject->GetUserData().pointer = reinterpret_cast<uintptr_t>(new eid_t(entity));
+
+	eid_t id = *reinterpret_cast<eid_t*>(component->collisionObject->GetUserData().pointer);
 }

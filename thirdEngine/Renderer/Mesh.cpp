@@ -6,20 +6,17 @@
 #include "Material.h"
 #include "RenderUtil.h"
 
-Mesh::Mesh() : impl(new MeshImpl()), material(), hasVertexBoneData(false)
-{ }
-
-Mesh::Mesh(const Mesh& mesh) : impl(new MeshImpl(*mesh.impl)), material(mesh.material), hasVertexBoneData(mesh.hasVertexBoneData)
-{ }
+Mesh::Mesh() : impl(new MeshImpl()), material(), hasVertexBoneData(false) { }
 
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned> indices, Material material)
 	: Mesh(vertices, indices, material, std::vector<VertexBoneData>(), std::vector<BoneData>())
 { }
 
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned> indices, Material material, std::vector<VertexBoneData> vertexBoneData, std::vector<BoneData> boneData)
-	: Mesh()
 {
-	this->material = material;
+	impl = std::make_unique<MeshImpl>();
+
+	this->material = std::move(material);
 	this->hasVertexBoneData = vertexBoneData.size() > 0 ? true : false;
 
 	impl->nVertices = vertices.size();
@@ -33,13 +30,12 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned> indices, Material
 
 	glGenBuffers(1, &impl->EBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, impl->EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int),
-		&indices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
 
 	if (this->hasVertexBoneData) {
 		glGenBuffers(1, &impl->VBO_bone);
 		glBindBuffer(GL_ARRAY_BUFFER, impl->VBO_bone);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(VertexBoneData) * vertexBoneData.size(), &vertexBoneData[0], GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, vertexBoneData.size() * sizeof(VertexBoneData), &vertexBoneData[0], GL_STATIC_DRAW);
 	}
 
 	glCheckError();
@@ -47,21 +43,80 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned> indices, Material
 
 Mesh::~Mesh()
 {
+	if (!impl)
+		return;
+
 	glDeleteBuffers(1, &impl->VBO);
 	glDeleteBuffers(1, &impl->EBO);
-	glDeleteVertexArrays(1, &impl->VAO);
 
 	if (this->hasVertexBoneData)
 	{
 		glDeleteBuffers(1, &impl->VBO_bone);
 	}
+
+	glDeleteVertexArrays(1, &impl->VAO);
 }
 
-void Mesh::operator=(const Mesh& mesh)
+Mesh::Mesh(const Mesh& other)
 {
-	this->impl = std::unique_ptr<MeshImpl>(new MeshImpl(*mesh.impl));
-	this->material = mesh.material;
+	*this = other;
 }
+
+Mesh& Mesh::operator=(const Mesh& other)
+{
+#ifdef _DEBUG
+	printf("Mesh Copy\n");
+#endif // _DEBUG
+
+	impl = std::make_unique<MeshImpl>();
+	hasVertexBoneData = other.hasVertexBoneData;
+	name = other.name;
+
+	glGenBuffers(1, &impl->VBO);
+	glBindBuffer(GL_COPY_READ_BUFFER, other.impl->VBO);
+	glBindBuffer(GL_COPY_WRITE_BUFFER, impl->VBO);
+
+	GLint size = 0;
+	glGetBufferParameteriv(GL_COPY_READ_BUFFER, GL_BUFFER_SIZE, &size);
+	glBufferData(GL_COPY_WRITE_BUFFER, size, nullptr, GL_STATIC_DRAW);
+	glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, size);
+
+	glGenBuffers(1, &impl->EBO);
+	glBindBuffer(GL_COPY_READ_BUFFER, other.impl->EBO);
+	glBindBuffer(GL_COPY_WRITE_BUFFER, impl->EBO);
+
+	glGetBufferParameteriv(GL_COPY_READ_BUFFER, GL_BUFFER_SIZE, &size);
+	glBufferData(GL_COPY_WRITE_BUFFER, size, nullptr, GL_STATIC_DRAW);
+	glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, size);
+
+	if (other.hasVertexBoneData) {
+		glGenBuffers(1, &impl->VBO_bone);
+		glBindBuffer(GL_COPY_READ_BUFFER, other.impl->VBO_bone);
+		glBindBuffer(GL_COPY_WRITE_BUFFER, impl->VBO_bone);
+
+		glGetBufferParameteriv(GL_COPY_READ_BUFFER, GL_BUFFER_SIZE, &size);
+		glBufferData(GL_COPY_WRITE_BUFFER, size, nullptr, GL_STATIC_DRAW);
+		glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, size);
+	}
+
+	glBindBuffer(GL_COPY_READ_BUFFER, 0);
+	glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	if (other.impl->VAO) {
+		this->GenVAO();
+		glCheckError();
+	}
+
+	this->material = other.material;
+	glCheckError();
+
+	return *this;
+}
+
+Mesh::Mesh(Mesh&& other) noexcept = default;
+
+Mesh& Mesh::operator=(Mesh && other) noexcept = default;
 
 void Mesh::GenVAO() const
 {
@@ -105,7 +160,7 @@ void Mesh::Draw() const
 	glBindVertexArray(0);
 }
 
-std::vector<glm::mat4> Mesh::GetBoneTransforms(const std::vector<glm::mat4>& nodeTransforms) const
+std::vector<glm::mat4> Mesh::GetBoneTransforms(const std::vector<glm::mat4>&nodeTransforms) const
 {
 	if (nodeTransforms.size() <= 0) {
 		return impl->boneTransforms;

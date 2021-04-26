@@ -12,33 +12,83 @@ Texture::Texture()
 	: impl(new TextureImpl())
 { }
 
-Texture::Texture(std::unique_ptr<TextureImpl>& impl)
-	: impl(std::move(impl))
-{ }
-
 Texture::Texture(std::unique_ptr<TextureImpl>&& impl)
-	: impl(std::move(impl))
-{ }
-
-Texture::Texture(const Texture& texture)
-	: impl(new TextureImpl(*texture.impl))
-{ }
-
-void Texture::operator=(const Texture& texture)
 {
-	this->impl = std::make_unique<TextureImpl>(*texture.impl);
+	this->impl = std::move(impl);
 }
 
 Texture::~Texture()
-{ }
+{
+	if (!impl)
+		return;
 
-Texture TextureLoader::LoadFromFile(TextureType type, const std::string& imageLocation)
+	glDeleteTextures(1, &impl->id);
+}
+
+Texture::Texture(const Texture& other)
+{
+	*this = other;
+}
+
+Texture& Texture::operator=(const Texture& other)
+{
+#ifdef _DEBUG
+	printf("Texture Copy\n");
+#endif // _DEBUG
+
+	impl = std::make_unique<TextureImpl>();
+	impl->type = other.impl->type;
+
+	int w, h;
+	int miplevel = 0;
+	glBindTexture(GL_TEXTURE_2D, other.impl->id);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D, miplevel, GL_TEXTURE_WIDTH, &w);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D, miplevel, GL_TEXTURE_HEIGHT, &h);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glGenTextures(1, &impl->id);
+	glBindTexture(GL_TEXTURE_2D, impl->id);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	/* Check the image interal format assert as RGB */
+	glCheckError();
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	GLuint fbo;
+	glGenFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+		GL_TEXTURE_2D, other.impl->id, 0);
+	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT1,
+		GL_TEXTURE_2D, impl->id, 0);
+
+	glDrawBuffer(GL_COLOR_ATTACHMENT1);
+	glBlitFramebuffer(0, 0, w, h, 0, 0, w, h,
+		GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	glCheckError();
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glDeleteFramebuffers(1, &fbo);
+
+	glCheckError();
+
+	return *this;
+}
+
+Texture::Texture(Texture&& other) noexcept = default;
+
+Texture& Texture::operator=(Texture && other) noexcept = default;
+
+Texture TextureLoader::LoadFromFile(TextureType type, const std::string & imageLocation)
 {
 	Texture texture;
 	texture.impl = std::make_unique<TextureImpl>();
 	texture.impl->type = type;
-
-	glCheckError();
 
 	unsigned int textureID = 0;
 	glGenTextures(1, &textureID);
@@ -82,7 +132,7 @@ Texture TextureLoader::LoadFromFile(TextureType type, const std::string& imageLo
 	return texture;
 }
 
-Texture TextureLoader::LoadCubemap(const std::string& directory, const std::vector<std::string>& filename)
+Texture TextureLoader::LoadCubemap(const std::string & directory, const std::vector<std::string>&filename)
 {
 	Texture texture;
 	texture.impl = std::make_unique<TextureImpl>();
@@ -140,7 +190,7 @@ Texture TextureLoader::LoadCubemap(const std::string& directory, const std::vect
 	return texture;
 }
 
-Texture TextureLoader::LoadHDR(const std::string& filename)
+Texture TextureLoader::LoadHDR(const std::string & filename)
 {
 	unsigned int textureID = 0;
 	glGenTextures(1, &textureID);

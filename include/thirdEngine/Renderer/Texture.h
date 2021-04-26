@@ -15,11 +15,15 @@ struct TextureImpl;
 struct Texture
 {
 	Texture();
-	Texture(std::unique_ptr<TextureImpl>& impl);
 	Texture(std::unique_ptr<TextureImpl>&& impl);
-	Texture(const Texture& texture);
+
 	~Texture();
-	void operator=(const Texture& texture);
+
+	Texture(const Texture& other);
+	Texture& operator=(const Texture& other);
+
+	Texture(Texture&& other) noexcept;
+	Texture& operator=(Texture&& other) noexcept;
 
 	std::unique_ptr<TextureImpl> impl;
 };

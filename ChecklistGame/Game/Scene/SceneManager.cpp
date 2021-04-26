@@ -17,6 +17,7 @@ void SceneManager::LoadBegin()
 	glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
 	loadingWindow = glfwCreateWindow(1, 1, "loadingThread", NULL, window.GetWindow());
 	glfwWindowHint(GLFW_VISIBLE, GL_TRUE);
+	assert(loadingWindow);
 
 	if (currentScene)
 		currentScene->PreDestruct();
@@ -33,6 +34,8 @@ void SceneManager::LoadBegin()
 			glfwMakeContextCurrent(loadingWindow);
 
 			currentLoadingScene->Setup();
+
+			//std::this_thread::sleep_for(std::chrono::seconds(5000));
 
 			/* 别问我为什么知道 我也不知道 但是你不写材质就是黑的 keyword:mutlithread glFlush */
 			glFinish();
@@ -69,7 +72,7 @@ void SceneManager::Draw()
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	if (loadingScreenInfo.LoopTime == 0)
+	if (loadingScreenInfo.LoopTime == 0 || loadingImage.size() == 0)
 	{
 		return;
 	}

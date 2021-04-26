@@ -15,10 +15,18 @@
 #include <assimp/SceneCombiner.h>
 #include <cassert>
 
+std::vector<int> return_vector(void)
+{
+	std::vector<int> tmp{ 1,2,3,4,5 };
+	return tmp;
+}
+
 using namespace std;
 
 int main(int argc, char* arg5[])
 {
+	std::vector<int>&& rval_ref = return_vector();
+
 	setlocale(LC_ALL, ".UTF8");
 
 	argc = 4;

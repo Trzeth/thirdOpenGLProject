@@ -48,13 +48,6 @@ public:
 	{
 		//Don't forget to set it
 		this->sceneInfo.sceneManager = this;
-
-		/*
-		glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
-		loadingWindow = glfwCreateWindow(1, 1, "loadingThread", NULL, window.GetWindow());
-		glfwWindowHint(GLFW_VISIBLE, GL_TRUE);
-		assert(loadingWindow);
-		*/
 	}
 
 	template<class T>

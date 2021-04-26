@@ -5,13 +5,7 @@
 static uint64_t nextId;
 static std::unordered_map<uint64_t, GLint> shaderUniformCache;
 
-MaterialProperty::MaterialProperty() :type(MaterialPropertyType::Invalid), propertyId(0)
-{ }
-
-MaterialProperty::MaterialProperty(const MaterialProperty& property)
-	: type(property.type)
-	, value(new MaterialPropertyValue(*property.value))
-	, propertyId(property.propertyId)
+MaterialProperty::MaterialProperty() :type(MaterialPropertyType::Invalid), value(), propertyId(0)
 { }
 
 MaterialProperty::MaterialProperty(glm::vec3 vec3)
@@ -38,35 +32,102 @@ MaterialProperty::MaterialProperty(const Texture& texture)
 	: type(MaterialPropertyType::Texture)
 	, value(new MaterialPropertyValue(texture))
 	, propertyId(0)
-{
-}
+{ }
+
+MaterialProperty::MaterialProperty(Texture&& texture)
+	: type(MaterialPropertyType::Texture)
+	, value(new MaterialPropertyValue(std::move(texture)))
+	, propertyId(0)
+{ }
 
 MaterialProperty::~MaterialProperty()
 { }
+
+MaterialProperty::MaterialProperty(const MaterialProperty& property)
+{
+	*this = property;
+}
+
+MaterialProperty& MaterialProperty::operator=(const MaterialProperty& other)
+{
+#ifdef _DEBUG
+	printf("MaterialProperty Copy\n");
+#endif // _DEBUG
+
+	type = other.type;
+	propertyId = 0;
+	switch (type)
+	{
+	case MaterialPropertyType::Vec3:
+		value = std::make_unique<MaterialPropertyValue>(other.value->vec3);
+		break;
+	case MaterialPropertyType::Vec4:
+		value = std::make_unique<MaterialPropertyValue>(other.value->vec4);
+		break;
+	case MaterialPropertyType::Float:
+		value = std::make_unique<MaterialPropertyValue>(other.value->flt);
+		break;
+	case MaterialPropertyType::Texture:
+		value = std::make_unique<MaterialPropertyValue>(other.value->texture);
+		break;
+	case MaterialPropertyType::Invalid:
+		break;
+	default:
+		break;
+	}
+	return *this;
+}
+
+MaterialProperty::MaterialProperty(MaterialProperty&& other) noexcept = default;
+
+MaterialProperty& MaterialProperty::operator=(MaterialProperty && other) noexcept = default;
 
 Material::Material()
 	:DrawOrder(MaterialDrawOrder::Less), DrawType(MaterialDrawType::Triangles)
 {
 }
 
-void Material::SetProperty(const std::string& key, const MaterialProperty& property)
+Material::Material(Material && other) noexcept
+{
+	*this = other;
+}
+
+Material& Material::operator=(Material && other) noexcept
+{
+	properties.merge(other.properties);
+
+	return *this;
+}
+
+void Material::SetProperty(const std::string & key, const MaterialProperty & property)
 {
 	auto iter = properties.find(key);
 
 	if (iter != properties.end()) {
-		iter->second.type = property.type;
-		iter->second.value = std::make_unique<MaterialPropertyValue>(*property.value);
+		iter->second = MaterialProperty(property);
 	}
 	else {
-		MaterialProperty copyProp;
+		MaterialProperty copyProp(property);
 		copyProp.propertyId = nextId++;
-		copyProp.type = property.type;
-		copyProp.value = std::make_unique<MaterialPropertyValue>(*property.value);
+
 		properties.insert(std::make_pair(key, copyProp));
 	}
 }
 
-void Material::SetTextures(const std::vector<Texture>& textures)
+void Material::SetProperty(const std::string & key, MaterialProperty && property)
+{
+	auto iter = properties.find(key);
+
+	if (iter != properties.end()) {
+		iter->second = std::move(property);
+	}
+	else {
+		property.propertyId = nextId++;
+		properties.insert(std::make_pair(key, std::move(property)));
+	}
+}
+
+void Material::SetTextures(const std::vector<Texture>&textures)
 {
 	for (unsigned int i = 0; i < textures.size(); i++) {
 		MaterialProperty textureProperty(textures[i]);
@@ -86,12 +147,34 @@ void Material::SetTextures(const std::vector<Texture>& textures)
 	}
 }
 
-void Material::Apply(const Shader& shader) const
+void Material::SetTextures(std::vector<Texture> && textures)
+{
+	for (unsigned int i = 0; i < textures.size(); i++) {
+		MaterialProperty textureProperty = std::move(textures[i]);
+		const TextureType& type = textureProperty.value->texture.impl->type;
+		std::string key;
+
+		if (type == TextureType::Diffuse) {
+			key = "texture_diffuse";
+		}
+		else if (type == TextureType::Specular) {
+			key = "texture_specular";
+		}
+		else if (type == TextureType::Cubemap) {
+			key = "cubemap";
+			// not all cubemaps are skyboxes, but they are for now!
+			this->DrawOrder = MaterialDrawOrder::LEqual;
+		}
+		this->SetProperty(key, std::move(textureProperty));
+	}
+}
+
+void Material::Apply(const Shader & shader) const
 {
 	this->Apply(*shader.impl);
 }
 
-void Material::Apply(const ShaderImpl& shader) const
+void Material::Apply(const ShaderImpl & shader) const
 {
 	unsigned int curTexture = 0;
 
@@ -123,11 +206,11 @@ void Material::Apply(const ShaderImpl& shader) const
 			break;
 		case MaterialPropertyType::Texture:
 			glActiveTexture(GL_TEXTURE0 + curTexture); // Activate proper texture unit before binding
-			if (property.value->texture.type == TextureType::Cubemap) {
-				glBindTexture(GL_TEXTURE_CUBE_MAP, property.value->texture.id);
+			if (property.value->texture.impl->type == TextureType::Cubemap) {
+				glBindTexture(GL_TEXTURE_CUBE_MAP, property.value->texture.impl->id);
 			}
 			else {
-				glBindTexture(GL_TEXTURE_2D, property.value->texture.id);
+				glBindTexture(GL_TEXTURE_2D, property.value->texture.impl->id);
 			}
 			glUniform1i(shaderUniformId, curTexture);
 			curTexture++;

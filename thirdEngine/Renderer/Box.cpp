@@ -128,18 +128,15 @@ Model Box::GetSkybox(const std::string& directory, const std::vector<std::string
 		indexes[i] = i;
 	}
 
-	std::vector<Texture> textures;
 	TextureLoader textureLoader;
-	Texture texture = textureLoader.LoadCubemap(directory, filename);
-	textures.push_back(texture);
+	std::vector<Texture> textures;
+	textures.emplace_back(textureLoader.LoadCubemap(directory, filename));
 
 	Material material;
-	material.SetTextures(textures);
-
-	Mesh mesh(vertices, indexes, material);
+	material.SetTextures(std::move(textures));
 
 	Model model;
-	model.meshes = std::vector<Mesh>{ mesh };
+	model.meshes.emplace_back(Mesh(vertices, indexes, std::move(material)));
 	model.meshesTransform = std::vector<std::vector<glm::mat4>>{ std::vector<glm::mat4>{glm::mat4(1.0)} };
 	return model;
 }
@@ -393,6 +390,7 @@ HDRSkyboxReturn Box::GetHDRSkybox(const std::string& filename)
 
 	HDRSkyboxReturn val;
 	val.HDRSkybox = model;
+
 	val.Irradiancemap = Texture(std::make_unique<TextureImpl>(TextureType::Cubemap, irradianceMap));
 	val.Prefiltermap = Texture(std::make_unique<TextureImpl>(TextureType::Cubemap, prefilterMap));
 	val.BRDFLUT = Texture(std::make_unique<TextureImpl>(TextureType::Diffuse, brdfLUTTexture));

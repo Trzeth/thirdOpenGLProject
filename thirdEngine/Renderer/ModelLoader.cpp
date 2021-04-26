@@ -118,7 +118,7 @@ Model ModelLoader::LoadModel(const std::string& path, glm::mat4 preDefineTransfo
 
 		Model model = this->impl->processModel(scene->mRootNode, scene);
 		model.material = impl->defaultMaterial;
-		this->impl->modelIdCache.emplace(std::make_pair(path, model));
+		this->impl->modelIdCache.emplace(std::make_pair(path, std::move(model)));
 
 		return model;
 	}
@@ -291,9 +291,11 @@ std::vector<Material> ModelLoader::Impl::processMaterials(const aiScene* scene)
 		{
 			aiMaterial* material = scene->mMaterials[i];
 			std::vector<Texture> diffuseMaps = this->loadMaterialTextures(this->curDir, material, aiTextureType_DIFFUSE);
-			textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+			textures.insert(textures.end(), std::make_move_iterator(diffuseMaps.begin()), std::make_move_iterator(diffuseMaps.end()));
+			diffuseMaps.clear();
 			std::vector<Texture> specularMaps = this->loadMaterialTextures(this->curDir, material, aiTextureType_SPECULAR);
-			textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+			textures.insert(textures.end(), std::make_move_iterator(specularMaps.begin()), std::make_move_iterator(specularMaps.end()));
+			specularMaps.clear();
 
 			if (false)// TODO: Map assimp properties to our properties
 				for (unsigned i = 0; i < material->mNumProperties; i++) {
@@ -302,8 +304,8 @@ std::vector<Material> ModelLoader::Impl::processMaterials(const aiScene* scene)
 		}
 
 		Material material = *defaultMaterial;
-		material.SetTextures(textures);
-		materials.emplace_back(material);
+		material.SetTextures(std::move(textures));
+		materials.emplace_back(std::move(material));
 	}
 
 	return materials;
@@ -330,7 +332,7 @@ std::vector<Texture> ModelLoader::Impl::loadMaterialTextures(const std::string& 
 			texture.impl = std::make_unique<TextureImpl>(cacheIter->second);
 		}
 
-		textures.emplace_back(texture);
+		textures.emplace_back(std::move(texture));
 	}
 	return textures;
 }

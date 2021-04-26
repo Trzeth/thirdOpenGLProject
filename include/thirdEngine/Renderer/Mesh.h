@@ -49,18 +49,15 @@ class Mesh
 {
 public:
 	Mesh();
-	Mesh(const Mesh& mesh);
 	Mesh(std::vector<Vertex> vertices, std::vector<unsigned> indices, Material material);
 	Mesh(std::vector<Vertex> vertices, std::vector<unsigned> indices, Material material, std::vector<VertexBoneData> vertexBoneData, std::vector<BoneData> boneData);
-
 	~Mesh();
 
-	void operator=(const Mesh& mesh);
+	Mesh(const Mesh& other);
+	Mesh& operator=(const Mesh& other);
 
-	bool operator==(const Mesh& m) const
-	{
-		return m.name == name;
-	}
+	Mesh(Mesh&& other) noexcept;
+	Mesh& operator=(Mesh&& other) noexcept;
 
 	void GenVAO() const;
 

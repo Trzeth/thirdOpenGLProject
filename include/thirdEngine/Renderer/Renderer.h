@@ -73,7 +73,7 @@ public:
 			: shaderCache(shader), modelHandle(modelHandle), animatable(animatable), space(RenderSpace_World), loopAnimation(false), time(0), transform(1.0f) { }
 
 		~Entity() {
-			printf("De\n");
+			printf("Render Entity De\n");
 		}
 
 		HandlePool<Model>::Handle modelHandle;

@@ -29,6 +29,8 @@ public:
 		globalVariable(*info.globalVariable), prefabsSteup(false)
 	{ };
 
+	virtual ~Scene() = default;
+
 	virtual void Setup() = 0;
 
 	/*!

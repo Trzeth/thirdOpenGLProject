@@ -10,9 +10,9 @@ class System
 {
 public:
 	System(World& world) :world(world) { };
+	virtual ~System() = default;
 
 	void Update(float dt);
-
 protected:
 	virtual void updateEntity(float dt, eid_t entity) = 0;
 

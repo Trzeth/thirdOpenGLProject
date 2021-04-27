@@ -12,9 +12,6 @@ class Prefab
 public:
 	Prefab();
 	Prefab(const std::string& name);
-	~Prefab() {
-		printf("Prefab De\n");
-	}
 
 	void AddConstructor(ComponentConstructor* constructor);
 	std::vector<ComponentConstructorInfo> Construct(World& world, eid_t parent, void* userinfo)const;

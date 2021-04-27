@@ -49,8 +49,8 @@ class Mesh
 {
 public:
 	Mesh();
-	Mesh(std::vector<Vertex> vertices, std::vector<unsigned> indices, Material&& material);
-	Mesh(std::vector<Vertex> vertices, std::vector<unsigned> indices, Material&& material, std::vector<VertexBoneData> vertexBoneData, std::vector<BoneData> boneData);
+	Mesh(std::vector<Vertex> vertices, std::vector<unsigned> indices, std::shared_ptr<Material> material);
+	Mesh(std::vector<Vertex> vertices, std::vector<unsigned> indices, std::shared_ptr<Material> material, std::vector<VertexBoneData> vertexBoneData, std::vector<BoneData> boneData);
 	~Mesh();
 
 	Mesh(const Mesh& other);
@@ -73,7 +73,7 @@ public:
 	std::vector<glm::mat4> GetBoneTransforms(const std::vector<glm::mat4>& nodeTransforms) const;
 
 	std::string name;
-	Material material;
+	std::shared_ptr<Material> material;
 	std::unique_ptr<MeshImpl> impl;
 	bool hasVertexBoneData;
 };

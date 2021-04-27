@@ -7,9 +7,7 @@
 struct ModelRenderComponent :public Component
 {
 	ModelRenderComponent() :rendererHandle(nullptr) { }
-	~ModelRenderComponent() {
-		printf("ModelRenderComponent De\n");
-	}
+
 	Renderer::RenderableHandle rendererHandle;
 };
 
@@ -18,11 +16,7 @@ public:
 	ModelRenderComponentConstructor(Renderer& renderer, const Renderer::ModelHandle& modelHandle, Shader&& shader, const std::string& defaultAnimation = "")
 		: renderer(renderer), modelHandle(modelHandle), shader(std::move(shader)), defaultAnimation(defaultAnimation) { }
 
-	~ModelRenderComponentConstructor() {
-		printf("ModelRenderComponentConstructor De\n");
-	}
-
-	virtual ComponentConstructorInfo Construct(World& world, eid_t parent, void* userinfo)const;
+	virtual ComponentConstructorInfo Construct(World& world, eid_t parent, void* userinfo);
 
 	virtual void Finish(World& world, eid_t entity);
 private:

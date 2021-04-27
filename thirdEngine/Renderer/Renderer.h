@@ -34,7 +34,7 @@ public:
 	/*! Shader cache. Stores a shader along with its uniform locations. */
 	struct ShaderCache
 	{
-		ShaderCache(const ShaderImpl& shader);
+		ShaderCache(const std::shared_ptr<Shader>& shader);
 
 		struct PointLightCache
 		{
@@ -57,7 +57,7 @@ public:
 			GLuint specular;
 		};
 
-		ShaderImpl shader;
+		std::shared_ptr<Shader> shader;
 		DirLightCache dirLight;
 		std::vector<PointLightCache> pointLights;
 		std::vector<GLuint> bones;
@@ -69,12 +69,8 @@ public:
 	their own transforms. */
 	struct Entity
 	{
-		Entity(const ShaderImpl& shader, HandlePool<Model>::Handle modelHandle, bool animatable)
+		Entity(const std::shared_ptr<Shader>& shader, HandlePool<Model>::Handle modelHandle, bool animatable)
 			: shaderCache(shader), modelHandle(modelHandle), animatable(animatable), space(RenderSpace_World), loopAnimation(false), time(0), transform(1.0f) { }
-
-		~Entity() {
-			printf("Render Entity De\n");
-		}
 
 		HandlePool<Model>::Handle modelHandle;
 		ShaderCache shaderCache;
@@ -124,8 +120,6 @@ public:
 
 	void SetRenderableTransform(const RenderableHandle& handle, const glm::mat4& transform);
 
-	void SetRenderableShader(const RenderableHandle& handle, const Shader& shader);
-
 	void SetRenderableMaterial(const RenderableHandle& handle, const std::shared_ptr<Material>& material);
 
 	void SetViewport(int w, int h);
@@ -142,7 +136,7 @@ public:
 
 	ModelHandle GetModelHandle(Model&& model);
 
-	RenderableHandle GetRenderableHandle(const ModelHandle& modelHandle, const Shader& shader);
+	RenderableHandle GetRenderableHandle(const ModelHandle& modelHandle, const std::shared_ptr<Shader>& shader);
 
 	void ClearBuffer()const;
 

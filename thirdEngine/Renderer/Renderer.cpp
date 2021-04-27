@@ -12,34 +12,34 @@ Renderer::Renderer()
 	this->uiModelTransform[1][1] = -1.0f;
 }
 
-Renderer::ShaderCache::ShaderCache(const ShaderImpl& shader)
+Renderer::ShaderCache::ShaderCache(const std::shared_ptr<Shader>& shader)
 	:shader(shader), pointLights(maxPointLights), bones(maxBones)
 {
 	for (unsigned int i = 0; i < pointLights.size(); i++) {
 		PointLightCache& light = this->pointLights[i];
 		std::stringstream sstream;
 		sstream << "pointLight[" << i << "]";
-		light.constant = shader.GetUniformLocation((sstream.str() + ".constant").c_str());
-		light.linear = shader.GetUniformLocation((sstream.str() + ".linear").c_str());
-		light.quadratic = shader.GetUniformLocation((sstream.str() + ".quadratic").c_str());
-		light.ambient = shader.GetUniformLocation((sstream.str() + ".ambient").c_str());
-		light.diffuse = shader.GetUniformLocation((sstream.str() + ".diffuse").c_str());
-		light.specular = shader.GetUniformLocation((sstream.str() + ".specular").c_str());
-		light.position = shader.GetUniformLocation((sstream.str() + ".position").c_str());
+		light.constant = shader->impl->GetUniformLocation((sstream.str() + ".constant").c_str());
+		light.linear = shader->impl->GetUniformLocation((sstream.str() + ".linear").c_str());
+		light.quadratic = shader->impl->GetUniformLocation((sstream.str() + ".quadratic").c_str());
+		light.ambient = shader->impl->GetUniformLocation((sstream.str() + ".ambient").c_str());
+		light.diffuse = shader->impl->GetUniformLocation((sstream.str() + ".diffuse").c_str());
+		light.specular = shader->impl->GetUniformLocation((sstream.str() + ".specular").c_str());
+		light.position = shader->impl->GetUniformLocation((sstream.str() + ".position").c_str());
 		glCheckError();
 	}
 
-	this->dirLight.direction = shader.GetUniformLocation("dirLight.direction");
-	this->dirLight.ambient = shader.GetUniformLocation("dirLight.ambient");
-	this->dirLight.diffuse = shader.GetUniformLocation("dirLight.diffuse");
-	this->dirLight.specular = shader.GetUniformLocation("dirLight.specular");
+	this->dirLight.direction = shader->impl->GetUniformLocation("dirLight.direction");
+	this->dirLight.ambient = shader->impl->GetUniformLocation("dirLight.ambient");
+	this->dirLight.diffuse = shader->impl->GetUniformLocation("dirLight.diffuse");
+	this->dirLight.specular = shader->impl->GetUniformLocation("dirLight.specular");
 
-	this->pointLightCount = shader.GetUniformLocation("pointLightCount");
+	this->pointLightCount = shader->impl->GetUniformLocation("pointLightCount");
 
 	for (unsigned int i = 0; i < maxBones; i++) {
 		std::stringstream sstream;
 		sstream << "bones[" << i << "]";
-		this->bones[i] = shader.GetUniformLocation(sstream.str());
+		this->bones[i] = shader->impl->GetUniformLocation(sstream.str());
 	}
 }
 
@@ -132,22 +132,6 @@ void Renderer::SetRenderableTransform(const RenderableHandle& handle, const glm:
 	renderable.transform = transform;
 }
 
-void Renderer::SetRenderableShader(const RenderableHandle& handle, const Shader& shader)
-{
-	auto shaderIter = shaderMap.find(shader.impl->GetID());
-	if (shaderIter == shaderMap.end()) {
-		auto iterPair = shaderMap.emplace(std::make_pair(shader.impl->GetID(), ShaderCache(*shader.impl)));
-	}
-
-	std::optional<std::reference_wrapper<Entity>> renderableOpt = entityPool.Get(handle);
-	if (!renderableOpt) {
-		return;
-	}
-
-	Entity& renderable = *renderableOpt;
-	renderable.shaderCache = *shader.impl;
-}
-
 void Renderer::SetRenderableMaterial(const RenderableHandle& handle, const std::shared_ptr<Material>& material)
 {
 	std::optional<std::reference_wrapper<Entity>> renderableOpt = entityPool.Get(handle);
@@ -198,11 +182,11 @@ Renderer::ModelHandle Renderer::GetModelHandle(Model&& model)
 	return modelPool.GetNewHandle(std::move(model));
 }
 
-Renderer::RenderableHandle Renderer::GetRenderableHandle(const ModelHandle& modelHandle, const Shader& shader)
+Renderer::RenderableHandle Renderer::GetRenderableHandle(const ModelHandle& modelHandle, const std::shared_ptr<Shader>& shader)
 {
-	auto shaderIter = shaderMap.find(shader.impl->GetID());
+	auto shaderIter = shaderMap.find(shader->impl->GetID());
 	if (shaderIter == shaderMap.end()) {
-		auto iterPair = shaderMap.emplace(std::make_pair(shader.impl->GetID(), ShaderCache(*shader.impl)));
+		auto iterPair = shaderMap.emplace(std::make_pair(shader->impl->GetID(), ShaderCache(shader)));
 	}
 
 	std::optional<std::reference_wrapper<Model>> modelOpt = modelPool.Get(modelHandle);
@@ -214,7 +198,7 @@ Renderer::RenderableHandle Renderer::GetRenderableHandle(const ModelHandle& mode
 
 	bool animatable = (model.animationData.animations.size() > 0);
 
-	RenderableHandle handle = this->entityPool.GetNewHandle(Entity(*shader.impl, modelHandle, animatable));
+	RenderableHandle handle = this->entityPool.GetNewHandle(Entity(shader, modelHandle, animatable));
 
 	return handle;
 }
@@ -278,13 +262,13 @@ void Renderer::drawInternal(RenderSpace space)
 	for (auto iter = shaderMap.begin(); iter != shaderMap.end(); iter++) {
 		const ShaderCache& shaderCache = iter->second;
 
-		shaderCache.shader.Use();
+		shaderCache.shader->impl->Use();
 
 		//??? Viewpos lightSpaceMartix skyBox Shader如何处理
 
-		shaderCache.shader.SetProjectionMatrix(projectionMatrix);
-		shaderCache.shader.SetViewMatrix(viewMatrix);
-		shaderCache.shader.SetViewPos(viewPos);
+		shaderCache.shader->impl->SetProjectionMatrix(projectionMatrix);
+		shaderCache.shader->impl->SetViewMatrix(viewMatrix);
+		shaderCache.shader->impl->SetViewPos(viewPos);
 
 		//Later
 
@@ -311,7 +295,7 @@ void Renderer::drawInternal(RenderSpace space)
 		ShaderCache& shaderCache = renderable.shaderCache;
 		glm::mat4 modelMatrix = renderable.transform;
 
-		shaderCache.shader.Use();
+		shaderCache.shader->impl->Use();
 
 		//只考虑了骨骼动画！！
 		for (int i = 0; i != model.meshes.size(); i++)
@@ -334,9 +318,9 @@ void Renderer::drawInternal(RenderSpace space)
 
 				// In case of mesh under animated node
 				for (const int node : model.animationData.meshNodeId[i]) {
-					shaderCache.shader.SetModelMatrix(modelMatrix * nodeTransforms[node]);
+					shaderCache.shader->impl->SetModelMatrix(modelMatrix * nodeTransforms[node]);
 					if (model.material)model.material->Apply(shaderCache.shader);
-					model.meshes[i].material.Apply(shaderCache.shader);
+					model.meshes[i].material->Apply(shaderCache.shader);
 					model.meshes[i].Draw();
 					glCheckError();
 				}
@@ -344,9 +328,9 @@ void Renderer::drawInternal(RenderSpace space)
 			else
 			{
 				for (const glm::mat4& transform : model.meshesTransform[i]) {
-					shaderCache.shader.SetModelMatrix(modelMatrix * transform);
+					shaderCache.shader->impl->SetModelMatrix(modelMatrix * transform);
 					if (model.material)model.material->Apply(shaderCache.shader);
-					model.meshes[i].material.Apply(shaderCache.shader);
+					model.meshes[i].material->Apply(shaderCache.shader);
 					model.meshes[i].Draw();
 					glCheckError();
 				}

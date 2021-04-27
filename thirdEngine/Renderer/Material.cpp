@@ -169,9 +169,9 @@ void Material::SetTextures(std::vector<Texture> && textures)
 	}
 }
 
-void Material::Apply(const Shader & shader) const
+void Material::Apply(const std::shared_ptr<Shader>&shader) const
 {
-	this->Apply(*shader.impl);
+	this->Apply(*shader->impl);
 }
 
 void Material::Apply(const ShaderImpl & shader) const

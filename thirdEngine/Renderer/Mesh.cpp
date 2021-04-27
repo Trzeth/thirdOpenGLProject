@@ -8,15 +8,15 @@
 
 Mesh::Mesh() : impl(new MeshImpl()), material(), hasVertexBoneData(false) { }
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned> indices, Material&& material)
-	: Mesh(vertices, indices, std::move(material), std::vector<VertexBoneData>(), std::vector<BoneData>())
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned> indices, std::shared_ptr<Material> material)
+	: Mesh(vertices, indices, material, std::vector<VertexBoneData>(), std::vector<BoneData>())
 { }
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned> indices, Material&& material, std::vector<VertexBoneData> vertexBoneData, std::vector<BoneData> boneData)
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned> indices, std::shared_ptr<Material> material, std::vector<VertexBoneData> vertexBoneData, std::vector<BoneData> boneData)
 {
 	impl = std::make_unique<MeshImpl>();
 
-	this->material = std::move(material);
+	this->material = material;
 	this->hasVertexBoneData = vertexBoneData.size() > 0 ? true : false;
 
 	impl->nVertices = vertices.size();

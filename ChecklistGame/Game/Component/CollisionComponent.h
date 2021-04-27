@@ -53,7 +53,7 @@ public:
 	CollisionComponentConstructor(b2World& world, const CollisionConstructorInfo& info)
 		: world(world), info(info) { }
 
-	virtual ComponentConstructorInfo Construct(World& world, eid_t parent, void* userinfo)const;
+	virtual ComponentConstructorInfo Construct(World& world, eid_t parent, void* userinfo);
 
 	virtual void Finish(World& world, eid_t entity);
 private:

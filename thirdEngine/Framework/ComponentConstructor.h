@@ -22,6 +22,6 @@ class ComponentConstructor
 public:
 	ComponentConstructor() { }
 	virtual ~ComponentConstructor() = default;
-	virtual ComponentConstructorInfo Construct(World& world, eid_t parent, void* userinfo) const = 0;
+	virtual ComponentConstructorInfo Construct(World& world, eid_t parent, void* userinfo) = 0;
 	virtual void Finish(World& world, eid_t entity) { }
 };

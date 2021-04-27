@@ -42,19 +42,19 @@ struct ModelLoader::Impl
 	 * @param scene
 	 * @return
 	*/
-	std::vector<Material> processMaterials(const aiScene* scene);
+	std::vector<std::shared_ptr<Material>> processMaterials(const aiScene* scene);
 
 	/*!
 	 * @brief Processes meshes of a model.
 	 * @param nodeIdMap A map of node names to internal node IDs. Used when the bones are being loaded from the mesh.
 	 */
-	std::vector<Mesh> processMeshes(const aiScene* scene, std::unordered_map<std::string, unsigned int> nodeIdMap, std::vector<Material>&& materials);
+	std::vector<Mesh> processMeshes(const aiScene* scene, std::unordered_map<std::string, unsigned int> nodeIdMap, std::vector<std::shared_ptr<Material>> materials);
 
 	/*!
 	 * @brief Process a single mesh
 	 * @return mesh
 	*/
-	Mesh processMesh(aiMesh* mesh, const aiScene* scene, std::unordered_map<std::string, unsigned int> nodeIdMap, std::vector<Material>&& materials);
+	Mesh processMesh(aiMesh* mesh, const aiScene* scene, std::unordered_map<std::string, unsigned int> nodeIdMap, std::vector<std::shared_ptr<Material>> materials);
 
 	AnimationData processAnimations(const aiScene* scene, const std::unordered_map<std::string, unsigned int>& nodeIdMap);
 
@@ -125,7 +125,7 @@ void ModelLoader::SetDefaultMaterial(const std::shared_ptr<Material>& material)
 Model ModelLoader::Impl::processModel(aiNode* rootNode, const aiScene* scene)
 {
 	Model model;
-	std::vector<Material> material = processMaterials(scene);
+	auto material = processMaterials(scene);
 
 	std::vector<ModelNode> nodeHierarchy;
 	std::unordered_map<std::string, unsigned int> nodeIdMap;
@@ -201,18 +201,18 @@ Model ModelLoader::Impl::processModel(aiNode* rootNode, const aiScene* scene)
 	return model;
 }
 
-std::vector<Mesh> ModelLoader::Impl::processMeshes(const aiScene* scene, std::unordered_map<std::string, unsigned int> nodeIdMap, std::vector<Material>&& materials)
+std::vector<Mesh> ModelLoader::Impl::processMeshes(const aiScene* scene, std::unordered_map<std::string, unsigned int> nodeIdMap, std::vector<std::shared_ptr<Material>> materials)
 {
 	std::vector<Mesh> meshes;
 
 	for (int i = 0; i != scene->mNumMeshes; i++) {
-		meshes.push_back(std::move(processMesh(scene->mMeshes[i], scene, nodeIdMap, std::move(materials))));
+		meshes.push_back(std::move(processMesh(scene->mMeshes[i], scene, nodeIdMap, materials)));
 	}
 
 	return meshes;
 }
 
-Mesh ModelLoader::Impl::processMesh(aiMesh* mesh, const aiScene* scene, std::unordered_map<std::string, unsigned int> nodeIdMap, std::vector<Material>&& materials)
+Mesh ModelLoader::Impl::processMesh(aiMesh* mesh, const aiScene* scene, std::unordered_map<std::string, unsigned int> nodeIdMap, std::vector<std::shared_ptr<Material>> materials)
 {
 	std::vector<Vertex> vertices;
 	std::vector<GLuint> indices;
@@ -240,13 +240,13 @@ Mesh ModelLoader::Impl::processMesh(aiMesh* mesh, const aiScene* scene, std::uno
 		}
 	}
 
-	Material material = mesh->mMaterialIndex >= 0 ? std::move(materials[mesh->mMaterialIndex]) : *defaultMaterial;
+	std::shared_ptr<Material> material = mesh->mMaterialIndex >= 0 ? materials[mesh->mMaterialIndex] : defaultMaterial;
 
 	std::vector<VertexBoneData> vertexBoneData;
 	std::vector<BoneData> boneData;
 	loadBoneData(mesh, scene, nodeIdMap, vertexBoneData, boneData);
 
-	Mesh processedMesh(vertices, indices, std::move(material), vertexBoneData, boneData);
+	Mesh processedMesh(vertices, indices, material, vertexBoneData, boneData);
 
 	return processedMesh;
 }
@@ -274,9 +274,9 @@ void ModelLoader::Impl::loadBoneData(aiMesh* mesh, const aiScene* scene, std::un
 	}
 }
 
-std::vector<Material> ModelLoader::Impl::processMaterials(const aiScene* scene)
+std::vector<std::shared_ptr<Material>> ModelLoader::Impl::processMaterials(const aiScene* scene)
 {
-	std::vector<Material> materials;
+	std::vector<std::shared_ptr<Material>> materials;
 
 	for (int i = 0; i != scene->mNumMaterials; i++) {
 		std::vector<Texture> textures;
@@ -298,7 +298,7 @@ std::vector<Material> ModelLoader::Impl::processMaterials(const aiScene* scene)
 
 		Material material = *defaultMaterial;
 		material.SetTextures(std::move(textures));
-		materials.emplace_back(std::move(material));
+		materials.emplace_back(std::make_shared<Material>(std::move(material)));
 	}
 
 	return materials;
@@ -321,7 +321,7 @@ std::vector<Texture> ModelLoader::Impl::loadMaterialTextures(const std::string& 
 
 		textures.emplace_back(std::move(texture));
 	}
-	return textures;
+	return std::move(textures);
 }
 
 AnimationData ModelLoader::Impl::processAnimations(const aiScene* scene, const std::unordered_map<std::string, unsigned int>& nodeIdMap)

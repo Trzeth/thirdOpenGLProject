@@ -85,6 +85,8 @@ void HouseScene::setupPrefab()
 		housePrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(bodyDef, fixtures)));
 	}
 
+	interactEventResponder = std::make_shared<InteractEventResponder>(world, eventManager);
+
 	/* Scene Interact Object */
 	{
 		/* Door */

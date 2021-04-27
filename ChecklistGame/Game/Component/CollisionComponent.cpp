@@ -6,7 +6,7 @@
 #include "Game/Component/TransformComponent.h"
 #include "Game/Extra/Util.h"
 
-ComponentConstructorInfo CollisionComponentConstructor::Construct(World& world, eid_t parent, void* userinfo) const
+ComponentConstructorInfo CollisionComponentConstructor::Construct(World& world, eid_t parent, void* userinfo)
 {
 	PrefabConstructionInfo* constructionInfo = (PrefabConstructionInfo*)userinfo;
 

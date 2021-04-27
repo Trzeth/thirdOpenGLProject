@@ -9,6 +9,7 @@ class InteractEventResponder
 {
 public:
 	InteractEventResponder(World& world, EventManager& eventManager);
+	~InteractEventResponder();
 	void handleCollisionEvent(const CollisionEvent& event);
 private:
 	World& world;

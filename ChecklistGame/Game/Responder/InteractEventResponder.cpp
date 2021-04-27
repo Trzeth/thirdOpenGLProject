@@ -14,6 +14,11 @@ InteractEventResponder::InteractEventResponder(World& world, EventManager& event
 	eventManager.RegisterForEvent<CollisionEvent>(std::bind(&InteractEventResponder::handleCollisionEvent, this, std::placeholders::_1));
 }
 
+InteractEventResponder::~InteractEventResponder()
+{
+	eventManager.ClearEventListener<CollisionEvent>();
+}
+
 void InteractEventResponder::handleCollisionEvent(const CollisionEvent& event)
 {
 	eid_t e1 = event.e1, e2 = event.e2;

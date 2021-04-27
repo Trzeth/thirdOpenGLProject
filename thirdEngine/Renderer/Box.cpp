@@ -61,10 +61,10 @@ Model Box::GetBox(const std::vector<Texture>& textures, glm::vec3 scale, glm::ve
 		indexes[i] = i;
 	}
 
-	Material material;
-	material.SetTextures(textures);
+	std::shared_ptr<Material> material = std::make_shared<Material>();
+	material->SetTextures(std::move(textures));
 
-	Mesh mesh(vertices, indexes, std::move(material));
+	Mesh mesh(vertices, indexes, material);
 	Model model;
 	model.meshes = std::vector<Mesh>{ mesh };
 	model.meshesTransform = std::vector<std::vector<glm::mat4>>{ std::vector<glm::mat4>{glm::mat4(1.0)} };
@@ -132,11 +132,11 @@ Model Box::GetSkybox(const std::string& directory, const std::vector<std::string
 	std::vector<Texture> textures;
 	textures.emplace_back(textureLoader.LoadCubemap(directory, filename));
 
-	Material material;
-	material.SetTextures(std::move(textures));
+	std::shared_ptr<Material> material = std::make_shared<Material>();
+	material->SetTextures(std::move(textures));
 
 	Model model;
-	model.meshes.emplace_back(Mesh(vertices, indexes, std::move(material)));
+	model.meshes.emplace_back(Mesh(vertices, indexes, material));
 	model.meshesTransform = std::vector<std::vector<glm::mat4>>{ std::vector<glm::mat4>{glm::mat4(1.0)} };
 	return model;
 }
@@ -379,10 +379,9 @@ HDRSkyboxReturn Box::GetHDRSkybox(const std::string& filename)
 		indexes[i] = i;
 	}
 
-	Material material;
-	material.SetTextures(std::vector<Texture>{cubemap});
-
-	Mesh mesh(vertices, indexes, std::move(material));
+	std::shared_ptr<Material> material = std::make_shared<Material>();
+	material->SetTextures(std::vector<Texture>{cubemap});
+	Mesh mesh(vertices, indexes, material);
 
 	Model model;
 	model.meshes = std::vector<Mesh>{ mesh };
@@ -424,9 +423,9 @@ Model Box::GetPlane(const std::vector<Texture>& textures, glm::vec3 ubasis, glm:
 	indices.push_back(3);
 	indices.push_back(2);
 
-	Material material;
-	material.SetTextures(textures);
-	Mesh mesh(vertices, indices, std::move(material));
+	std::shared_ptr<Material> material = std::make_shared<Material>();
+	material->SetTextures(textures);
+	Mesh mesh(vertices, indices, material);
 
 	Model model;
 	model.meshes = std::vector<Mesh>{ mesh };

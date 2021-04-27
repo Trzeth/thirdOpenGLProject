@@ -4,7 +4,7 @@
 #include "Game/Extra/Transform.h"
 #include "Game/Extra/PrefabConstructionInfo.h"
 
-ComponentConstructorInfo TransformComponentConstructor::Construct(World& world, eid_t parent, void* userinfo) const
+ComponentConstructorInfo TransformComponentConstructor::Construct(World& world, eid_t parent, void* userinfo)
 {
 	PrefabConstructionInfo* constructionInfo = (PrefabConstructionInfo*)userinfo;
 

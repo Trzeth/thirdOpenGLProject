@@ -90,7 +90,7 @@ public:
 	void SetTextures(const std::vector<Texture>& textures);
 	void SetTextures(std::vector<Texture>&& textures);
 
-	void Apply(const Shader& shader)const;
+	void Apply(const std::shared_ptr<Shader>& shader)const;
 	void Apply(const ShaderImpl& shader)const;
 
 	std::map<std::string, MaterialProperty>& GetProperties();

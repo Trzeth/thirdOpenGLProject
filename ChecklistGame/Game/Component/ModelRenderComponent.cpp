@@ -3,10 +3,10 @@
 #include "ModelRenderComponent.h"
 #include "Game/Extra/PrefabConstructionInfo.h"
 
-ComponentConstructorInfo ModelRenderComponentConstructor::Construct(World& world, eid_t parent, void* userinfo) const
+ComponentConstructorInfo ModelRenderComponentConstructor::Construct(World& world, eid_t parent, void* userinfo)
 {
 	ModelRenderComponent* component = new ModelRenderComponent();
-	component->rendererHandle = renderer.GetRenderableHandle(modelHandle, shader);
+	component->rendererHandle = renderer.GetRenderableHandle(modelHandle, std::shared_ptr<Shader>(new Shader(std::move(shader))));
 
 	if (userinfo != nullptr) {
 		PrefabConstructionInfo* info = (PrefabConstructionInfo*)userinfo;

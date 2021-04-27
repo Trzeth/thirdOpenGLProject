@@ -19,7 +19,7 @@ public:
 	TransformComponentConstructor() :transform() { }
 	TransformComponentConstructor(const Transform& transform) : transform(transform) { };
 
-	virtual ComponentConstructorInfo Construct(World& world, eid_t parent, void* userinfo)const;
+	virtual ComponentConstructorInfo Construct(World& world, eid_t parent, void* userinfo);
 private:
 	Transform transform;
 };

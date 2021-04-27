@@ -4,6 +4,8 @@
 #include <thirdEngine/Renderer/ModelLoader.h>
 #include <thirdEngine/Framework/EventManager.h>
 
+#include "Game/Responder/InteractEventResponder.h"
+
 #include "Game/Scene/Scene.h"
 
 class HouseScene :public Scene
@@ -31,4 +33,6 @@ private:
 	Prefab cameraPrefab;
 
 	Prefab doorInteractPrefab;
+
+	std::shared_ptr<InteractEventResponder> interactEventResponder;
 };

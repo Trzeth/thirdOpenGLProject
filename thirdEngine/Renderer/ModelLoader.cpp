@@ -209,7 +209,7 @@ std::vector<Mesh> ModelLoader::Impl::processMeshes(const aiScene* scene, std::un
 		meshes.push_back(std::move(processMesh(scene->mMeshes[i], scene, nodeIdMap, materials)));
 	}
 
-	return meshes;
+	return std::move(meshes);
 }
 
 Mesh ModelLoader::Impl::processMesh(aiMesh* mesh, const aiScene* scene, std::unordered_map<std::string, unsigned int> nodeIdMap, std::vector<std::shared_ptr<Material>> materials)
@@ -248,7 +248,7 @@ Mesh ModelLoader::Impl::processMesh(aiMesh* mesh, const aiScene* scene, std::uno
 
 	Mesh processedMesh(vertices, indices, material, vertexBoneData, boneData);
 
-	return processedMesh;
+	return std::move(processedMesh);
 }
 
 void ModelLoader::Impl::loadBoneData(aiMesh* mesh, const aiScene* scene, std::unordered_map<std::string, unsigned int> nodeIdMap, std::vector<VertexBoneData>& vertexBoneData, std::vector<BoneData>& boneData)

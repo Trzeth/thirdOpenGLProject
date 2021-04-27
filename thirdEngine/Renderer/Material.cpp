@@ -41,7 +41,10 @@ MaterialProperty::MaterialProperty(Texture&& texture)
 { }
 
 MaterialProperty::~MaterialProperty()
-{ }
+{
+	if (value && type == MaterialPropertyType::Texture)
+		value->texture.~Texture();
+}
 
 MaterialProperty::MaterialProperty(const MaterialProperty& property)
 {

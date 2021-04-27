@@ -76,7 +76,10 @@ class Material
 {
 public:
 	Material();
-	~Material() = default;
+	~Material() {
+		if (properties.size() > 0)
+			printf("De");
+	}
 
 	Material(const Material& other) = default;
 	Material& operator=(const Material& other) = default;

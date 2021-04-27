@@ -72,10 +72,6 @@ public:
 		Entity(const std::shared_ptr<Shader>& shader, HandlePool<Model>::Handle modelHandle, bool animatable)
 			: shaderCache(shader), modelHandle(modelHandle), animatable(animatable), space(RenderSpace_World), loopAnimation(false), time(0), transform(1.0f) { }
 
-		~Entity() {
-			printf("Render Entity De\n");
-		}
-
 		HandlePool<Model>::Handle modelHandle;
 		ShaderCache shaderCache;
 		glm::mat4 transform;

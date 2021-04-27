@@ -163,6 +163,10 @@ void Renderer::SetViewport(int w, int h)
 	SetViewport(0, 0, w, h);
 }
 
+void Renderer::Clear()
+{
+}
+
 void Renderer::SetViewport(int x, int y, int w, int h)
 {
 	glViewport(x, y, w, h);
@@ -189,9 +193,9 @@ int Renderer::GetViewportHeight() const
 	return viewportHeight;
 }
 
-Renderer::ModelHandle Renderer::GetModelHandle(const Model& model)
+Renderer::ModelHandle Renderer::GetModelHandle(Model&& model)
 {
-	return modelPool.GetNewHandle(model);
+	return modelPool.GetNewHandle(std::move(model));
 }
 
 Renderer::RenderableHandle Renderer::GetRenderableHandle(const ModelHandle& modelHandle, const Shader& shader)

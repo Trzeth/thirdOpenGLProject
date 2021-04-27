@@ -64,7 +64,7 @@ Model Box::GetBox(const std::vector<Texture>& textures, glm::vec3 scale, glm::ve
 	Material material;
 	material.SetTextures(textures);
 
-	Mesh mesh(vertices, indexes, material);
+	Mesh mesh(vertices, indexes, std::move(material));
 	Model model;
 	model.meshes = std::vector<Mesh>{ mesh };
 	model.meshesTransform = std::vector<std::vector<glm::mat4>>{ std::vector<glm::mat4>{glm::mat4(1.0)} };
@@ -382,7 +382,7 @@ HDRSkyboxReturn Box::GetHDRSkybox(const std::string& filename)
 	Material material;
 	material.SetTextures(std::vector<Texture>{cubemap});
 
-	Mesh mesh(vertices, indexes, material);
+	Mesh mesh(vertices, indexes, std::move(material));
 
 	Model model;
 	model.meshes = std::vector<Mesh>{ mesh };
@@ -426,7 +426,7 @@ Model Box::GetPlane(const std::vector<Texture>& textures, glm::vec3 ubasis, glm:
 
 	Material material;
 	material.SetTextures(textures);
-	Mesh mesh(vertices, indices, material);
+	Mesh mesh(vertices, indices, std::move(material));
 
 	Model model;
 	model.meshes = std::vector<Mesh>{ mesh };

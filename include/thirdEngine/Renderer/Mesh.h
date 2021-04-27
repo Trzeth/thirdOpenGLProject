@@ -49,8 +49,8 @@ class Mesh
 {
 public:
 	Mesh();
-	Mesh(std::vector<Vertex> vertices, std::vector<unsigned> indices, Material material);
-	Mesh(std::vector<Vertex> vertices, std::vector<unsigned> indices, Material material, std::vector<VertexBoneData> vertexBoneData, std::vector<BoneData> boneData);
+	Mesh(std::vector<Vertex> vertices, std::vector<unsigned> indices, Material&& material);
+	Mesh(std::vector<Vertex> vertices, std::vector<unsigned> indices, Material&& material, std::vector<VertexBoneData> vertexBoneData, std::vector<BoneData> boneData);
 	~Mesh();
 
 	Mesh(const Mesh& other);

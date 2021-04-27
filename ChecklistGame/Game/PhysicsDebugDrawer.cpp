@@ -8,7 +8,7 @@
 struct PhysicsDebugDrawer::Impl
 {
 	GLuint VAO, VBO, VBO_color;
-	ShaderImpl shader;
+	Shader shader;
 };
 
 PhysicsDebugDrawer::PhysicsDebugDrawer()
@@ -25,7 +25,7 @@ PhysicsDebugDrawer::~PhysicsDebugDrawer()
 void PhysicsDebugDrawer::Initialize()
 {
 	ShaderLoader shaderLoader;
-	impl->shader = *shaderLoader.BuildFromFile("Shaders/colors.vert", "Shaders/colors.frag").impl;
+	impl->shader = shaderLoader.BuildFromFile("Shaders/colors.vert", "Shaders/colors.frag");
 
 	glGenVertexArrays(1, &impl->VAO);
 	glGenBuffers(1, &impl->VBO);
@@ -56,10 +56,10 @@ void PhysicsDebugDrawer::Draw()
 		return;
 	}
 
-	impl->shader.Use();
-	impl->shader.SetModelMatrix(glm::mat4(1.0f));
-	impl->shader.SetProjectionMatrix(camera->GetProjectionMatrix());
-	impl->shader.SetViewMatrix(camera->GetViewMatrix());
+	impl->shader.impl->Use();
+	impl->shader.impl->SetModelMatrix(glm::mat4(1.0f));
+	impl->shader.impl->SetProjectionMatrix(camera->GetProjectionMatrix());
+	impl->shader.impl->SetViewMatrix(camera->GetViewMatrix());
 
 	glBindVertexArray(impl->VAO);
 

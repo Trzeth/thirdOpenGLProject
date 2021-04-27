@@ -12,8 +12,12 @@ struct ModelRenderComponent :public Component
 
 class ModelRenderComponentConstructor :public ComponentConstructor {
 public:
-	ModelRenderComponentConstructor(Renderer& renderer, const Renderer::ModelHandle& modelHandle, const Shader& shader, const std::string& defaultAnimation = "")
-		: renderer(renderer), modelHandle(modelHandle), shader(shader), defaultAnimation(defaultAnimation) { }
+	ModelRenderComponentConstructor(Renderer& renderer, const Renderer::ModelHandle& modelHandle, Shader&& shader, const std::string& defaultAnimation = "")
+		: renderer(renderer), modelHandle(modelHandle), shader(std::move(shader)), defaultAnimation(defaultAnimation) { }
+
+	~ModelRenderComponentConstructor() {
+		printf("De\n");
+	}
 
 	virtual ComponentConstructorInfo Construct(World& world, eid_t parent, void* userinfo)const;
 

@@ -19,7 +19,7 @@ public:
 	using WeakHandle = std::weak_ptr<HandleData>;
 	using Pool = std::unordered_map<uint32_t, T>;
 
-	typename Handle GetNewHandle(const T& obj);
+	typename Handle GetNewHandle(T&& obj);
 
 	typename Pool::iterator begin();
 	typename Pool::iterator end();
@@ -51,9 +51,9 @@ template<class T>
 const typename HandlePool<T>::Handle HandlePool<T>::InvalidHandle(std::make_shared<typename HandlePool<T>::HandleData>(UINT32_MAX));
 
 template<class T>
-typename HandlePool<T>::Handle HandlePool<T>::GetNewHandle(const T& obj)
+typename HandlePool<T>::Handle HandlePool<T>::GetNewHandle(T&& obj)
 {
-	this->pool->emplace(this->nextHandle, obj);
+	this->pool->emplace(this->nextHandle, std::move(obj));
 	HandlePool<T>::Handle handle(new HandlePool<T>::HandleData(this->nextHandle), deleter);
 	this->nextHandle++;
 	return handle;

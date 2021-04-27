@@ -89,7 +89,7 @@ Material::Material()
 
 Material::Material(Material && other) noexcept
 {
-	*this = other;
+	*this = std::move(other);
 }
 
 Material& Material::operator=(Material && other) noexcept

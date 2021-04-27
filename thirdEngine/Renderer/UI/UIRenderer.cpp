@@ -33,7 +33,7 @@ UIRenderer::UIElementHandle UIRenderer::GetEntityHandle(const std::shared_ptr<UI
 	Entity entity;
 	entity.element = element;
 
-	UIElementHandle handle = entityPool.GetNewHandle(entity);
+	UIElementHandle handle = entityPool.GetNewHandle(std::move(entity));
 
 	return handle;
 }

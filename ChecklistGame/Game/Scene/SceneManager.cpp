@@ -20,7 +20,10 @@ void SceneManager::LoadBegin()
 	assert(loadingWindow);
 
 	if (currentScene)
+	{
 		currentScene->PreDestruct();
+		currentScene.reset();
+	}
 
 	sceneInfo.world->Clear();
 

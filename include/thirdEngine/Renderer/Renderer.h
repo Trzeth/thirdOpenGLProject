@@ -72,6 +72,10 @@ public:
 		Entity(const ShaderImpl& shader, HandlePool<Model>::Handle modelHandle, bool animatable)
 			: shaderCache(shader), modelHandle(modelHandle), animatable(animatable), space(RenderSpace_World), loopAnimation(false), time(0), transform(1.0f) { }
 
+		~Entity() {
+			printf("De\n");
+		}
+
 		HandlePool<Model>::Handle modelHandle;
 		ShaderCache shaderCache;
 		glm::mat4 transform;
@@ -126,6 +130,8 @@ public:
 
 	void SetViewport(int w, int h);
 
+	void Clear();
+
 	// low left corner
 	void SetViewport(int x, int y, int w, int h);
 
@@ -134,7 +140,7 @@ public:
 	int GetViewportWidth() const;
 	int GetViewportHeight() const;
 
-	ModelHandle GetModelHandle(const Model& model);
+	ModelHandle GetModelHandle(Model&& model);
 
 	RenderableHandle GetRenderableHandle(const ModelHandle& modelHandle, const Shader& shader);
 

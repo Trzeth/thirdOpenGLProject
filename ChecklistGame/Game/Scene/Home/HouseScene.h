@@ -31,6 +31,4 @@ private:
 	Prefab cameraPrefab;
 
 	Prefab doorInteractPrefab;
-
-	std::vector<std::shared_ptr<Model>> models;
 };

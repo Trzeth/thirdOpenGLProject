@@ -14,21 +14,28 @@ Shader::Shader(std::unique_ptr<ShaderImpl>&& impl)
 	: impl(std::move(impl))
 { }
 
-Shader::Shader(const Shader& shader)
-	: impl(make_unique<ShaderImpl>(*shader.impl))
-{ }
-
 Shader::~Shader()
-{ }
-
-void Shader::operator=(const Shader& shader)
 {
-	this->impl = std::make_unique<ShaderImpl>(*shader.impl);
+	if (!impl)return;
+
+	glDeleteProgram(impl->GetID());
+}
+
+Shader::Shader(Shader&& other) noexcept
+{
+	*this = std::move(other);
+}
+
+Shader& Shader::operator=(Shader&& other) noexcept
+{
+	impl = std::move(other.impl);
+
+	return *this;
 }
 
 bool Shader::IsValid()
 {
-	return impl->GetID() != 0;
+	return impl && impl->GetID() != 0;
 }
 
 Shader ShaderLoader::BuildFromFile(const std::string& vertexShaderPath, const std::string& fragmentShaderPath)

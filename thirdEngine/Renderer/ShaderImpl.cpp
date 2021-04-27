@@ -14,11 +14,6 @@ ShaderImpl::ShaderImpl(GLuint shaderID)
 	this->viewPosUniform = this->GetUniformLocation("viewPos");
 }
 
-ShaderImpl::~ShaderImpl()
-{
-	glDeleteProgram(shaderID);
-}
-
 void ShaderImpl::Use() const
 {
 	glUseProgram(shaderID);

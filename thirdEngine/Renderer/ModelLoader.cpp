@@ -21,10 +21,10 @@ struct ModelLoader::Impl
 	std::string curDir;
 
 	/*! Cache mapping IDs to models. The IDs can also be paths. */
-	std::unordered_map<std::string, Model> modelIdCache;
+	//std::unordered_map<std::string, Model> modelIdCache;
 
 	/*! Cache mapping IDs to textures. The IDs are usually paths. */
-	std::unordered_map<std::string, TextureImpl> textureCache;
+	//std::unordered_map<std::string, TextureImpl> textureCache;
 
 	/*! Used to load textures from imported models. */
 	TextureLoader textureLoader;
@@ -48,13 +48,13 @@ struct ModelLoader::Impl
 	 * @brief Processes meshes of a model.
 	 * @param nodeIdMap A map of node names to internal node IDs. Used when the bones are being loaded from the mesh.
 	 */
-	std::vector<Mesh> processMeshes(const aiScene* scene, std::unordered_map<std::string, unsigned int> nodeIdMap, const std::vector<Material>& materials);
+	std::vector<Mesh> processMeshes(const aiScene* scene, std::unordered_map<std::string, unsigned int> nodeIdMap, std::vector<Material>&& materials);
 
 	/*!
 	 * @brief Process a single mesh
 	 * @return mesh
 	*/
-	Mesh processMesh(aiMesh* mesh, const aiScene* scene, std::unordered_map<std::string, unsigned int> nodeIdMap, const std::vector<Material>& materials);
+	Mesh processMesh(aiMesh* mesh, const aiScene* scene, std::unordered_map<std::string, unsigned int> nodeIdMap, std::vector<Material>&& materials);
 
 	AnimationData processAnimations(const aiScene* scene, const std::unordered_map<std::string, unsigned int>& nodeIdMap);
 
@@ -89,39 +89,32 @@ ModelLoader::~ModelLoader()
 
 Model ModelLoader::LoadModel(const std::string& path, glm::mat4 preDefineTransform)
 {
-	auto modelCacheIter = this->impl->modelIdCache.find(path);
-	if (modelCacheIter != this->impl->modelIdCache.end()) {
-		return modelCacheIter->second;
+	Assimp::Importer importer;
+	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals);
+
+	if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+		printf("Assimp error while loading model: %s\n", importer.GetErrorString());
+		return Model();
 	}
-	else {
-		Assimp::Importer importer;
-		const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals);
+	this->impl->curDir = path.substr(0, path.find_last_of('/') + 1);
 
-		if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
-			printf("Assimp error while loading model: %s\n", importer.GetErrorString());
-			return Model();
-		}
-		this->impl->curDir = path.substr(0, path.find_last_of('/') + 1);
+	if (preDefineTransform != glm::mat4(1.0f))
+	{
+		glm::mat4 m = glm::transpose(glm::make_mat4(&scene->mRootNode->mTransformation.a1)) * preDefineTransform;
+		aiMatrix4x4 mat4{
+			m[0][0], m[1][0], m[2][0], m[3][0],
+			m[0][1], m[1][1], m[2][1], m[3][1],
+			m[0][2], m[1][2], m[2][2], m[3][2],
+			m[0][3], m[1][3], m[2][3], m[3][3]
+		};
 
-		if (preDefineTransform != glm::mat4(1.0f))
-		{
-			glm::mat4 m = glm::transpose(glm::make_mat4(&scene->mRootNode->mTransformation.a1)) * preDefineTransform;
-			aiMatrix4x4 mat4{
-				m[0][0], m[1][0], m[2][0], m[3][0],
-				m[0][1], m[1][1], m[2][1], m[3][1],
-				m[0][2], m[1][2], m[2][2], m[3][2],
-				m[0][3], m[1][3], m[2][3], m[3][3]
-			};
-
-			scene->mRootNode->mTransformation = mat4;
-		}
-
-		Model model = this->impl->processModel(scene->mRootNode, scene);
-		model.material = impl->defaultMaterial;
-		this->impl->modelIdCache.emplace(std::make_pair(path, std::move(model)));
-
-		return model;
+		scene->mRootNode->mTransformation = mat4;
 	}
+
+	Model model = this->impl->processModel(scene->mRootNode, scene);
+	model.material = impl->defaultMaterial;
+
+	return model;
 }
 
 void ModelLoader::SetDefaultMaterial(const std::shared_ptr<Material>& material)
@@ -193,7 +186,7 @@ Model ModelLoader::Impl::processModel(aiNode* rootNode, const aiScene* scene)
 		}
 	}
 
-	model.meshes = processMeshes(scene, nodeIdMap, material);
+	model.meshes = processMeshes(scene, nodeIdMap, std::move(material));
 	model.meshesTransform = meshesTransform;
 	model.cachedNodeTransforms.resize(nodeHierarchy.size());
 
@@ -208,18 +201,18 @@ Model ModelLoader::Impl::processModel(aiNode* rootNode, const aiScene* scene)
 	return model;
 }
 
-std::vector<Mesh> ModelLoader::Impl::processMeshes(const aiScene* scene, std::unordered_map<std::string, unsigned int> nodeIdMap, const std::vector<Material>& materials)
+std::vector<Mesh> ModelLoader::Impl::processMeshes(const aiScene* scene, std::unordered_map<std::string, unsigned int> nodeIdMap, std::vector<Material>&& materials)
 {
 	std::vector<Mesh> meshes;
 
 	for (int i = 0; i != scene->mNumMeshes; i++) {
-		meshes.push_back(processMesh(scene->mMeshes[i], scene, nodeIdMap, materials));
+		meshes.push_back(std::move(processMesh(scene->mMeshes[i], scene, nodeIdMap, std::move(materials))));
 	}
 
 	return meshes;
 }
 
-Mesh ModelLoader::Impl::processMesh(aiMesh* mesh, const aiScene* scene, std::unordered_map<std::string, unsigned int> nodeIdMap, const std::vector<Material>& materials)
+Mesh ModelLoader::Impl::processMesh(aiMesh* mesh, const aiScene* scene, std::unordered_map<std::string, unsigned int> nodeIdMap, std::vector<Material>&& materials)
 {
 	std::vector<Vertex> vertices;
 	std::vector<GLuint> indices;
@@ -247,13 +240,13 @@ Mesh ModelLoader::Impl::processMesh(aiMesh* mesh, const aiScene* scene, std::uno
 		}
 	}
 
-	Material material = mesh->mMaterialIndex >= 0 ? materials[mesh->mMaterialIndex] : *defaultMaterial;
+	Material material = mesh->mMaterialIndex >= 0 ? std::move(materials[mesh->mMaterialIndex]) : *defaultMaterial;
 
 	std::vector<VertexBoneData> vertexBoneData;
 	std::vector<BoneData> boneData;
 	loadBoneData(mesh, scene, nodeIdMap, vertexBoneData, boneData);
 
-	Mesh processedMesh(vertices, indices, material, vertexBoneData, boneData);
+	Mesh processedMesh(vertices, indices, std::move(material), vertexBoneData, boneData);
 
 	return processedMesh;
 }
@@ -322,15 +315,9 @@ std::vector<Texture> ModelLoader::Impl::loadMaterialTextures(const std::string& 
 		path = relDir + path;
 
 		Texture texture;
-		auto cacheIter = this->textureCache.find(path);
-		if (cacheIter == this->textureCache.end()) {
-			TextureType newType = (type == aiTextureType_DIFFUSE ? TextureType::Diffuse : TextureType::Specular);
-			texture = textureLoader.LoadFromFile(newType, path);
-			this->textureCache.emplace(std::make_pair(path, *texture.impl));
-		}
-		else {
-			texture.impl = std::make_unique<TextureImpl>(cacheIter->second);
-		}
+
+		TextureType newType = (type == aiTextureType_DIFFUSE ? TextureType::Diffuse : TextureType::Specular);
+		texture = textureLoader.LoadFromFile(newType, path);
 
 		textures.emplace_back(std::move(texture));
 	}

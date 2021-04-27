@@ -14,10 +14,14 @@ struct Shader
 	Shader();
 	Shader(GLuint shaderID);
 	Shader(std::unique_ptr<ShaderImpl>&& impl);
-	Shader(const Shader& shader);
 	~Shader();
 
-	void operator=(const Shader& shader);
+	Shader(const Shader& shader) = delete;
+	Shader& operator=(const Shader& shader) = delete;
+
+	Shader(Shader&& other) noexcept;
+	Shader& operator=(Shader&& other) noexcept;
+
 	bool IsValid();
 	std::unique_ptr<ShaderImpl> impl;
 };

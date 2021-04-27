@@ -9,7 +9,6 @@ class ShaderImpl
 public:
 	ShaderImpl();
 	ShaderImpl(GLuint shaderID);
-	~ShaderImpl();
 
 	void Use() const;
 	GLuint GetID() const;

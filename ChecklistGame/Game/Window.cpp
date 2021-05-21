@@ -5,8 +5,6 @@
 
 #include <thirdEngine/Input/Input.h>
 #include <thirdEngine/Renderer/Renderer.h>
-#include <thirdEngine/Renderer/UI/ImGui/imgui.h>
-#include <thirdEngine/Renderer/UI/ImGui/imgui_internal.h>
 
 #pragma region Call Back
 

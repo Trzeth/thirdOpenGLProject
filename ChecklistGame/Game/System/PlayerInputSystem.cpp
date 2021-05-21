@@ -35,6 +35,7 @@ void PlayerInputSystem::updateEntity(float dt, eid_t entity)
 	verticalRad = glm::clamp(verticalRad, -glm::half_pi<float>() + 0.01f, glm::half_pi<float>() - 0.01f);
 
 	float r = 15;
+
 	glm::vec3 cameraPos = playerTransformComponent->data->GetPosition();
 	cameraPos.x += cos(horizontalRad) * r;
 	cameraPos.y += sin(horizontalRad) * cos(verticalRad) * r + 8;
@@ -43,8 +44,9 @@ void PlayerInputSystem::updateEntity(float dt, eid_t entity)
 	cameraTransformComponent->data->SetPosition(cameraPos);
 	cameraTransformComponent->data->SetRotation(glm::angleAxis(verticalRad - glm::pi<float>() / 2, Transform::RIGHT) * glm::angleAxis(glm::pi<float>() / 2 - horizontalRad, Transform::UP));
 
-	if (horizontal < 0.0001f && vertical < 0.0001f) {
-		playerComponent->SetAnimationState(PlayerAnimationState::Idle);
+	if (abs(horizontal) < 0.0001f && abs(vertical) < 0.0001f) {
+		if (playerComponent->animationState != PlayerAnimationState::Idle)
+			playerComponent->SetAnimationState(PlayerAnimationState::Idle);
 	}
 	else
 	{

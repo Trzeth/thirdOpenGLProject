@@ -75,7 +75,7 @@ void Renderer::SetViewPos(const glm::vec3& pos)
 	viewPos = pos;
 }
 
-void Renderer::SetRenderableAnimation(const RenderableHandle& handle, const std::string& animName, bool loop)
+void Renderer::SetRenderableAnimation(const RenderableHandle& handle, const std::string& animName, float time, bool autoPlay, bool loop)
 {
 	std::optional<std::reference_wrapper<Entity>> renderableOpt = entityPool.Get(handle);
 	if (!renderableOpt) {
@@ -84,8 +84,9 @@ void Renderer::SetRenderableAnimation(const RenderableHandle& handle, const std:
 
 	Entity& renderable = *renderableOpt;
 	renderable.animName = animName;
-	renderable.time = 0.0f;
+	renderable.time = time;
 	renderable.loopAnimation = loop;
+	renderable.autoUpdate = autoPlay;
 }
 
 void Renderer::SetRenderableAnimationTime(const RenderableHandle& handle, float time)
@@ -177,6 +178,16 @@ int Renderer::GetViewportHeight() const
 	return viewportHeight;
 }
 
+float Renderer::GetRenderableAnimationTime(const RenderableHandle& handle)
+{
+	std::optional<std::reference_wrapper<Entity>> renderableOpt = entityPool.Get(handle);
+	if (!renderableOpt) {
+		return 0.0;
+	}
+
+	return renderableOpt->get().time;
+}
+
 Renderer::ModelHandle Renderer::GetModelHandle(Model&& model)
 {
 	return modelPool.GetNewHandle(std::move(model));
@@ -224,7 +235,7 @@ void Renderer::Update(float dt)
 	for (auto iter = entityPool.begin(); iter != entityPool.end(); iter++) {
 		Entity& renderable = iter->second;
 		std::string animName = renderable.animName;
-		if (animName.size() == 0) {
+		if (!renderable.autoUpdate || animName.size() == 0) {
 			continue;
 		}
 

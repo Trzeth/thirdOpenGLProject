@@ -70,7 +70,7 @@ public:
 	struct Entity
 	{
 		Entity(const std::shared_ptr<Shader>& shader, HandlePool<Model>::Handle modelHandle, bool animatable)
-			: shaderCache(shader), modelHandle(modelHandle), animatable(animatable), space(RenderSpace_World), loopAnimation(false), time(0), transform(1.0f) { }
+			: shaderCache(shader), modelHandle(modelHandle), animatable(animatable), space(RenderSpace_World), loopAnimation(false), autoUpdate(true), time(0), transform(1.0f) { }
 
 		HandlePool<Model>::Handle modelHandle;
 		ShaderCache shaderCache;
@@ -92,6 +92,8 @@ public:
 
 		/*! Whether or not to loop the current animation. */
 		bool loopAnimation;
+
+		bool autoUpdate;
 	};
 
 	typedef HandlePool<Model>::Handle ModelHandle;
@@ -110,7 +112,7 @@ public:
 
 	void SetViewPos(const glm::vec3& pos);
 
-	void SetRenderableAnimation(const RenderableHandle& handle, const std::string& animName, bool loop = true);
+	void SetRenderableAnimation(const RenderableHandle& handle, const std::string& animName, float time = 0.0f, bool autoPlay = true, bool loop = true);
 
 	void SetRenderableAnimationTime(const RenderableHandle& handle, float time);
 
@@ -134,11 +136,13 @@ public:
 	int GetViewportWidth() const;
 	int GetViewportHeight() const;
 
+	float GetRenderableAnimationTime(const RenderableHandle& handle);
+
 	ModelHandle GetModelHandle(Model&& model);
 
 	RenderableHandle GetRenderableHandle(const ModelHandle& modelHandle, const std::shared_ptr<Shader>& shader);
 
-	void ClearBuffer()const;
+	void ClearBuffer() const;
 
 	void Draw();
 

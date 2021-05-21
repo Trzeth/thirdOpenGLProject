@@ -17,6 +17,8 @@ void PlayerAnimationStateSystem::updateEntity(float dt, eid_t entity)
 	ModelRenderComponent* modelRendererComponent = world.GetComponent<ModelRenderComponent>(entity);
 	PlayerComponent* playerComponent = world.GetComponent<PlayerComponent>(entity);
 
+	auto& animationTimer = playerComponent->animationTimer;
+
 	// combinedAnim is the default animation name when name define in file is empty
 
 	if (playerComponent->preAnimationState != playerComponent->animationState)
@@ -45,15 +47,41 @@ void PlayerAnimationStateSystem::updateEntity(float dt, eid_t entity)
 			break;
 		case PlayerAnimationState::Idle:
 		{
-			if (playerComponent->preAnimationState == PlayerAnimationState::Walk) {
-				renderer.SetRenderableAnimation(modelRendererComponent->rendererHandle, "combinedAnim");
-			}
-			else
+			animationTimer = renderer.GetRenderableAnimationTime(modelRendererComponent->rendererHandle);
+			if (playerComponent->preAnimationState == PlayerAnimationState::Walk)
 			{
-				renderer.SetRenderableAnimation(modelRendererComponent->rendererHandle, "bindpose");
+				renderer.SetRenderableModelHandle(modelRendererComponent->rendererHandle, playerComponent->data.walk);
+				renderer.SetRenderableAnimation(modelRendererComponent->rendererHandle, "combinedAnim", animationTimer, false, false);
 			}
 			break;
 		}
+		}
+	}
+
+	if (playerComponent->preAnimationState == PlayerAnimationState::Walk
+		&& playerComponent->animationState == PlayerAnimationState::Idle)
+	{
+		if (animationTimer == 0.0f || animationTimer == 0.7f)
+		{
+			playerComponent->preAnimationState = PlayerAnimationState::Idle;
+			renderer.SetRenderableAnimation(modelRendererComponent->rendererHandle, "bindpose");
+		}
+		else
+		{
+			float deltaTime = 2 * dt;
+
+			if (animationTimer < 0.7)
+			{
+				if (animationTimer + deltaTime > 0.7)animationTimer = 0.7;
+				else animationTimer += deltaTime;
+			}
+			else
+			{
+				if (animationTimer + deltaTime > 1.3)animationTimer = 0.0f;
+				else animationTimer += deltaTime;
+			}
+
+			renderer.SetRenderableAnimationTime(modelRendererComponent->rendererHandle, animationTimer);
 		}
 	}
 }

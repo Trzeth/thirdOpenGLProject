@@ -5,25 +5,61 @@
 #include <fstream>
 #include <sstream>
 
-#include <glad/glad.h>
+#include <glm/glm.hpp>
 
-class ShaderImpl;
+typedef unsigned int GLuint;
+typedef int GLint;
 
-struct Shader
+class Shader
 {
+public:
+	struct Data;
+
 	Shader();
-	Shader(GLuint shaderID);
-	Shader(std::unique_ptr<ShaderImpl>&& impl);
-	~Shader();
+	Shader(std::shared_ptr<Shader::Data> data);
 
-	Shader(const Shader& shader) = delete;
-	Shader& operator=(const Shader& shader) = delete;
+	void Use() const;
+	GLuint GetID() const;
 
-	Shader(Shader&& other) noexcept;
-	Shader& operator=(Shader&& other) noexcept;
+	GLint GetUniformLocation(const std::string& uniformIdentifier) const;
+
+	/*
+	template<typename T>
+	bool SetUniform(const std::string& variableName, T var);
+	*/
+
+	void SetViewMatrix(const glm::mat4& matrix) const;
+	void SetProjectionMatrix(const glm::mat4& matrix) const;
+	void SetModelMatrix(const glm::mat4& matrix) const;
+	void SetViewPos(const glm::vec3& pos)const;
 
 	bool IsValid();
-	std::unique_ptr<ShaderImpl> impl;
+private:
+	std::shared_ptr<Data> data;
+	GLint projectionUniform, viewUniform, modelUniform, viewPosUniform;
+};
+
+struct Shader::Data
+{
+	Data() :id(0) { }
+	Data(GLuint id) :id(id) { }
+
+	Data(const Data& other) = delete;
+	Data& operator=(const Data& other) = delete;
+
+	Data(Data&& d) noexcept {
+		*this = std::move(d);
+	}
+	Data& operator=(Data&& other) noexcept {
+		id = other.id;
+		other.id = 0;
+		return *this;
+	}
+
+	~Data();
+
+	//Shader Id
+	GLuint id;
 };
 
 class ShaderLoader {

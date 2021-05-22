@@ -41,7 +41,7 @@ void DefaultScene::setupPrefab()
 		return;
 
 	shader = shaderLoader.BuildFromFile("ModelViewer/Shader/NoLight/shader.vs", "ModelViewer/Shader/NoLight/shader.fs");
-	Model model = modelLoader.LoadModel(u8"sphere.obj");
+	Model model = modelLoader.LoadFromFile(u8"sphere.obj");
 	model.GenVAO();
 
 	Renderer::ModelHandle modelHandle = renderer.GetModelHandle(model);
@@ -62,13 +62,13 @@ void DefaultScene::setupPrefab()
 	MaterialLoader materialLoader;
 
 	materialList.push_back(
-		MaterialWrapper("test", ShaderFileInfo("ModelViewer/Shader/pbr.vs", "ModelViewer/Shader/texturePBR.fs"), std::make_shared<Material>(materialLoader.LoadFromFile("4-steps-stairs-ue/4-steps-stairs.obj.thirdmtl")))
+		MaterialWrapper("test", ShaderFileInfo("ModelViewer/Shader/pbr.vs", "ModelViewer/Shader/texturePBR.fs"), materialLoader.LoadFromFile("4-steps-stairs-ue/4-steps-stairs.obj.thirdmtl"))
 	);
 
 	for (int i : std::vector<int>{ 0,1,4 }) {
-		materialList[i].material->SetProperty("irradianceMap", MaterialProperty(skyboxReturn.Irradiancemap));
-		materialList[i].material->SetProperty("prefilterMap", MaterialProperty(skyboxReturn.Prefiltermap));
-		materialList[i].material->SetProperty("brdfLUT", MaterialProperty(skyboxReturn.BRDFLUT));
+		materialList[i].material.SetProperty("irradianceMap", MaterialProperty(skyboxReturn.Irradiancemap));
+		materialList[i].material.SetProperty("prefilterMap", MaterialProperty(skyboxReturn.Prefiltermap));
+		materialList[i].material.SetProperty("brdfLUT", MaterialProperty(skyboxReturn.BRDFLUT));
 	}
 
 	viewerPrefab.AddConstructor(new ObjectViewerComponentConstructor(materialList));
@@ -86,10 +86,10 @@ void DefaultScene::setupPrefab()
 std::vector<MaterialWrapper> DefaultScene::getMaterialList()
 {
 	std::vector<MaterialWrapper> materialList{
-		MaterialWrapper("PBR",ShaderFileInfo("ModelViewer/Shader/pbr.vs","ModelViewer/Shader/pbr.fs"),std::make_shared<PBRMaterial>()),
-		MaterialWrapper("TexturePBR",ShaderFileInfo("ModelViewer/Shader/pbr.vs","ModelViewer/Shader/texturePBR.fs"),std::make_shared<TexturePBRMaterial>()),
-		MaterialWrapper("Plain",ShaderFileInfo("ModelViewer/Shader/NoLight/shader.vs", "ModelViewer/Shader/NoLight/shader.fs"),std::make_shared<Material>()),
-		MaterialWrapper("Skinned",ShaderFileInfo("ModelViewer/Shader/NoLight/skinnedShader.vs", "ModelViewer/Shader/NoLight/skinnedShader.fs"),std::make_shared<Material>())
+		MaterialWrapper("PBR",ShaderFileInfo("ModelViewer/Shader/pbr.vs","ModelViewer/Shader/pbr.fs"),PBRMaterial()),
+		MaterialWrapper("TexturePBR",ShaderFileInfo("ModelViewer/Shader/pbr.vs","ModelViewer/Shader/texturePBR.fs"),TexturePBRMaterial()),
+		MaterialWrapper("Plain",ShaderFileInfo("ModelViewer/Shader/NoLight/shader.vs", "ModelViewer/Shader/NoLight/shader.fs"),Material()),
+		MaterialWrapper("Skinned",ShaderFileInfo("ModelViewer/Shader/NoLight/skinnedShader.vs", "ModelViewer/Shader/NoLight/skinnedShader.fs"),Material())
 	};
 
 	return materialList;

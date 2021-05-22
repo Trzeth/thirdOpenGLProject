@@ -41,7 +41,7 @@ public:
 	InspectorComponentConstructor(UIRenderer& uiRenderer)
 		:uiRenderer(uiRenderer) { }
 
-	virtual ComponentConstructorInfo Construct(World& world, eid_t parent, void* userinfo)const;
+	virtual ComponentConstructorInfo Construct(World& world, eid_t parent, void* userinfo);
 	virtual void Finish(World& world, eid_t entity);
 private:
 	UIRenderer& uiRenderer;

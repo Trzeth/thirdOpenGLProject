@@ -1,6 +1,6 @@
 #include "ObjectViewerComponent.h"
 
-ComponentConstructorInfo ObjectViewerComponentConstructor::Construct(World& world, eid_t parent, void* userinfo) const
+ComponentConstructorInfo ObjectViewerComponentConstructor::Construct(World& world, eid_t parent, void* userinfo)
 {
 	ObjectViewerComponent* component = new ObjectViewerComponent();
 

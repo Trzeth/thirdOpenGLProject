@@ -1,6 +1,6 @@
 ## thirdProject
 
-1. thirdEngine - A ECS Framework with render 2D/3D model ability.
+1. thirdEngine - A ECS Framework with rendering 2D/3D model ability.
 1. thirdModelViewer -A simple model viewer for debug purpose.
 1. ChecklistGame - A simple game made for end term work.
 

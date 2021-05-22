@@ -3,43 +3,48 @@
 #include "RenderUtil.h"
 
 #include "Mesh.h"
-#include "MeshImpl.h"
+
+#include <glm/gtx/norm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 Renderer::Renderer()
 {
-	this->uiModelTransform = glm::mat4();
+	this->uiModelTransform = glm::mat4(1.0f);
 	// Flip the y axis so we can use normal modelspace but position in UI space
 	this->uiModelTransform[1][1] = -1.0f;
 }
 
-Renderer::ShaderCache::ShaderCache(const std::shared_ptr<Shader>& shader)
+Renderer::ShaderCache::ShaderCache(const Shader& shader)
 	:shader(shader), pointLights(maxPointLights), bones(maxBones)
 {
+	// Bind to bindpoint 0
+	glUniformBlockBinding(shader.GetID(), glGetUniformBlockIndex(shader.GetID(), "baseMatrices"), 0);
+
 	for (unsigned int i = 0; i < pointLights.size(); i++) {
 		PointLightCache& light = this->pointLights[i];
 		std::stringstream sstream;
 		sstream << "pointLight[" << i << "]";
-		light.constant = shader->impl->GetUniformLocation((sstream.str() + ".constant").c_str());
-		light.linear = shader->impl->GetUniformLocation((sstream.str() + ".linear").c_str());
-		light.quadratic = shader->impl->GetUniformLocation((sstream.str() + ".quadratic").c_str());
-		light.ambient = shader->impl->GetUniformLocation((sstream.str() + ".ambient").c_str());
-		light.diffuse = shader->impl->GetUniformLocation((sstream.str() + ".diffuse").c_str());
-		light.specular = shader->impl->GetUniformLocation((sstream.str() + ".specular").c_str());
-		light.position = shader->impl->GetUniformLocation((sstream.str() + ".position").c_str());
+		light.constant = shader.GetUniformLocation((sstream.str() + ".constant").c_str());
+		light.linear = shader.GetUniformLocation((sstream.str() + ".linear").c_str());
+		light.quadratic = shader.GetUniformLocation((sstream.str() + ".quadratic").c_str());
+		light.ambient = shader.GetUniformLocation((sstream.str() + ".ambient").c_str());
+		light.diffuse = shader.GetUniformLocation((sstream.str() + ".diffuse").c_str());
+		light.specular = shader.GetUniformLocation((sstream.str() + ".specular").c_str());
+		light.position = shader.GetUniformLocation((sstream.str() + ".position").c_str());
 		glCheckError();
 	}
 
-	this->dirLight.direction = shader->impl->GetUniformLocation("dirLight.direction");
-	this->dirLight.ambient = shader->impl->GetUniformLocation("dirLight.ambient");
-	this->dirLight.diffuse = shader->impl->GetUniformLocation("dirLight.diffuse");
-	this->dirLight.specular = shader->impl->GetUniformLocation("dirLight.specular");
+	this->dirLight.direction = shader.GetUniformLocation("dirLight.direction");
+	this->dirLight.ambient = shader.GetUniformLocation("dirLight.ambient");
+	this->dirLight.diffuse = shader.GetUniformLocation("dirLight.diffuse");
+	this->dirLight.specular = shader.GetUniformLocation("dirLight.specular");
 
-	this->pointLightCount = shader->impl->GetUniformLocation("pointLightCount");
+	this->pointLightCount = shader.GetUniformLocation("pointLightCount");
 
 	for (unsigned int i = 0; i < maxBones; i++) {
 		std::stringstream sstream;
 		sstream << "bones[" << i << "]";
-		this->bones[i] = shader->impl->GetUniformLocation(sstream.str());
+		this->bones[i] = shader.GetUniformLocation(sstream.str());
 	}
 }
 
@@ -53,6 +58,14 @@ void Renderer::Initialize(int width, int height)
 
 	viewportWidth = width;
 	viewportHeight = height;
+
+	glGenBuffers(1, &baseMatrixUBO);
+
+	glBindBuffer(GL_UNIFORM_BUFFER, baseMatrixUBO);
+	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_STREAM_DRAW);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	glBindBufferRange(GL_UNIFORM_BUFFER, 0, baseMatrixUBO, 0, 2 * sizeof(glm::mat4));
 }
 
 void Renderer::SetDirLight(const DirLight& dirLight)
@@ -133,7 +146,7 @@ void Renderer::SetRenderableTransform(const RenderableHandle& handle, const glm:
 	renderable.transform = transform;
 }
 
-void Renderer::SetRenderableMaterial(const RenderableHandle& handle, const std::shared_ptr<Material>& material)
+void Renderer::SetRenderableMaterial(const RenderableHandle& handle, const Material& material)
 {
 	std::optional<std::reference_wrapper<Entity>> renderableOpt = entityPool.Get(handle);
 	if (!renderableOpt) {
@@ -141,6 +154,22 @@ void Renderer::SetRenderableMaterial(const RenderableHandle& handle, const std::
 	}
 
 	modelPool.Get(renderableOpt->get().modelHandle)->get().material = material;
+}
+
+void Renderer::SetRenderableShader(const RenderableHandle& handle, const Shader& shader)
+{
+	auto shaderIter = shaderMap.find(shader.GetID());
+	if (shaderIter == shaderMap.end()) {
+		auto iterPair = shaderMap.emplace(std::make_pair(shader.GetID(), ShaderCache(shader)));
+	}
+
+	std::optional<std::reference_wrapper<Entity>> renderableOpt = entityPool.Get(handle);
+	if (!renderableOpt) {
+		return;
+	}
+
+	Entity& renderable = *renderableOpt;
+	renderable.shaderCache.shader = shader;
 }
 
 void Renderer::SetViewport(int w, int h)
@@ -188,16 +217,16 @@ float Renderer::GetRenderableAnimationTime(const RenderableHandle& handle)
 	return renderableOpt->get().time;
 }
 
-Renderer::ModelHandle Renderer::GetModelHandle(Model&& model)
+Renderer::ModelHandle Renderer::GetModelHandle(Model model)
 {
-	return modelPool.GetNewHandle(std::move(model));
+	return modelPool.GetNewHandle(model);
 }
 
-Renderer::RenderableHandle Renderer::GetRenderableHandle(const ModelHandle& modelHandle, const std::shared_ptr<Shader>& shader)
+Renderer::RenderableHandle Renderer::GetRenderableHandle(const ModelHandle& modelHandle, const Shader& shader)
 {
-	auto shaderIter = shaderMap.find(shader->impl->GetID());
+	auto shaderIter = shaderMap.find(shader.GetID());
 	if (shaderIter == shaderMap.end()) {
-		auto iterPair = shaderMap.emplace(std::make_pair(shader->impl->GetID(), ShaderCache(shader)));
+		auto iterPair = shaderMap.emplace(std::make_pair(shader.GetID(), ShaderCache(shader)));
 	}
 
 	std::optional<std::reference_wrapper<Model>> modelOpt = modelPool.Get(modelHandle);
@@ -207,7 +236,7 @@ Renderer::RenderableHandle Renderer::GetRenderableHandle(const ModelHandle& mode
 
 	Model& model = *modelOpt;
 
-	bool animatable = (model.animationData.animations.size() > 0);
+	bool animatable = (model.data->animationData.animations.size() > 0);
 
 	RenderableHandle handle = this->entityPool.GetNewHandle(Entity(shader, modelHandle, animatable));
 
@@ -227,7 +256,7 @@ void Renderer::Draw()
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
-	drawInternal(RenderSpace_World);
+	drawInternal(RenderSpace::World);
 }
 
 void Renderer::Update(float dt)
@@ -247,7 +276,7 @@ void Renderer::Update(float dt)
 		// Deal with Later
 
 		Model& model = *modelOpt;
-		auto& animationMap = model.animationData.animations;
+		auto& animationMap = model.data->animationData.animations;
 		auto animIter = animationMap.find(animName);
 
 		if (animIter == animationMap.end()) {
@@ -270,16 +299,16 @@ void Renderer::Update(float dt)
 
 void Renderer::drawInternal(RenderSpace space)
 {
+	glBindBuffer(GL_UNIFORM_BUFFER, baseMatrixUBO);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projectionMatrix));
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(viewMatrix));
+
 	for (auto iter = shaderMap.begin(); iter != shaderMap.end(); iter++) {
 		const ShaderCache& shaderCache = iter->second;
 
-		shaderCache.shader->impl->Use();
+		shaderCache.shader.Use();
 
 		//??? Viewpos lightSpaceMartix skyBox Shader如何处理
-
-		shaderCache.shader->impl->SetProjectionMatrix(projectionMatrix);
-		shaderCache.shader->impl->SetViewMatrix(viewMatrix);
-		shaderCache.shader->impl->SetViewPos(viewPos);
 
 		//Later
 
@@ -291,6 +320,22 @@ void Renderer::drawInternal(RenderSpace space)
 		glUniform3f(shaderCache.dirLight.specular, dirLight.specular.x, dirLight.specular.y, dirLight.specular.z);
 		*/
 		glCheckError();
+	}
+
+	// Calculate Frustum
+	{
+		frustum.resize(6);
+
+		glm::mat4 matrix = glm::transpose(projectionMatrix * viewMatrix);
+		frustum[0] = matrix[3] + matrix[0];
+		frustum[1] = matrix[3] - matrix[0];
+		frustum[2] = matrix[3] + matrix[1];
+		frustum[3] = matrix[3] - matrix[1];
+		frustum[4] = matrix[3] + matrix[2];
+		frustum[5] = matrix[3] - matrix[2];
+
+		for (int i = 0; i != frustum.size(); i++)
+			frustum[i] /= glm::length2(glm::vec3(frustum[i]));
 	}
 
 	for (auto iter = entityPool.begin(); iter != entityPool.end(); iter++) {
@@ -306,46 +351,97 @@ void Renderer::drawInternal(RenderSpace space)
 		ShaderCache& shaderCache = renderable.shaderCache;
 		glm::mat4 modelMatrix = renderable.transform;
 
-		shaderCache.shader->impl->Use();
+		shaderCache.shader.Use();
+		glCheckError();
 
 		//只考虑了骨骼动画！！
-		for (int i = 0; i != model.meshes.size(); i++)
+
+		unsigned int cullMeshCount = 0;
+		unsigned int totalMeshCount = 0;
+		unsigned int vertexCount = 0;
+
+		for (int i = 0; i != model.data->meshes.size(); i++)
 		{
+			const auto& mesh = model.data->meshes[i];
+
 			//Do Anim once per mesh
 			if (renderable.animatable) {
 				std::vector<glm::mat4> nodeTransforms = model.GetNodeTransforms(renderable.animName, renderable.time, renderable.context);
 
-				if (model.meshes[i].impl->boneData.size() == 0) {
+				if (!mesh.hasVertexBoneData) {
 					// Not skinned animation
 				}
 				else
 				{
 					//Skinned animation
-					std::vector<glm::mat4> boneTransforms = model.meshes[i].GetBoneTransforms(nodeTransforms);
+					std::vector<glm::mat4> boneTransforms = mesh.GetBoneTransforms(nodeTransforms);
 					for (unsigned int j = 0; j < boneTransforms.size(); j++) {
 						glUniformMatrix4fv(shaderCache.bones[j], 1, GL_FALSE, &boneTransforms[j][0][0]);
 					}
 				}
+			}
 
-				// In case of mesh under animated node
-				for (const int node : model.animationData.meshNodeId[i]) {
-					shaderCache.shader->impl->SetModelMatrix(modelMatrix * nodeTransforms[node]);
-					if (model.material)model.material->Apply(shaderCache.shader);
-					model.meshes[i].material->Apply(shaderCache.shader);
-					model.meshes[i].Draw();
-					glCheckError();
+			// We assume mesh won't under animted node
+
+			std::vector<glm::mat4> visibleMeshTransform;
+			const auto& [buffer, transforms] = model.data->meshesTransform[i];
+			for (const auto& transform : transforms) {
+				totalMeshCount++;
+
+				if (mesh.hasBoundingSphere)
+				{
+					/* Culling Per Mesh */
+
+					bool visible = true;
+					auto trans = modelMatrix * transform * glm::vec4(mesh.boundingSphere.center, 1);
+					auto matrix = modelMatrix * transform;
+					float maxScale = glm::max(glm::max(matrix[0][0], matrix[1][1]), matrix[2][2]);
+
+					assert(frustum.size() == 6);
+					for (int i = 0; i != frustum.size(); i++)
+					{
+						if (frustum[i].x * trans.x + frustum[i].y * trans.y + frustum[i].z * trans.z + frustum[i].w <= -mesh.boundingSphere.radius * maxScale)
+						{
+							visible = false;
+							break;
+						}
+					}
+
+					if (!visible) {
+						cullMeshCount++;
+						continue;
+					}
 				}
+
+				vertexCount += mesh.GetIndicesCount();
+				visibleMeshTransform.push_back(modelMatrix * transform);
+			}
+
+			if (buffer)
+			{
+				if (!visibleMeshTransform.size())continue;
+
+				glBindBuffer(GL_ARRAY_BUFFER, buffer);
+				glBufferData(GL_ARRAY_BUFFER, visibleMeshTransform.size() * sizeof(glm::mat4), &visibleMeshTransform[0], GL_DYNAMIC_DRAW);
+
+				model.material.Apply(shaderCache.shader);
+				mesh.material.Apply(shaderCache.shader);
+				mesh.Draw(visibleMeshTransform.size());
 			}
 			else
 			{
-				for (const glm::mat4& transform : model.meshesTransform[i]) {
-					shaderCache.shader->impl->SetModelMatrix(modelMatrix * transform);
-					if (model.material)model.material->Apply(shaderCache.shader);
-					model.meshes[i].material->Apply(shaderCache.shader);
-					model.meshes[i].Draw();
-					glCheckError();
+				// Don't use buffer
+				for (int i = 0; i != visibleMeshTransform.size(); i++) {
+					shaderCache.shader.SetModelMatrix(visibleMeshTransform[i]);
+					model.material.Apply(shaderCache.shader);
+					mesh.material.Apply(shaderCache.shader);
+					mesh.Draw();
 				}
 			}
+
+			glCheckError();
 		}
+
+		std::cout << "Cull Mesh:" << cullMeshCount << "\t Total Mesh:" << totalMeshCount << "\t Vetex:" << vertexCount << std::endl;
 	}
 }

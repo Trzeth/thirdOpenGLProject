@@ -13,7 +13,7 @@
 
 #include "Window.h"
 
-#include "Scene/DefaultScene.h"
+#include "Scene/TestScene.h"
 
 constexpr double FRAMEDURATION = 1.0 / 60;
 
@@ -41,7 +41,7 @@ private:
 	std::unique_ptr<ViewerInputSystem> viewInputSystem;
 	std::unique_ptr<InspectorSystem> inspectorSystem;
 
-	std::unique_ptr<DefaultScene> defaultScene;
+	std::unique_ptr<TestScene> defaultScene;
 
 	Renderer renderer;
 	UIRenderer uiRenderer;

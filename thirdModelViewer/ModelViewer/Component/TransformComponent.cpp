@@ -4,7 +4,7 @@
 #include "ModelViewer/Extra/Transform.h"
 #include "ModelViewer/Extra/PrefabConstructionInfo.h"
 
-ComponentConstructorInfo TransformComponentConstructor::Construct(World& world, eid_t parent, void* userinfo) const
+ComponentConstructorInfo TransformComponentConstructor::Construct(World& world, eid_t parent, void* userinfo)
 {
 	PrefabConstructionInfo* constructionInfo = (PrefabConstructionInfo*)userinfo;
 

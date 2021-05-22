@@ -1,130 +1,37 @@
 #include <exception>
 #include <glad/glad.h>
+#include <glm/gtx/norm.hpp>
+#include <assimp/mesh.h>
 
 #include "Mesh.h"
-#include "MeshImpl.h"
 #include "Material.h"
 #include "RenderUtil.h"
 
-Mesh::Mesh() : impl(new MeshImpl()), material(), hasVertexBoneData(false) { }
+Mesh::Data::~Data() {
+	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &EBO);
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned> indices, std::shared_ptr<Material> material)
-	: Mesh(vertices, indices, material, std::vector<VertexBoneData>(), std::vector<BoneData>())
-{ }
-
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned> indices, std::shared_ptr<Material> material, std::vector<VertexBoneData> vertexBoneData, std::vector<BoneData> boneData)
-{
-	impl = std::make_unique<MeshImpl>();
-
-	this->material = material;
-	this->hasVertexBoneData = vertexBoneData.size() > 0 ? true : false;
-
-	impl->nVertices = vertices.size();
-	impl->nIndices = indices.size();
-	impl->boneData = boneData;
-	impl->boneTransforms.resize(impl->boneData.size());
-
-	glGenBuffers(1, &impl->VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, impl->VBO);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
-
-	glGenBuffers(1, &impl->EBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, impl->EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
-
-	if (this->hasVertexBoneData) {
-		glGenBuffers(1, &impl->VBO_bone);
-		glBindBuffer(GL_ARRAY_BUFFER, impl->VBO_bone);
-		glBufferData(GL_ARRAY_BUFFER, vertexBoneData.size() * sizeof(VertexBoneData), &vertexBoneData[0], GL_STATIC_DRAW);
-	}
-
-	glCheckError();
-}
-
-Mesh::~Mesh()
-{
-	if (!impl)
-		return;
-
-	glDeleteBuffers(1, &impl->VBO);
-	glDeleteBuffers(1, &impl->EBO);
-
-	if (this->hasVertexBoneData)
+	if (VBO_bone)
 	{
-		glDeleteBuffers(1, &impl->VBO_bone);
+		glDeleteBuffers(1, &VBO_bone);
 	}
 
-	glDeleteVertexArrays(1, &impl->VAO);
+	glDeleteVertexArrays(1, &VAO);
 }
 
-Mesh::Mesh(const Mesh& other)
-{
-	*this = other;
-}
+Mesh::Mesh() : data(), material(), hasVertexBoneData(false), hasBoundingSphere(false) { }
 
-Mesh& Mesh::operator=(const Mesh& other)
-{
-#ifdef _DEBUG
-	printf("Mesh Copy\n");
-#endif // _DEBUG
-
-	impl = std::make_unique<MeshImpl>();
-	hasVertexBoneData = other.hasVertexBoneData;
-	name = other.name;
-
-	glGenBuffers(1, &impl->VBO);
-	glBindBuffer(GL_COPY_READ_BUFFER, other.impl->VBO);
-	glBindBuffer(GL_COPY_WRITE_BUFFER, impl->VBO);
-
-	GLint size = 0;
-	glGetBufferParameteriv(GL_COPY_READ_BUFFER, GL_BUFFER_SIZE, &size);
-	glBufferData(GL_COPY_WRITE_BUFFER, size, nullptr, GL_STATIC_DRAW);
-	glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, size);
-
-	glGenBuffers(1, &impl->EBO);
-	glBindBuffer(GL_COPY_READ_BUFFER, other.impl->EBO);
-	glBindBuffer(GL_COPY_WRITE_BUFFER, impl->EBO);
-
-	glGetBufferParameteriv(GL_COPY_READ_BUFFER, GL_BUFFER_SIZE, &size);
-	glBufferData(GL_COPY_WRITE_BUFFER, size, nullptr, GL_STATIC_DRAW);
-	glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, size);
-
-	if (other.hasVertexBoneData) {
-		glGenBuffers(1, &impl->VBO_bone);
-		glBindBuffer(GL_COPY_READ_BUFFER, other.impl->VBO_bone);
-		glBindBuffer(GL_COPY_WRITE_BUFFER, impl->VBO_bone);
-
-		glGetBufferParameteriv(GL_COPY_READ_BUFFER, GL_BUFFER_SIZE, &size);
-		glBufferData(GL_COPY_WRITE_BUFFER, size, nullptr, GL_STATIC_DRAW);
-		glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, size);
-	}
-
-	glBindBuffer(GL_COPY_READ_BUFFER, 0);
-	glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	if (other.impl->VAO) {
-		this->GenVAO();
-		glCheckError();
-	}
-
-	this->material = other.material;
-	glCheckError();
-
-	return *this;
-}
-
-Mesh::Mesh(Mesh&& other) noexcept = default;
-
-Mesh& Mesh::operator=(Mesh && other) noexcept = default;
+Mesh::Mesh(std::shared_ptr<Data> data, Material material)
+	: data(data), material(material), hasVertexBoneData(data->boneData.size() > 0), hasBoundingSphere(false)
+{ }
 
 void Mesh::GenVAO() const
 {
-	glGenVertexArrays(1, &impl->VAO);
+	glGenVertexArrays(1, &data->VAO);
 
-	glBindVertexArray(impl->VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, impl->VBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, impl->EBO);
+	glBindVertexArray(data->VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, data->VBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, data->EBO);
 	// ¶¥µãÎ»ÖÃ
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
@@ -136,7 +43,7 @@ void Mesh::GenVAO() const
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoords));
 
 	if (this->hasVertexBoneData) {
-		glBindBuffer(GL_ARRAY_BUFFER, impl->VBO_bone);
+		glBindBuffer(GL_ARRAY_BUFFER, data->VBO_bone);
 		glEnableVertexAttribArray(3);
 		glVertexAttribIPointer(3, 4, GL_INT, sizeof(VertexBoneData), (const GLvoid*)0);
 		glEnableVertexAttribArray(4);
@@ -148,33 +55,167 @@ void Mesh::GenVAO() const
 	glCheckError();
 }
 
-void Mesh::Draw() const
+void Mesh::Draw(int instanced) const
 {
 	/*!
 	 * @brief Don't forget to Gen VAO
 	*/
-	assert(impl->VAO != 0);
+	assert(data->VAO != 0);
 
-	glBindVertexArray(impl->VAO);
-	glDrawElements(GL_TRIANGLES, impl->nIndices, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(data->VAO);
+
+	if (instanced) glDrawElementsInstanced(GL_TRIANGLES, data->nIndices, GL_UNSIGNED_INT, 0, instanced);
+	else glDrawElements(GL_TRIANGLES, data->nIndices, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
 
-std::vector<glm::mat4> Mesh::GetBoneTransforms(const std::vector<glm::mat4>&nodeTransforms) const
+std::vector<glm::mat4> Mesh::GetBoneTransforms(const std::vector<glm::mat4>& nodeTransforms) const
 {
 	if (nodeTransforms.size() <= 0) {
-		return impl->boneTransforms;
+		return data->boneTransforms;
 	}
 
 	// Assume 0 is the root node
 	glm::mat4 globalInverse = glm::inverse(nodeTransforms[0]);
-	for (unsigned int i = 0; i < impl->boneData.size(); i++) {
-		const BoneData& boneData = impl->boneData[i];
+	for (unsigned int i = 0; i < data->boneData.size(); i++) {
+		const BoneData& boneData = data->boneData[i];
 		glm::mat4 nodeTransform = nodeTransforms[boneData.nodeId];
 		glm::mat4 boneOffset = boneData.boneOffset;
 		glm::mat4 boneTransform = globalInverse * nodeTransform * boneOffset;
-		impl->boneTransforms[i] = boneTransform;
+		data->boneTransforms[i] = boneTransform;
 	}
 
-	return impl->boneTransforms;
+	return data->boneTransforms;
+}
+
+unsigned int Mesh::GetIndicesCount() const
+{
+	return data->nIndices;
+}
+
+GLuint Mesh::GetVAO() const
+{
+	return data->VAO;
+}
+
+Mesh MeshBuilder::BuildFromData(const std::shared_ptr<aiMesh> data, const Material& material, bool computeBoundingSphere)
+{
+	std::vector<Vertex> vertices;
+	std::vector<GLuint> indices;
+
+	for (unsigned i = 0; i < data->mNumVertices; i++)
+	{
+		Vertex vertex;
+		vertex.position = glm::vec3(data->mVertices[i].x, data->mVertices[i].y, data->mVertices[i].z);
+		vertex.normal = glm::vec3(data->mNormals[i].x, data->mNormals[i].y, data->mNormals[i].z);
+		if (data->mTextureCoords[0]) {
+			vertex.texCoords = glm::vec2(data->mTextureCoords[0][i].x, data->mTextureCoords[0][i].y);
+		}
+		else {
+			vertex.texCoords = glm::vec2(0.0f, 0.0f);
+		}
+		vertices.push_back(vertex);
+	}
+
+	for (unsigned i = 0; i < data->mNumFaces; i++)
+	{
+		aiFace face = data->mFaces[i];
+		for (unsigned j = 0; j < face.mNumIndices; j++) {
+			indices.push_back(face.mIndices[j]);
+		}
+	}
+
+	return BuildFromVertices(vertices, indices, material, computeBoundingSphere);
+}
+
+Mesh MeshBuilder::BuildFromVertices(const std::vector<Vertex>& vertices, const std::vector<unsigned>& indices, const Material& material, bool computeBoundingSphere)
+{
+	return BuildFromVertices(vertices, indices, material, std::vector<VertexBoneData>(), std::vector<BoneData>(), computeBoundingSphere);
+}
+
+Mesh MeshBuilder::BuildFromVertices(const std::vector<Vertex>& vertices, const std::vector<unsigned>& indices, const Material& material, const std::vector<VertexBoneData>& vertexBoneData, const std::vector<BoneData>& boneData, bool computeBoundingSphere)
+{
+	auto data = std::make_shared<Mesh::Data>();
+
+	glGenBuffers(1, &data->VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, data->VBO);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+
+	glGenBuffers(1, &data->EBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, data->EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+
+	if (vertexBoneData.size() > 0) {
+		glGenBuffers(1, &data->VBO_bone);
+		glBindBuffer(GL_ARRAY_BUFFER, data->VBO_bone);
+		glBufferData(GL_ARRAY_BUFFER, vertexBoneData.size() * sizeof(VertexBoneData), &vertexBoneData[0], GL_STATIC_DRAW);
+	}
+
+	glCheckError();
+
+	data->nVertices = vertices.size();
+	data->nVertices = vertices.size();
+	data->nIndices = indices.size();
+	data->boneData = boneData;
+	data->boneTransforms.resize(data->boneData.size());
+
+	Mesh r = Mesh(data, material);
+
+	if (computeBoundingSphere)
+	{
+		// Ritter bounding sphere
+		glm::vec3 vmin, vmax;
+		vmin = vmax = vertices[0].position;
+
+		for (int i = 0; i != vertices.size(); i++) {
+			if (vertices[i].position.x < vmin.x)
+				vmin.x = vertices[i].position.x;
+			if (vertices[i].position.y < vmin.y)
+				vmin.y = vertices[i].position.y;
+			if (vertices[i].position.z < vmin.z)
+				vmin.z = vertices[i].position.z;
+
+			if (vertices[i].position.x > vmax.x)
+				vmax.x = vertices[i].position.x;
+			if (vertices[i].position.y > vmax.y)
+				vmax.y = vertices[i].position.y;
+			if (vertices[i].position.z > vmax.z)
+				vmax.z = vertices[i].position.z;
+		}
+
+		float xdiff = vmax.x - vmin.x;
+		float ydiff = vmax.y - vmin.y;
+		float zdiff = vmax.z - vmin.z;
+
+		float diameter = glm::max(xdiff, glm::max(ydiff, zdiff));
+		glm::vec3 center = (vmax + vmin) * 0.5f;
+		float radius = diameter / 2;
+		float sq_radius = radius * radius;
+
+		for (int i = 0; i < vertices.size(); i++)
+		{
+			glm::vec3 point = vertices[i].position;
+
+			glm::vec3 direction = point - center;
+			float sq_distance = glm::length2(direction);
+
+			if (sq_distance > sq_radius)
+			{
+				float distance = sqrt(sq_distance);
+
+				float newRadius = (distance + radius) / 2;
+				float k = (newRadius - radius) / distance;
+
+				radius = newRadius;
+				sq_radius = radius * radius;
+
+				center += k * direction;
+			}
+		}
+
+		r.boundingSphere = Mesh::BoundingSphere(center, radius);
+		r.hasBoundingSphere = true;
+	}
+
+	return std::move(r);
 }

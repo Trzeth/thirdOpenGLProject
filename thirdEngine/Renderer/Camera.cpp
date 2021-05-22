@@ -11,8 +11,7 @@ Camera::Camera()
 	height(0),
 	nearClip(0.1f),
 	farClip(10000),
-	inverseViewMatrix(1.0f),
-	frustumIsDirty(true)
+	inverseViewMatrix(1.0f)
 { }
 
 Camera::Camera(float fieldOfView, unsigned int width, unsigned int height, float nearClip, float farClip)
@@ -21,12 +20,12 @@ Camera::Camera(float fieldOfView, unsigned int width, unsigned int height, float
 	height(height),
 	nearClip(nearClip),
 	farClip(farClip),
-	inverseViewMatrix(1.0f),
-	frustumIsDirty(true)
+	inverseViewMatrix(1.0f)
 { }
 
 glm::mat4 Camera::GetViewMatrix()
 {
+	//return inverseViewMatrix;
 	return glm::inverse(inverseViewMatrix);
 }
 
@@ -61,22 +60,11 @@ glm::vec2 Camera::WorldToScreenPoint(glm::vec3 worldPoint)
 void Camera::SetInverseViewMatrix(const glm::mat4& inverseViewMatrix)
 {
 	this->inverseViewMatrix = inverseViewMatrix;
-	frustumIsDirty = true;
 }
 
 glm::mat4 Camera::GetInverseViewMatrix()
 {
 	return this->inverseViewMatrix;
-}
-
-Frustum Camera::GetFrustum() const
-{
-	if (frustumIsDirty) {
-		return this->computeFrustum();
-	}
-	else {
-		return this->cachedFrustum;
-	}
 }
 
 void Camera::SetFOV(float fov)
@@ -94,45 +82,4 @@ void Camera::SetClip(float near, float far)
 {
 	nearClip = near;
 	farClip = far;
-}
-
-Frustum Camera::GetFrustum()
-{
-	if (frustumIsDirty) {
-		this->cachedFrustum = this->computeFrustum();
-	}
-	return this->cachedFrustum;
-}
-
-Frustum Camera::computeFrustum() const
-{
-	float nearHeight = 2.0f * tan(fieldOfView / 2.0f) * nearClip;
-	float nearWidth = nearHeight * width / height;
-	float farHeight = 2.0f * tan(fieldOfView / 2.0f) * farClip;
-	float farWidth = farHeight * width / height;
-
-	// Fwd is negated because negative z == forward
-	glm::vec3 cameraPos = glm::vec3(inverseViewMatrix[3][0], inverseViewMatrix[3][1], inverseViewMatrix[3][2]);
-	glm::vec3 cameraFwd = -glm::vec3(inverseViewMatrix[2][0], inverseViewMatrix[2][1], inverseViewMatrix[2][2]);
-	glm::vec3 cameraUp = glm::vec3(inverseViewMatrix[1][0], inverseViewMatrix[1][1], inverseViewMatrix[1][2]);
-	glm::vec3 cameraRight = glm::vec3(inverseViewMatrix[0][0], inverseViewMatrix[0][1], inverseViewMatrix[0][2]);
-
-	glm::vec3 nearCenter = cameraPos + cameraFwd * nearClip;
-	glm::vec3 nearX = cameraUp * nearHeight / 2.0f;
-	glm::vec3 nearY = cameraRight * nearWidth / 2.0f;
-	glm::vec3 farCenter = cameraPos + cameraFwd * farClip;
-	glm::vec3 farX = cameraUp * farHeight / 2.0f;
-	glm::vec3 farY = cameraRight * farWidth / 2.0f;
-
-	FrustumConstructor f;
-	f.ntr = nearCenter + nearX + nearY;
-	f.ntl = nearCenter + nearX - nearY;
-	f.nbr = nearCenter - nearX + nearY;
-	f.nbl = nearCenter - nearX - nearY;
-	f.ftr = farCenter + farX + farY;
-	f.ftl = farCenter + farX - farY;
-	f.fbr = farCenter - farX + farY;
-	f.fbl = farCenter - farX - farY;
-
-	return Frustum(f);
 }

@@ -13,6 +13,7 @@ class Scene
 {
 public:
 	Scene(const SceneInfo& info) :world(*info.world), renderer(*info.renderer), uiRenderer(*info.uiRenderer), prefabsSteup(false) { };
+	virtual ~Scene() = default;
 	virtual void Setup() = 0;
 protected:
 	virtual void setupPrefab() = 0;

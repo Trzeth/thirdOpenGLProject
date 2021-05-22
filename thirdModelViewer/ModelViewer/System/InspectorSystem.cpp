@@ -26,7 +26,7 @@ void InspectorSystem::updateEntity(float dt, eid_t entity)
 	if (objectViewerComponent->fileChangedFlag) {
 		auto& fileInfo = objectViewerComponent->fileInfo;
 
-		Model model = modelLoader.LoadModel(fileInfo.FullPath);
+		Model model = modelLoader.LoadFromFile(fileInfo.FullPath, ModelLoadingPrefab::Optimize, glm::mat4(1.0), true);
 		model.GenVAO();
 
 		std::vector<std::string> animationList = model.GetAnimationName();
@@ -54,14 +54,13 @@ void InspectorSystem::updateEntity(float dt, eid_t entity)
 				curMaterial.shaderFileInfo.vertexShaderPath,
 				curMaterial.shaderFileInfo.fragmentShaderPath
 			);
-		objectViewerComponent->materialReloadFlag = false;
 
+		objectViewerComponent->materialReloadFlag = false;
 		objectViewerComponent->materialChangedFlag = true;
 	}
 
 	if (objectViewerComponent->materialChangedFlag) {
-		renderer.SetRenderableShader(modelRenderComponent->rendererHandle,
-			curMaterial.shader);
+		renderer.SetRenderableShader(modelRenderComponent->rendererHandle, curMaterial.shader);
 		renderer.SetRenderableMaterial(modelRenderComponent->rendererHandle, curMaterial.material);
 		objectViewerComponent->materialChangedFlag = false;
 	}

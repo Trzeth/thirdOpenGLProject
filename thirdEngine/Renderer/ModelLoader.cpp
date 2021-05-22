@@ -10,27 +10,30 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <glad/glad.h>
+
 #include "ModelLoader.h"
 #include "Mesh.h"
 #include "Texture.h"
-#include "TextureImpl.h"
+#include "RenderUtil.h"
 
 struct ModelLoader::Impl
 {
+	bool computeBoundingSphere = false;
 	/*! The relative directory to the model we are currently loading. */
 	std::string curDir;
 
 	/*! Cache mapping IDs to models. The IDs can also be paths. */
-	//std::unordered_map<std::string, Model> modelIdCache;
+	std::unordered_map<std::string, Model> modelIdCache;
 
 	/*! Cache mapping IDs to textures. The IDs are usually paths. */
-	//std::unordered_map<std::string, TextureImpl> textureCache;
+	std::unordered_map<std::string, std::shared_ptr<Texture::Data>> textureCache;
 
 	/*! Used to load textures from imported models. */
 	TextureLoader textureLoader;
 
 	/*! Default material properties.*/
-	std::shared_ptr<Material> defaultMaterial = std::make_shared<Material>();
+	Material defaultMaterial = Material();
 
 	/*!
 	 * \brief Processes an assimp model, starting from its root node.
@@ -42,19 +45,19 @@ struct ModelLoader::Impl
 	 * @param scene
 	 * @return
 	*/
-	std::vector<std::shared_ptr<Material>> processMaterials(const aiScene* scene);
+	std::vector<Material> processMaterials(const aiScene* scene);
 
 	/*!
 	 * @brief Processes meshes of a model.
 	 * @param nodeIdMap A map of node names to internal node IDs. Used when the bones are being loaded from the mesh.
 	 */
-	std::vector<Mesh> processMeshes(const aiScene* scene, std::unordered_map<std::string, unsigned int> nodeIdMap, std::vector<std::shared_ptr<Material>> materials);
+	std::vector<Mesh> processMeshes(const aiScene* scene, std::unordered_map<std::string, unsigned int> nodeIdMap, const std::vector<Material>& materials);
 
 	/*!
 	 * @brief Process a single mesh
 	 * @return mesh
 	*/
-	Mesh processMesh(aiMesh* mesh, const aiScene* scene, std::unordered_map<std::string, unsigned int> nodeIdMap, std::vector<std::shared_ptr<Material>> materials);
+	Mesh processMesh(aiMesh* mesh, std::unordered_map<std::string, unsigned int> nodeIdMap, const  std::vector<Material>& materials);
 
 	AnimationData processAnimations(const aiScene* scene, const std::unordered_map<std::string, unsigned int>& nodeIdMap);
 
@@ -65,7 +68,7 @@ struct ModelLoader::Impl
 	 *		is equal to mesh->mNumVertices.
 	 * \param boneData The data loaded from each of the bones.
 	 */
-	void loadBoneData(aiMesh* mesh, const aiScene* scene, std::unordered_map<std::string, unsigned int> nodeIdMap, std::vector<VertexBoneData>& vertexBoneData, std::vector<BoneData>& boneData);
+	void loadBoneData(aiMesh* mesh, std::unordered_map<std::string, unsigned int> nodeIdMap, std::vector<VertexBoneData>& vertexBoneData, std::vector<BoneData>& boneData);
 
 	/*!
 	 * \brief Loads textures from a material, but only of a specific type.
@@ -84,19 +87,42 @@ ModelLoader::ModelLoader()
 { }
 
 ModelLoader::~ModelLoader()
-{
-}
+{ }
 
-Model ModelLoader::LoadModel(const std::string& path, glm::mat4 preDefineTransform)
+Model ModelLoader::LoadFromFile(const std::string& path, ModelLoadingPrefab prefab, glm::mat4 preDefineTransform, bool computeBoundingSphere)
 {
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals);
+
+	const aiScene* scene = nullptr;
+	switch (prefab)
+	{
+	case ModelLoadingPrefab::Default:
+		scene = importer.ReadFile(path,
+			aiProcess_Triangulate |
+			aiProcess_FlipUVs |
+			aiProcess_GenNormals);
+		break;
+	case ModelLoadingPrefab::Optimize:
+		scene = importer.ReadFile(path,
+			aiProcess_Triangulate |
+			aiProcess_FlipUVs |
+			aiProcess_GenNormals |
+			aiProcess_OptimizeGraph |
+			aiProcess_OptimizeMeshes |
+			aiProcess_FindInstances |
+			aiProcess_RemoveRedundantMaterials |
+			aiProcess_ImproveCacheLocality);
+		break;
+	}
 
 	if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
 		printf("Assimp error while loading model: %s\n", importer.GetErrorString());
 		return Model();
 	}
-	this->impl->curDir = path.substr(0, path.find_last_of('/') + 1);
+
+	int index = path.find_last_of("\\");
+	if (index == -1) index = path.find_last_of('/');
+	this->impl->curDir = path.substr(0, index + 1);
 
 	if (preDefineTransform != glm::mat4(1.0f))
 	{
@@ -111,13 +137,45 @@ Model ModelLoader::LoadModel(const std::string& path, glm::mat4 preDefineTransfo
 		scene->mRootNode->mTransformation = mat4;
 	}
 
+	impl->computeBoundingSphere = computeBoundingSphere;
 	Model model = this->impl->processModel(scene->mRootNode, scene);
 	model.material = impl->defaultMaterial;
 
 	return model;
 }
 
-void ModelLoader::SetDefaultMaterial(const std::shared_ptr<Material>& material)
+Model ModelLoader::LoadFromSingleMesh(const std::shared_ptr<aiMesh> mesh, glm::mat4 preDefineTransform, bool computeBoundingSphere, const Material& material)
+{
+	std::vector<Vertex> vertices;
+	std::vector<GLuint> indices;
+	std::vector<Texture> textures;
+
+	for (unsigned i = 0; i < mesh->mNumVertices; i++)
+	{
+		Vertex vertex;
+		vertex.position = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
+		vertex.normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+		if (mesh->mTextureCoords[0]) {
+			vertex.texCoords = glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
+		}
+		else {
+			vertex.texCoords = glm::vec2(0.0f, 0.0f);
+		}
+		vertices.push_back(vertex);
+	}
+
+	for (unsigned i = 0; i < mesh->mNumFaces; i++)
+	{
+		aiFace face = mesh->mFaces[i];
+		for (unsigned j = 0; j < face.mNumIndices; j++) {
+			indices.push_back(face.mIndices[j]);
+		}
+	}
+
+	return ModelBuilder::BuildFromSingleMesh(MeshBuilder::BuildFromVertices(vertices, indices, material, computeBoundingSphere), preDefineTransform);
+}
+
+void ModelLoader::SetDefaultMaterial(const Material& material)
 {
 	impl->defaultMaterial = material;
 }
@@ -134,7 +192,7 @@ Model ModelLoader::Impl::processModel(aiNode* rootNode, const aiScene* scene)
 	std::vector<std::vector<int>> meshNodeId(scene->mNumMeshes);
 
 	bool hasAnimation = scene->mNumAnimations > 0 ? true : false;
-	std::vector<glm::mat4> bindposeTransform;
+	std::vector<glm::mat4> cachedNodeTransforms;
 
 	//Process STACK
 	std::vector<aiNode*> processQueue;
@@ -172,12 +230,9 @@ Model ModelLoader::Impl::processModel(aiNode* rootNode, const aiScene* scene)
 
 		for (unsigned int i = 0; i != ai_node->mNumMeshes; i++) {
 			meshesTransform[ai_node->mMeshes[i]].push_back(globalTransform);
-
-			if (hasAnimation)meshNodeId[ai_node->mMeshes[i]].push_back(nodeHierarchy.size());
 		}
 
-		if (hasAnimation)bindposeTransform.push_back(globalTransform);
-
+		cachedNodeTransforms.push_back(globalTransform);
 		nodeHierarchy.push_back(node);
 
 		for (unsigned int i = 0; i < ai_node->mNumChildren; i++) {
@@ -186,33 +241,53 @@ Model ModelLoader::Impl::processModel(aiNode* rootNode, const aiScene* scene)
 		}
 	}
 
-	model.meshes = processMeshes(scene, nodeIdMap, std::move(material));
-	model.meshesTransform = meshesTransform;
-	model.cachedNodeTransforms.resize(nodeHierarchy.size());
+	model.cachedNodeTransforms = cachedNodeTransforms;
+	model.data->meshes = processMeshes(scene, nodeIdMap, material);
+
+	for (int i = 0; i != meshesTransform.size(); i++)
+	{
+		const auto& transforms = meshesTransform[i];
+		auto& mesh = model.data->meshes[i];
+
+		if (meshesTransform.size() < 2)
+		{
+			// Don't use instance buffer
+			model.data->meshesTransform.push_back(std::tuple<GLuint, std::vector<glm::mat4>>(0, transforms));
+			mesh.material.SetProperty("useInstance", 0);
+		}
+		else
+		{
+			GLuint buffer;
+			glGenBuffers(1, &buffer);
+			glBindBuffer(GL_ARRAY_BUFFER, buffer);
+			glBufferData(GL_ARRAY_BUFFER, transforms.size() * sizeof(glm::mat4), 0, GL_STREAM_DRAW);
+
+			model.data->meshesTransform.push_back(std::tuple<GLuint, std::vector<glm::mat4>>(buffer, transforms));
+			mesh.material.SetProperty("useInstance", 1);
+		}
+	}
 
 	if (hasAnimation)
 	{
-		model.animationData = processAnimations(scene, nodeIdMap);
-		model.animationData.nodes = nodeHierarchy;
-		model.animationData.meshNodeId = meshNodeId;
-		model.animationData.bindposeNodeTransforms = bindposeTransform;
+		model.data->animationData = processAnimations(scene, nodeIdMap);
+		model.data->animationData.nodes = nodeHierarchy;
 	}
 
 	return model;
 }
 
-std::vector<Mesh> ModelLoader::Impl::processMeshes(const aiScene* scene, std::unordered_map<std::string, unsigned int> nodeIdMap, std::vector<std::shared_ptr<Material>> materials)
+std::vector<Mesh> ModelLoader::Impl::processMeshes(const aiScene* scene, std::unordered_map<std::string, unsigned int> nodeIdMap, const std::vector<Material>& materials)
 {
 	std::vector<Mesh> meshes;
 
 	for (int i = 0; i != scene->mNumMeshes; i++) {
-		meshes.push_back(std::move(processMesh(scene->mMeshes[i], scene, nodeIdMap, materials)));
+		meshes.push_back(processMesh(scene->mMeshes[i], nodeIdMap, materials));
 	}
 
 	return std::move(meshes);
 }
 
-Mesh ModelLoader::Impl::processMesh(aiMesh* mesh, const aiScene* scene, std::unordered_map<std::string, unsigned int> nodeIdMap, std::vector<std::shared_ptr<Material>> materials)
+Mesh ModelLoader::Impl::processMesh(aiMesh* mesh, std::unordered_map<std::string, unsigned int> nodeIdMap, const std::vector<Material>& materials)
 {
 	std::vector<Vertex> vertices;
 	std::vector<GLuint> indices;
@@ -240,18 +315,16 @@ Mesh ModelLoader::Impl::processMesh(aiMesh* mesh, const aiScene* scene, std::uno
 		}
 	}
 
-	std::shared_ptr<Material> material = mesh->mMaterialIndex >= 0 ? materials[mesh->mMaterialIndex] : defaultMaterial;
+	Material material = mesh->mMaterialIndex >= 0 ? materials[mesh->mMaterialIndex] : defaultMaterial;
 
 	std::vector<VertexBoneData> vertexBoneData;
 	std::vector<BoneData> boneData;
-	loadBoneData(mesh, scene, nodeIdMap, vertexBoneData, boneData);
+	loadBoneData(mesh, nodeIdMap, vertexBoneData, boneData);
 
-	Mesh processedMesh(vertices, indices, material, vertexBoneData, boneData);
-
-	return std::move(processedMesh);
+	return MeshBuilder::BuildFromVertices(vertices, indices, material, vertexBoneData, boneData, computeBoundingSphere);
 }
 
-void ModelLoader::Impl::loadBoneData(aiMesh* mesh, const aiScene* scene, std::unordered_map<std::string, unsigned int> nodeIdMap, std::vector<VertexBoneData>& vertexBoneData, std::vector<BoneData>& boneData)
+void ModelLoader::Impl::loadBoneData(aiMesh* mesh, std::unordered_map<std::string, unsigned int> nodeIdMap, std::vector<VertexBoneData>& vertexBoneData, std::vector<BoneData>& boneData)
 {
 	if (mesh->mNumBones > 0) {
 		boneData.resize(mesh->mNumBones);
@@ -274,34 +347,55 @@ void ModelLoader::Impl::loadBoneData(aiMesh* mesh, const aiScene* scene, std::un
 	}
 }
 
-std::vector<std::shared_ptr<Material>> ModelLoader::Impl::processMaterials(const aiScene* scene)
+std::vector<Material> ModelLoader::Impl::processMaterials(const aiScene* scene)
 {
-	std::vector<std::shared_ptr<Material>> materials;
+	std::vector<Material> materials;
 
 	for (int i = 0; i != scene->mNumMaterials; i++) {
 		std::vector<Texture> textures;
 
+		Material material = defaultMaterial;
+
 		{
-			aiMaterial* material = scene->mMaterials[i];
-			std::vector<Texture> diffuseMaps = this->loadMaterialTextures(this->curDir, material, aiTextureType_DIFFUSE);
+			aiMaterial* mat = scene->mMaterials[i];
+			std::vector<Texture> diffuseMaps = this->loadMaterialTextures(this->curDir, mat, aiTextureType_DIFFUSE);
 			textures.insert(textures.end(), std::make_move_iterator(diffuseMaps.begin()), std::make_move_iterator(diffuseMaps.end()));
 			diffuseMaps.clear();
-			std::vector<Texture> specularMaps = this->loadMaterialTextures(this->curDir, material, aiTextureType_SPECULAR);
+			std::vector<Texture> specularMaps = this->loadMaterialTextures(this->curDir, mat, aiTextureType_SPECULAR);
 			textures.insert(textures.end(), std::make_move_iterator(specularMaps.begin()), std::make_move_iterator(specularMaps.end()));
 			specularMaps.clear();
 
-			if (false)// TODO: Map assimp properties to our properties
-				for (unsigned i = 0; i < material->mNumProperties; i++) {
-					aiMaterialProperty* materialProperty = material->mProperties[i];
-				}
+			if (textures.size() == 0)
+			{
+				// Map assimp properties to our properties
+
+				aiColor3D diffuse, specular, ambient;
+				float shininess = 0, shininessStrength = 0;
+
+				mat->Get(AI_MATKEY_COLOR_DIFFUSE, diffuse);
+				mat->Get(AI_MATKEY_COLOR_SPECULAR, specular);
+				mat->Get(AI_MATKEY_COLOR_AMBIENT, ambient);
+				mat->Get(AI_MATKEY_SHININESS, shininess);
+				mat->Get(AI_MATKEY_SHININESS_STRENGTH, shininessStrength);
+
+				material.SetProperty("useColor", 1);
+				material.SetProperty("diffuseColor", glm::vec3(diffuse.r, diffuse.g, diffuse.b));
+				material.SetProperty("specularColor", glm::vec3(specular.r, specular.g, specular.b));
+				material.SetProperty("ambientColor", glm::vec3(ambient.r, ambient.g, ambient.b));
+				material.SetProperty("shininess", shininess);
+				material.SetProperty("shininessStrength", shininessStrength);
+			}
+			else
+			{
+				material.SetProperty("useColor", 0);
+				material.SetTextures(textures);
+			}
 		}
 
-		Material material = *defaultMaterial;
-		material.SetTextures(std::move(textures));
-		materials.emplace_back(std::make_shared<Material>(std::move(material)));
+		materials.emplace_back(std::move(material));
 	}
 
-	return materials;
+	return std::move(materials);
 }
 
 std::vector<Texture> ModelLoader::Impl::loadMaterialTextures(const std::string& relDir, aiMaterial* mat, aiTextureType type)
@@ -314,12 +408,20 @@ std::vector<Texture> ModelLoader::Impl::loadMaterialTextures(const std::string& 
 		std::string path(str.C_Str());
 		path = relDir + path;
 
-		Texture texture;
+		std::shared_ptr<Texture::Data> textureDataPtr;
+		auto cacheIter = this->textureCache.find(path);
+		if (cacheIter == this->textureCache.end()) {
+			textureDataPtr = std::make_shared<Texture::Data>(std::move(textureLoader.LoadFromFile(path)));
+			this->textureCache.emplace(std::make_pair(path, textureDataPtr));
+		}
+		else
+		{
+			textureDataPtr = cacheIter->second;
+		}
 
 		TextureType newType = (type == aiTextureType_DIFFUSE ? TextureType::Diffuse : TextureType::Specular);
-		texture = textureLoader.LoadFromFile(newType, path);
 
-		textures.emplace_back(std::move(texture));
+		textures.emplace_back(Texture(textureDataPtr, newType));
 	}
 	return std::move(textures);
 }

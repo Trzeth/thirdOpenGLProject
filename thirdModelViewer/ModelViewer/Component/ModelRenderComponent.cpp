@@ -3,7 +3,7 @@
 #include "ModelRenderComponent.h"
 #include "ModelViewer/Extra/PrefabConstructionInfo.h"
 
-ComponentConstructorInfo ModelRenderComponentConstructor::Construct(World& world, eid_t parent, void* userinfo) const
+ComponentConstructorInfo ModelRenderComponentConstructor::Construct(World& world, eid_t parent, void* userinfo)
 {
 	ModelRenderComponent* component = new ModelRenderComponent();
 	component->rendererHandle = renderer.GetRenderableHandle(modelHandle, shader);

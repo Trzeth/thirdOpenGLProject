@@ -14,6 +14,7 @@ public:
 
 	void Draw();
 	void Update(float dt) { }
+	bool IsVisible() { return true; }
 
 private:
 	void drawMetricsWindow();

@@ -37,7 +37,6 @@ public:
 
 	void SetParent(const std::shared_ptr<Transform>& parent);
 
-	void* userData;
 	static const Transform identity;
 
 	static const glm::vec3 UP;

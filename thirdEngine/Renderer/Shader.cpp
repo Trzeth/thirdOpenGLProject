@@ -1,41 +1,76 @@
 #include "Shader.h"
-#include "ShaderImpl.h"
+#include "RenderUtil.h"
+
+#include <glad/glad.h>
 
 using namespace std;
 
-Shader::Shader() : impl(new ShaderImpl())
-{ }
-
-Shader::Shader(GLuint shaderID)
-	: impl(make_unique<ShaderImpl>(shaderID))
-{ }
-
-Shader::Shader(std::unique_ptr<ShaderImpl>&& impl)
-	: impl(std::move(impl))
-{ }
-
-Shader::~Shader()
+Shader::Data::~Data()
 {
-	if (!impl)return;
+	glDeleteProgram(id);
+};
 
-	glDeleteProgram(impl->GetID());
+Shader::Shader()
+	:data()
+{
+	projectionUniform = 0;
+	viewUniform = 0;
+	modelUniform = 0;
+	viewPosUniform = 0;
 }
 
-Shader::Shader(Shader&& other) noexcept
+Shader::Shader(std::shared_ptr<Shader::Data> data)
+	: data(data)
 {
-	*this = std::move(other);
+	projectionUniform = this->GetUniformLocation("projection");
+	viewUniform = this->GetUniformLocation("view");
+	modelUniform = this->GetUniformLocation("model");
+	viewPosUniform = this->GetUniformLocation("viewPos");
 }
 
-Shader& Shader::operator=(Shader&& other) noexcept
+void Shader::Use() const
 {
-	impl = std::move(other.impl);
+	glUseProgram(data->id);
+	glCheckError();
+}
 
-	return *this;
+GLuint Shader::GetID() const
+{
+	return data->id;
+}
+
+GLint Shader::GetUniformLocation(const std::string& uniformIdentifier) const
+{
+	return glGetUniformLocation(data->id, uniformIdentifier.c_str());
+}
+
+void Shader::SetViewMatrix(const glm::mat4& matrix) const
+{
+	glUniformMatrix4fv(viewUniform, 1, GL_FALSE, &matrix[0][0]);
+	glCheckError();
+}
+
+void Shader::SetProjectionMatrix(const glm::mat4& matrix) const
+{
+	glUniformMatrix4fv(projectionUniform, 1, GL_FALSE, &matrix[0][0]);
+	glCheckError();
+}
+
+void Shader::SetModelMatrix(const glm::mat4& matrix) const
+{
+	glUniformMatrix4fv(modelUniform, 1, GL_FALSE, &matrix[0][0]);
+	glCheckError();
+}
+
+void Shader::SetViewPos(const glm::vec3& pos) const
+{
+	glUniform3f(viewPosUniform, pos.x, pos.y, pos.z);
+	glCheckError();
 }
 
 bool Shader::IsValid()
 {
-	return impl && impl->GetID() != 0;
+	return data != nullptr;
 }
 
 Shader ShaderLoader::BuildFromFile(const std::string& vertexShaderPath, const std::string& fragmentShaderPath)
@@ -127,6 +162,7 @@ Shader ShaderLoader::BuildFromString(const std::string& vertexShader, const std:
 
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
+
 	/*
 #if _DEBUG
 	GLint uniformCount;
@@ -141,5 +177,5 @@ Shader ShaderLoader::BuildFromString(const std::string& vertexShader, const std:
 #endif
 */
 
-	return Shader(make_unique<ShaderImpl>(ID));
+	return Shader(make_shared<Shader::Data>(ID));
 }

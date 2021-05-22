@@ -15,7 +15,7 @@ public:
 	ModelRenderComponentConstructor(Renderer& renderer, const Renderer::ModelHandle& modelHandle, const Shader& shader, const std::string& defaultAnimation = "")
 		: renderer(renderer), modelHandle(modelHandle), shader(shader), defaultAnimation(defaultAnimation) { }
 
-	virtual ComponentConstructorInfo Construct(World& world, eid_t parent, void* userinfo)const;
+	virtual ComponentConstructorInfo Construct(World& world, eid_t parent, void* userinfo);
 
 	virtual void Finish(World& world, eid_t entity);
 private:

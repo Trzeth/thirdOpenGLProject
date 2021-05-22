@@ -116,7 +116,7 @@ void Sidebar::drawMaterialWindow()
 		objectViewerComponent->materialReloadFlag = true;
 	}
 
-	drawMaterialProperties(objectViewerComponent->materialList[objectViewerComponent->currentMaterialIndex].material->GetProperties());
+	drawMaterialProperties(objectViewerComponent->materialList[objectViewerComponent->currentMaterialIndex].material.GetProperties());
 
 	ImGui::End();
 }
@@ -147,7 +147,7 @@ void Sidebar::drawMaterialProperties(std::map<std::string, MaterialProperty>& pr
 			break;
 		}
 		case MaterialPropertyType::Texture:
-			if (property.value->texture.type != TextureType::Cubemap)
+			if (property.value->texture.GetType() != TextureType::Cubemap)
 			{
 				if (ImGui::Button(std::string("New Texture:" + name).c_str()))
 					ImGuiFileDialog::Instance()->OpenModal("TextureDlg" + name, "Choose File", "Texture file format{.jpg,.png,.tga,.JPG,.PNG,.TGA}", ".");
@@ -158,7 +158,7 @@ void Sidebar::drawMaterialProperties(std::map<std::string, MaterialProperty>& pr
 					if (ImGuiFileDialog::Instance()->IsOk())
 					{
 						TextureLoader textureLoader;
-						Texture texture = textureLoader.LoadFromFile(property.value->texture.type, ImGuiFileDialog::Instance()->GetFilePathName());
+						Texture texture = textureLoader.LoadFromFile(property.value->texture.GetType(), ImGuiFileDialog::Instance()->GetFilePathName());
 						property.value = std::make_unique<MaterialPropertyValue>(texture);
 						// action
 					}

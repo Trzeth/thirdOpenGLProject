@@ -61,7 +61,7 @@ int ModelViewer::setup()
 	sceneInfo.world = &world;
 	sceneInfo.renderer = &renderer;
 	sceneInfo.uiRenderer = &uiRenderer;
-	defaultScene = std::make_unique<DefaultScene>(sceneInfo, eventManager);
+	defaultScene = std::make_unique<TestScene>(sceneInfo, eventManager);
 	defaultScene->Setup();
 
 	return 0;

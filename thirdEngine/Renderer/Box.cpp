@@ -1,6 +1,8 @@
+#include <glm/gtc/type_ptr.hpp>
+#include <glad/glad.h>
+
 #include "Box.h"
 #include "Shader.h"
-#include <glm/gtc/type_ptr.hpp>
 
 static const GLfloat vertex_data[] = {
 	// Positions           // Normals           // Texture Coords
@@ -61,14 +63,13 @@ Model Box::GetBox(const std::vector<Texture>& textures, glm::vec3 scale, glm::ve
 		indexes[i] = i;
 	}
 
-	std::shared_ptr<Material> material = std::make_shared<Material>();
-	material->SetTextures(std::move(textures));
+	Material material;
+	material.SetTextures(textures);
 
-	Mesh mesh(vertices, indexes, material);
-	Model model;
-	model.meshes = std::vector<Mesh>{ mesh };
-	model.meshesTransform = std::vector<std::vector<glm::mat4>>{ std::vector<glm::mat4>{glm::mat4(1.0)} };
-	return model;
+	return ModelBuilder::BuildFromSingleMesh(
+		MeshBuilder::BuildFromVertices(vertices, indexes, material),
+		glm::mat4(1.0f)
+	);
 }
 
 GLfloat skybox_verts[] = {
@@ -132,13 +133,13 @@ Model Box::GetSkybox(const std::string& directory, const std::vector<std::string
 	std::vector<Texture> textures;
 	textures.emplace_back(textureLoader.LoadCubemap(directory, filename));
 
-	std::shared_ptr<Material> material = std::make_shared<Material>();
-	material->SetTextures(std::move(textures));
+	Material material;
+	material.SetTextures(textures);
 
-	Model model;
-	model.meshes.emplace_back(Mesh(vertices, indexes, material));
-	model.meshesTransform = std::vector<std::vector<glm::mat4>>{ std::vector<glm::mat4>{glm::mat4(1.0)} };
-	return model;
+	return ModelBuilder::BuildFromSingleMesh(
+		MeshBuilder::BuildFromVertices(vertices, indexes, material),
+		glm::mat4(1.0f)
+	);
 }
 
 HDRSkyboxReturn Box::GetHDRSkybox(const std::string& filename)
@@ -185,15 +186,15 @@ HDRSkyboxReturn Box::GetHDRSkybox(const std::string& filename)
 	Shader equirectangularToCubemapShader = shaderLoader.BuildFromString(equirectangularToCubemapShaderVS, equirectangularToCubemapShaderFS);
 
 	// convert HDR equirectangular environment map to cubemap equivalent
-	equirectangularToCubemapShader.impl->Use();
-	glUniform1i(equirectangularToCubemapShader.impl->GetUniformLocation("equirectangularMap"), 0);
-	equirectangularToCubemapShader.impl->SetProjectionMatrix(captureProjection);
+	equirectangularToCubemapShader.Use();
+	glUniform1i(equirectangularToCubemapShader.GetUniformLocation("equirectangularMap"), 0);
+	equirectangularToCubemapShader.SetProjectionMatrix(captureProjection);
 
 	TextureLoader textureLoader;
 	Texture hdrTexture = textureLoader.LoadHDR(filename);
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, hdrTexture.impl->id);
+	hdrTexture.Bind();
 
 	glViewport(0, 0, 512, 512); // don't forget to configure the viewport to the capture dimensions.
 	glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
@@ -202,12 +203,12 @@ HDRSkyboxReturn Box::GetHDRSkybox(const std::string& filename)
 	box.GenVAO();
 	for (unsigned int i = 0; i < 6; ++i)
 	{
-		equirectangularToCubemapShader.impl->SetViewMatrix(captureViews[i]);
+		equirectangularToCubemapShader.SetViewMatrix(captureViews[i]);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
 			GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, envCubemap, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		box.meshes[0].Draw();
+		box.data->meshes[0].Draw();
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -237,10 +238,10 @@ HDRSkyboxReturn Box::GetHDRSkybox(const std::string& filename)
 	const std::string irradianceShaderFS("#version 330 core\n out vec4 FragColor; in vec3 WorldPos; uniform samplerCube environmentMap; const float PI = 3.14159265359; void main() {		vec3 N = normalize(WorldPos); vec3 irradiance = vec3(0.0);   vec3 up    = vec3(0.0, 1.0, 0.0); vec3 right = normalize(cross(up, N)); up         = normalize(cross(N, right)); float sampleDelta = 0.025; float nrSamples = 0.0; for(float phi = 0.0; phi < 2.0 * PI; phi += sampleDelta) { for(float theta = 0.0; theta < 0.5 * PI; theta += sampleDelta) { vec3 tangentSample = vec3(sin(theta) * cos(phi),  sin(theta) * sin(phi), cos(theta)); vec3 sampleVec = tangentSample.x * right + tangentSample.y * up + tangentSample.z * N; irradiance += texture(environmentMap, sampleVec).rgb * cos(theta) * sin(theta); nrSamples++; } } irradiance = PI * irradiance * (1.0 / float(nrSamples)); FragColor = vec4(irradiance, 1.0); }");
 	Shader irradianceShader = shaderLoader.BuildFromString(irradianceShaderVS, irradianceShaderFS);
 
-	irradianceShader.impl->Use();
-	glUniform1i(irradianceShader.impl->GetUniformLocation("environmentMap"), 0);
+	irradianceShader.Use();
+	glUniform1i(irradianceShader.GetUniformLocation("environmentMap"), 0);
 
-	irradianceShader.impl->SetProjectionMatrix(captureProjection);
+	irradianceShader.SetProjectionMatrix(captureProjection);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
 
@@ -248,11 +249,11 @@ HDRSkyboxReturn Box::GetHDRSkybox(const std::string& filename)
 	glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
 	for (unsigned int i = 0; i < 6; ++i)
 	{
-		irradianceShader.impl->SetViewMatrix(captureViews[i]);
+		irradianceShader.SetViewMatrix(captureViews[i]);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, irradianceMap, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		box.meshes[0].Draw();
+		box.data->meshes[0].Draw();
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -279,9 +280,9 @@ HDRSkyboxReturn Box::GetHDRSkybox(const std::string& filename)
 	const std::string prefilterShaderFS("#version 330 core\n out vec4 FragColor; in vec3 WorldPos; uniform samplerCube environmentMap; uniform float roughness; const float PI = 3.14159265359; float DistributionGGX(vec3 N, vec3 H, float roughness) { float a = roughness*roughness; float a2 = a*a; float NdotH = max(dot(N, H), 0.0); float NdotH2 = NdotH*NdotH; float nom   = a2; float denom = (NdotH2 * (a2 - 1.0) + 1.0); denom = PI * denom * denom; return nom / denom; } float RadicalInverse_VdC(uint bits) { bits = (bits << 16u) | (bits >> 16u); bits = ((bits & 0x55555555u) << 1u) | ((bits & 0xAAAAAAAAu) >> 1u); bits = ((bits & 0x33333333u) << 2u) | ((bits & 0xCCCCCCCCu) >> 2u); bits = ((bits & 0x0F0F0F0Fu) << 4u) | ((bits & 0xF0F0F0F0u) >> 4u); bits = ((bits & 0x00FF00FFu) << 8u) | ((bits & 0xFF00FF00u) >> 8u); return float(bits) * 2.3283064365386963e-10; } vec2 Hammersley(uint i, uint N) { return vec2(float(i)/float(N), RadicalInverse_VdC(i)); } vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness) { float a = roughness*roughness; float phi = 2.0 * PI * Xi.x; float cosTheta = sqrt((1.0 - Xi.y) / (1.0 + (a*a - 1.0) * Xi.y)); float sinTheta = sqrt(1.0 - cosTheta*cosTheta); vec3 H; H.x = cos(phi) * sinTheta; H.y = sin(phi) * sinTheta; H.z = cosTheta; vec3 up          = abs(N.z) < 0.999 ? vec3(0.0, 0.0, 1.0) : vec3(1.0, 0.0, 0.0); vec3 tangent   = normalize(cross(up, N)); vec3 bitangent = cross(N, tangent); vec3 sampleVec = tangent * H.x + bitangent * H.y + N * H.z; return normalize(sampleVec); } void main() {		vec3 N = normalize(WorldPos); vec3 R = N; vec3 V = R; const uint SAMPLE_COUNT = 1024u; vec3 prefilteredColor = vec3(0.0); float totalWeight = 0.0; for(uint i = 0u; i < SAMPLE_COUNT; ++i) { vec2 Xi = Hammersley(i, SAMPLE_COUNT); vec3 H = ImportanceSampleGGX(Xi, N, roughness); vec3 L  = normalize(2.0 * dot(V, H) * H - V); float NdotL = max(dot(N, L), 0.0); if(NdotL > 0.0) { float D   = DistributionGGX(N, H, roughness); float NdotH = max(dot(N, H), 0.0); float HdotV = max(dot(H, V), 0.0); float pdf = D * NdotH / (4.0 * HdotV) + 0.0001; float resolution = 512.0; float saTexel  = 4.0 * PI / (6.0 * resolution * resolution); float saSample = 1.0 / (float(SAMPLE_COUNT) * pdf + 0.0001); float mipLevel = roughness == 0.0 ? 0.0 : 0.5 * log2(saSample / saTexel); prefilteredColor += textureLod(environmentMap, L, mipLevel).rgb * NdotL; totalWeight      += NdotL; } } prefilteredColor = prefilteredColor / totalWeight; FragColor = vec4(prefilteredColor, 1.0); }");
 	Shader prefilterShader = shaderLoader.BuildFromString(prefilterShaderVS, prefilterShaderFS);
 
-	prefilterShader.impl->Use();
-	glUniform1i(prefilterShader.impl->GetUniformLocation("environmentMap"), 0);
-	prefilterShader.impl->SetProjectionMatrix(captureProjection);
+	prefilterShader.Use();
+	glUniform1i(prefilterShader.GetUniformLocation("environmentMap"), 0);
+	prefilterShader.SetProjectionMatrix(captureProjection);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
 
@@ -297,16 +298,16 @@ HDRSkyboxReturn Box::GetHDRSkybox(const std::string& filename)
 		glViewport(0, 0, mipWidth, mipHeight);
 
 		float roughness = (float)mip / (float)(maxMipLevels - 1);
-		glUniform1f(prefilterShader.impl->GetUniformLocation("roughness"), roughness);
+		glUniform1f(prefilterShader.GetUniformLocation("roughness"), roughness);
 
 		for (unsigned int i = 0; i < 6; ++i)
 		{
-			prefilterShader.impl->SetViewMatrix(captureViews[i]);
+			prefilterShader.SetViewMatrix(captureViews[i]);
 
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, prefilterMap, mip);
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			box.meshes[0].Draw();
+			box.data->meshes[0].Draw();
 		}
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -336,7 +337,7 @@ HDRSkyboxReturn Box::GetHDRSkybox(const std::string& filename)
 	const std::string brdfShaderVS("#version 330 core\n layout (location = 0) in vec3 aPos; layout (location = 1) in vec2 aTexCoords; out vec2 TexCoords; void main() { TexCoords = aTexCoords; gl_Position = vec4(aPos, 1.0); }");
 	const std::string brdfShaderFS("#version 330 core\n out vec2 FragColor; in vec2 TexCoords; const float PI = 3.14159265359; float RadicalInverse_VdC(uint bits) { bits = (bits << 16u) | (bits >> 16u); bits = ((bits & 0x55555555u) << 1u) | ((bits & 0xAAAAAAAAu) >> 1u); bits = ((bits & 0x33333333u) << 2u) | ((bits & 0xCCCCCCCCu) >> 2u); bits = ((bits & 0x0F0F0F0Fu) << 4u) | ((bits & 0xF0F0F0F0u) >> 4u); bits = ((bits & 0x00FF00FFu) << 8u) | ((bits & 0xFF00FF00u) >> 8u); return float(bits) * 2.3283064365386963e-10; } vec2 Hammersley(uint i, uint N) { return vec2(float(i)/float(N), RadicalInverse_VdC(i)); } vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness) { float a = roughness*roughness; float phi = 2.0 * PI * Xi.x; float cosTheta = sqrt((1.0 - Xi.y) / (1.0 + (a*a - 1.0) * Xi.y)); float sinTheta = sqrt(1.0 - cosTheta*cosTheta); vec3 H; H.x = cos(phi) * sinTheta; H.y = sin(phi) * sinTheta; H.z = cosTheta; vec3 up          = abs(N.z) < 0.999 ? vec3(0.0, 0.0, 1.0) : vec3(1.0, 0.0, 0.0); vec3 tangent   = normalize(cross(up, N)); vec3 bitangent = cross(N, tangent); vec3 sampleVec = tangent * H.x + bitangent * H.y + N * H.z; return normalize(sampleVec); } float GeometrySchlickGGX(float NdotV, float roughness) { float a = roughness; float k = (a * a) / 2.0; float nom   = NdotV; float denom = NdotV * (1.0 - k) + k; return nom / denom; } float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness) { float NdotV = max(dot(N, V), 0.0); float NdotL = max(dot(N, L), 0.0); float ggx2 = GeometrySchlickGGX(NdotV, roughness); float ggx1 = GeometrySchlickGGX(NdotL, roughness); return ggx1 * ggx2; } vec2 IntegrateBRDF(float NdotV, float roughness) { vec3 V; V.x = sqrt(1.0 - NdotV*NdotV); V.y = 0.0; V.z = NdotV; float A = 0.0; float B = 0.0; vec3 N = vec3(0.0, 0.0, 1.0); const uint SAMPLE_COUNT = 1024u; for(uint i = 0u; i < SAMPLE_COUNT; ++i) { vec2 Xi = Hammersley(i, SAMPLE_COUNT); vec3 H = ImportanceSampleGGX(Xi, N, roughness); vec3 L = normalize(2.0 * dot(V, H) * H - V); float NdotL = max(L.z, 0.0); float NdotH = max(H.z, 0.0); float VdotH = max(dot(V, H), 0.0); if(NdotL > 0.0) { float G = GeometrySmith(N, V, L, roughness); float G_Vis = (G * VdotH) / (NdotH * NdotV); float Fc = pow(1.0 - VdotH, 5.0); A += (1.0 - Fc) * G_Vis; B += Fc * G_Vis; } } A /= float(SAMPLE_COUNT); B /= float(SAMPLE_COUNT); return vec2(A, B); } void main() { vec2 integratedBRDF = IntegrateBRDF(TexCoords.x, TexCoords.y); FragColor = integratedBRDF; }");
 	Shader brdfShader = shaderLoader.BuildFromString(brdfShaderVS, brdfShaderFS);
-	brdfShader.impl->Use();
+	brdfShader.Use();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	unsigned int quadVAO;
@@ -367,7 +368,7 @@ HDRSkyboxReturn Box::GetHDRSkybox(const std::string& filename)
 
 	// -----------------------------------------------------------------------------
 
-	Texture cubemap(std::make_unique<TextureImpl>(TextureType::Cubemap, envCubemap));
+	Texture cubemap(std::make_shared<Texture::Data>(envCubemap), TextureType::Cubemap);
 
 	std::vector<Vertex> vertices(36);
 	for (unsigned int i = 0; i < vertices.size(); i++) {
@@ -379,20 +380,18 @@ HDRSkyboxReturn Box::GetHDRSkybox(const std::string& filename)
 		indexes[i] = i;
 	}
 
-	std::shared_ptr<Material> material = std::make_shared<Material>();
-	material->SetTextures(std::vector<Texture>{cubemap});
-	Mesh mesh(vertices, indexes, material);
-
-	Model model;
-	model.meshes = std::vector<Mesh>{ mesh };
-	model.meshesTransform = std::vector<std::vector<glm::mat4>>{ std::vector<glm::mat4>{glm::mat4(1.0)} };
+	Material material;
+	material.SetTextures(std::vector<Texture>{cubemap});
 
 	HDRSkyboxReturn val;
-	val.HDRSkybox = model;
+	val.HDRSkybox = ModelBuilder::BuildFromSingleMesh(
+		MeshBuilder::BuildFromVertices(vertices, indexes, material),
+		glm::mat4(1.0f)
+	);
 
-	val.Irradiancemap = Texture(std::make_unique<TextureImpl>(TextureType::Cubemap, irradianceMap));
-	val.Prefiltermap = Texture(std::make_unique<TextureImpl>(TextureType::Cubemap, prefilterMap));
-	val.BRDFLUT = Texture(std::make_unique<TextureImpl>(TextureType::Diffuse, brdfLUTTexture));
+	val.Irradiancemap = Texture(std::make_shared<Texture::Data>(irradianceMap), TextureType::Cubemap);
+	val.Prefiltermap = Texture(std::make_shared<Texture::Data>(prefilterMap), TextureType::Cubemap);
+	val.BRDFLUT = Texture(std::make_shared<Texture::Data>(brdfLUTTexture), TextureType::Diffuse);
 
 	return val;
 }
@@ -423,11 +422,11 @@ Model Box::GetPlane(const std::vector<Texture>& textures, glm::vec3 ubasis, glm:
 	indices.push_back(3);
 	indices.push_back(2);
 
-	std::shared_ptr<Material> material = std::make_shared<Material>();
-	material->SetTextures(textures);
-	Mesh mesh(vertices, indices, material);
+	Material material;
+	material.SetTextures(textures);
 
-	Model model;
-	model.meshes = std::vector<Mesh>{ mesh };
-	return model;
+	return ModelBuilder::BuildFromSingleMesh(
+		MeshBuilder::BuildFromVertices(vertices, indices, material),
+		glm::mat4(1.0f)
+	);
 }

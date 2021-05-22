@@ -5,7 +5,7 @@
 #include "ModelViewer/UIElement/Sidebar.h"
 #include "ModelViewer/UIElement/DockSpace.h"
 
-ComponentConstructorInfo InspectorComponentConstructor::Construct(World& world, eid_t parent, void* userinfo) const
+ComponentConstructorInfo InspectorComponentConstructor::Construct(World& world, eid_t parent, void* userinfo)
 {
 	eid_t viewer = *(eid_t*)userinfo;
 

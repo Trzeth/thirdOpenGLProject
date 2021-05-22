@@ -10,27 +10,54 @@ enum class TextureType {
 	HDR
 };
 
-struct TextureImpl;
+typedef unsigned int GLuint;
 
-struct Texture
+class Texture
 {
+public:
+	struct Data;
+
 	Texture();
-	Texture(std::unique_ptr<TextureImpl>&& impl);
+	Texture(std::shared_ptr<Texture::Data> data, TextureType type);
 
-	~Texture();
+	TextureType GetType() const;
+	void SetType(TextureType type);
 
-	Texture(const Texture& other);
-	Texture& operator=(const Texture& other);
+	void Bind() const;
+	GLuint GetID() const;
+private:
+	std::shared_ptr<Data> data;
+	TextureType type;
+};
 
-	Texture(Texture&& other) noexcept;
-	Texture& operator=(Texture&& other) noexcept;
+struct Texture::Data
+{
+	Data() :id(0) { }
+	Data(GLuint id) :id(id) { }
 
-	std::unique_ptr<TextureImpl> impl;
+	Data(const Data& other) = delete;
+	Data& operator=(const Data& other) = delete;
+
+	Data(Data&& d) noexcept {
+		*this = std::move(d);
+	}
+	Data& operator=(Data&& other) noexcept {
+		id = other.id;
+		other.id = 0;
+		return *this;
+	}
+
+	~Data();
+
+	//Texture Id
+	GLuint id;
 };
 
 struct TextureLoader
 {
+	Texture::Data LoadFromFile(const std::string& imageLocation);
 	Texture LoadFromFile(TextureType type, const std::string& imageLocation);
+
 	Texture LoadCubemap(const std::string& directory, const std::vector<std::string>& filename);
 	Texture LoadHDR(const std::string& filename);
 };

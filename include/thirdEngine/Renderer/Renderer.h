@@ -19,10 +19,10 @@ struct DirLight
 };
 
 /*! Different render spaces. */
-enum RenderSpace
+enum class RenderSpace
 {
 	/*! Render in worldspace. */
-	RenderSpace_World,
+	World,
 };
 
 constexpr unsigned int maxPointLights = 64;
@@ -34,7 +34,7 @@ public:
 	/*! Shader cache. Stores a shader along with its uniform locations. */
 	struct ShaderCache
 	{
-		ShaderCache(const std::shared_ptr<Shader>& shader);
+		ShaderCache(const Shader& shader);
 
 		struct PointLightCache
 		{
@@ -57,7 +57,7 @@ public:
 			GLuint specular;
 		};
 
-		std::shared_ptr<Shader> shader;
+		Shader shader;
 		DirLightCache dirLight;
 		std::vector<PointLightCache> pointLights;
 		std::vector<GLuint> bones;
@@ -69,10 +69,16 @@ public:
 	their own transforms. */
 	struct Entity
 	{
-		Entity(const std::shared_ptr<Shader>& shader, HandlePool<Model>::Handle modelHandle, bool animatable)
-			: shaderCache(shader), modelHandle(modelHandle), animatable(animatable), space(RenderSpace_World), loopAnimation(false), autoUpdate(true), time(0), transform(1.0f) { }
+		Entity(const Shader& shader, HandlePool<Model>::Handle modelHandle, bool animatable)
+			: shaderCache(shader), modelHandle(modelHandle), space(RenderSpace::World),
+			animatable(animatable), loopAnimation(false), autoUpdate(true), time(0),
+			transform(1.0f), culling(true)
+		{ }
 
 		HandlePool<Model>::Handle modelHandle;
+
+		bool culling;
+
 		ShaderCache shaderCache;
 		glm::mat4 transform;
 
@@ -122,7 +128,9 @@ public:
 
 	void SetRenderableTransform(const RenderableHandle& handle, const glm::mat4& transform);
 
-	void SetRenderableMaterial(const RenderableHandle& handle, const std::shared_ptr<Material>& material);
+	void SetRenderableMaterial(const RenderableHandle& handle, const Material& material);
+
+	void SetRenderableShader(const RenderableHandle& handle, const Shader& shader);
 
 	void SetViewport(int w, int h);
 
@@ -138,9 +146,9 @@ public:
 
 	float GetRenderableAnimationTime(const RenderableHandle& handle);
 
-	ModelHandle GetModelHandle(Model&& model);
+	ModelHandle GetModelHandle(Model model);
 
-	RenderableHandle GetRenderableHandle(const ModelHandle& modelHandle, const std::shared_ptr<Shader>& shader);
+	RenderableHandle GetRenderableHandle(const ModelHandle& modelHandle, const Shader& shader);
 
 	void ClearBuffer() const;
 
@@ -161,6 +169,12 @@ private:
 	glm::mat4 projectionMatrix;
 	glm::mat4 viewMatrix;
 	glm::vec3 viewPos;
+
+	Model debugBoundingSphere;
+
+	std::vector<glm::vec4> frustum;
+
+	GLuint baseMatrixUBO;
 
 	int viewportWidth;
 	int viewportHeight;

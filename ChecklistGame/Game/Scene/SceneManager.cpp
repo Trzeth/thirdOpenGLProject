@@ -95,7 +95,7 @@ void SceneManager::Draw()
 		ImGui::SetWindowSize(ImVec2(400, 583));
 
 		ImGui::SetWindowPos(ImVec2(viewport->Size.x / 2 - (400 / 2), viewport->Size.y / 2 - (583 / 2)));
-		ImGui::Image((void*)(intptr_t)loadingImage[curPos].impl->id, ImVec2(400, 583));
+		ImGui::Image((void*)(intptr_t)loadingImage[curPos].GetID(), ImVec2(400, 583));
 
 		ImGui::End();
 	}

@@ -7,6 +7,7 @@
 
 struct PhysicsDebugDrawer::Impl
 {
+	//因为是单例 要不等它自动释放吧
 	GLuint VAO, VBO, VBO_color;
 	Shader shader;
 };
@@ -56,10 +57,10 @@ void PhysicsDebugDrawer::Draw()
 		return;
 	}
 
-	impl->shader.impl->Use();
-	impl->shader.impl->SetModelMatrix(glm::mat4(1.0f));
-	impl->shader.impl->SetProjectionMatrix(camera->GetProjectionMatrix());
-	impl->shader.impl->SetViewMatrix(camera->GetViewMatrix());
+	impl->shader.Use();
+	impl->shader.SetModelMatrix(glm::mat4(1.0f));
+	impl->shader.SetProjectionMatrix(camera->GetProjectionMatrix());
+	impl->shader.SetViewMatrix(camera->GetViewMatrix());
 
 	glBindVertexArray(impl->VAO);
 

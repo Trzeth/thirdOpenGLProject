@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Frustum.h"
+#include <glm/glm.hpp>
 
 class Camera
 {
@@ -19,9 +19,6 @@ public:
 	void SetInverseViewMatrix(const glm::mat4& inverseViewMatrix);
 	glm::mat4 GetInverseViewMatrix();
 
-	Frustum GetFrustum();
-	Frustum GetFrustum() const;
-
 	void SetFOV(float fov);
 	void SetScreenSize(unsigned int w, unsigned int h);
 	void SetClip(float near, float far);
@@ -33,9 +30,4 @@ private:
 	float farClip;
 
 	glm::mat4 inverseViewMatrix;
-
-	Frustum computeFrustum() const;
-
-	Frustum cachedFrustum;
-	bool frustumIsDirty;
 };

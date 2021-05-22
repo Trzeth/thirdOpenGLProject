@@ -7,9 +7,7 @@
 #include <glm/glm.hpp>
 
 #include "Shader.h"
-#include "ShaderImpl.h"
 #include "Texture.h"
-#include "TextureImpl.h"
 
 enum class MaterialDrawOrder
 {
@@ -29,6 +27,7 @@ enum class MaterialPropertyType
 	Vec4,
 	Texture,
 	Float,
+	Int,
 	Invalid
 };
 
@@ -37,16 +36,14 @@ union MaterialPropertyValue {
 	MaterialPropertyValue(glm::vec3 vec3) : vec3(vec3) { }
 	MaterialPropertyValue(glm::vec4 vec4) : vec4(vec4) { }
 	MaterialPropertyValue(float flt) : flt(flt) { }
+	MaterialPropertyValue(int val) :integer(val) { }
 	MaterialPropertyValue(const Texture& texture) : texture(texture) { }
-	MaterialPropertyValue(Texture&& texture) : texture(std::move(texture)) { }
 	~MaterialPropertyValue() { }
-
-	MaterialPropertyValue(const MaterialPropertyValue& other) = delete;
-	MaterialPropertyValue& operator=(const MaterialPropertyValue& other) = delete;
 
 	glm::vec3 vec3;
 	glm::vec4 vec4;
 	float flt;
+	int integer;
 	Texture texture;
 };
 
@@ -56,15 +53,12 @@ struct MaterialProperty
 	MaterialProperty(glm::vec3 vec3);
 	MaterialProperty(glm::vec4 vec4);
 	MaterialProperty(float flt);
+	MaterialProperty(int val);
 	MaterialProperty(const Texture& texture);
-	MaterialProperty(Texture&& texture);
 	~MaterialProperty();
 
 	MaterialProperty(const MaterialProperty& property);
 	MaterialProperty& operator=(const MaterialProperty& other);
-
-	MaterialProperty(MaterialProperty&& other) noexcept;
-	MaterialProperty& operator=(MaterialProperty&& other) noexcept;
 
 	MaterialPropertyType type;
 	std::unique_ptr<MaterialPropertyValue> value;
@@ -76,25 +70,14 @@ class Material
 {
 public:
 	Material();
-	~Material() {
-		if (properties.size() > 0)
-			printf("De");
-	}
-
-	Material(const Material& other) = default;
-	Material& operator=(const Material& other) = default;
-
-	Material(Material&& other) noexcept;
-	Material& operator=(Material&& other) noexcept;
 
 	void SetProperty(const std::string& key, const MaterialProperty& property);
 	void SetProperty(const std::string& key, MaterialProperty&& property);
 
+	// Short Hand maybe not useful
 	void SetTextures(const std::vector<Texture>& textures);
-	void SetTextures(std::vector<Texture>&& textures);
 
-	void Apply(const std::shared_ptr<Shader>& shader)const;
-	void Apply(const ShaderImpl& shader)const;
+	void Apply(const Shader& shader)const;
 
 	std::map<std::string, MaterialProperty>& GetProperties();
 

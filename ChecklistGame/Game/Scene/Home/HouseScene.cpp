@@ -43,15 +43,15 @@ void HouseScene::setupPrefab()
 		glm::mat4 houseModelMat4(1.0f);
 		houseModelMat4 *= glm::scale(houseModelMat4, glm::vec3(0.4f));
 
-		Model houseModel = modelLoader.LoadModel("Resources/Room/Room.FBX", houseModelMat4);
-		Renderer::ModelHandle houseModelHandle = renderer.GetModelHandle(std::move(houseModel));
+		Model houseModel = modelLoader.LoadFromFile("Resources/CG_Town/NewTown_Scale.FBX", ModelLoadingPrefab::Optimize, houseModelMat4, true);
+		Renderer::ModelHandle houseModelHandle = renderer.GetModelHandle(houseModel);
 
 		housePrefab.SetName("HouseModel");
 
 		plainShader = shaderLoader.BuildFromFile("Shaders/plainShader.vs", "Shaders/plainShader.fs");
 
 		housePrefab.AddConstructor(new TransformComponentConstructor());
-		housePrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, houseModelHandle, std::move(plainShader)));
+		housePrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, houseModelHandle, plainShader));
 
 		b2BodyDef bodyDef;
 
@@ -111,22 +111,22 @@ void HouseScene::setupPrefab()
 		playerModelMat4 *= glm::scale(playerModelMat4, glm::vec3(0.5f));
 		playerModelMat4 *= glm::mat4_cast(glm::angleAxis(glm::radians(180.0f), Transform::UP));
 
-		Model playerWalkModel = modelLoader.LoadModel("Resources/Walk.DAE", playerModelMat4);
-		Model playerPickLetterModel = modelLoader.LoadModel("Resources/PickLetter.DAE", playerModelMat4);
-		Model playerPutLetterModel = modelLoader.LoadModel("Resources/PutLetter.DAE", playerModelMat4);
-		Model playerTurnAroundModel = modelLoader.LoadModel("Resources/TurnAround.DAE", playerModelMat4);
+		Model playerWalkModel = modelLoader.LoadFromFile("Resources/Walk.DAE", ModelLoadingPrefab::Default, playerModelMat4);
+		Model playerPickLetterModel = modelLoader.LoadFromFile("Resources/PickLetter.DAE", ModelLoadingPrefab::Default, playerModelMat4);
+		Model playerPutLetterModel = modelLoader.LoadFromFile("Resources/PutLetter.DAE", ModelLoadingPrefab::Default, playerModelMat4);
+		Model playerTurnAroundModel = modelLoader.LoadFromFile("Resources/TurnAround.DAE", ModelLoadingPrefab::Default, playerModelMat4);
 
 		playerPrefab.SetName("Player");
 		playerPrefab.AddConstructor(new TransformComponentConstructor());
 
 		PlayerComponent::Data playerData;
-		playerData.walk = renderer.GetModelHandle(std::move(playerWalkModel));
-		playerData.pickLetter = renderer.GetModelHandle(std::move(playerPickLetterModel));
-		playerData.putLetter = renderer.GetModelHandle(std::move(playerPutLetterModel));
-		playerData.turnAround = renderer.GetModelHandle(std::move(playerTurnAroundModel));
+		playerData.walk = renderer.GetModelHandle(playerWalkModel);
+		playerData.pickLetter = renderer.GetModelHandle(playerPickLetterModel);
+		playerData.putLetter = renderer.GetModelHandle(playerPutLetterModel);
+		playerData.turnAround = renderer.GetModelHandle(playerTurnAroundModel);
 
 		playerPrefab.AddConstructor(new PlayerComponentConstructor(playerData));
-		playerPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, playerData.walk, std::move(skinnedShader)));
+		playerPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, playerData.walk, skinnedShader));
 		b2BodyDef bodyDef;
 		bodyDef.type = b2BodyType::b2_dynamicBody;
 		bodyDef.allowSleep = false;

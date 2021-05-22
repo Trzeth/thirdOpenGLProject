@@ -80,6 +80,9 @@
     <ClCompile Include="ModelViewer\Material\MaterialLoader.cpp">
       <Filter>ModelViewer\Material</Filter>
     </ClCompile>
+    <ClCompile Include="ModelViewer\Scene\TestScene.cpp">
+      <Filter>ModelViewer\Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ModelViewer">
@@ -194,6 +197,9 @@
     </ClInclude>
     <ClInclude Include="ModelViewer\Material\MaterialLoader.h">
       <Filter>ModelViewer\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelViewer\Scene\TestScene.h">
+      <Filter>ModelViewer\Scene</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

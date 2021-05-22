@@ -55,6 +55,7 @@ public:
 	Model();
 
 	void SetMeshTransform(unsigned int meshIndex, unsigned int meshInstanceIndex, const glm::mat4& transform);
+	void SetMeshCulling(unsigned int meshIndex, bool val);
 
 	std::vector<glm::mat4> GetNodeTransforms(const std::string& animation, float time, AnimationContext& context);
 

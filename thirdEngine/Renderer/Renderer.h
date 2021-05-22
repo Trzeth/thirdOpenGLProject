@@ -170,6 +170,8 @@ private:
 	glm::mat4 viewMatrix;
 	glm::vec3 viewPos;
 
+	Model debugBoundingSphere;
+
 	std::vector<glm::vec4> frustum;
 
 	GLuint baseMatrixUBO;

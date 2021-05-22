@@ -40,42 +40,59 @@ struct AnimationData
 
 	/*! The node hierarchy. */
 	std::vector<ModelNode> nodes;
-
-	std::vector<glm::mat4> bindposeNodeTransforms;
-
-	//The mesh under node in the hierarhy
-	std::vector<std::vector<int>> meshNodeId;
 };
 
 class Model
 {
 public:
+	struct Data;
+
 	friend class ModelLoader;
+	friend class ModelBuilder;
 	friend class Box;
 	friend class Renderer;
 
 	Model();
 
+	void SetMeshTransform(unsigned int meshIndex, unsigned int meshInstanceIndex, const glm::mat4& transform);
+	void SetMeshCulling(unsigned int meshIndex, bool val);
+
 	std::vector<glm::mat4> GetNodeTransforms(const std::string& animation, float time, AnimationContext& context);
 
-	void GenVAO()const;
+	void GenVAO() const;
 
-	std::vector<std::string> GetAnimationName()const;
+	std::vector<std::string> GetAnimationName() const;
 
-protected:
+private:
 	// Material of Model Level (Maybe override by material of mesh)
-	std::shared_ptr<Material> material;
+	Material material;
 
+	std::shared_ptr<Model::Data> data;
+
+	/*! Cached transforms returned from getNodeTransforms. */
+	std::vector<glm::mat4> cachedNodeTransforms;
+};
+
+struct Model::Data {
+	Data() :meshes(), meshesTransform(), animationData() { };
+	~Data();
+	/*!
+	 * @brief Mesh
+	*/
 	std::vector<Mesh> meshes;
 
 	/*!
 	 * @brief Transform of the mesh in the hierarhy (when with animation for bindpose)
+	 * and instanced model transform buffer
 	*/
-	std::vector<std::vector<glm::mat4>> meshesTransform;
+	std::vector<std::tuple<GLuint, std::vector<glm::mat4>>> meshesTransform;
 
 	/*! All the animations. */
 	AnimationData animationData;
+};
 
-	/*! Cached transforms returned from getNodeTransforms. */
-	std::vector<glm::mat4> cachedNodeTransforms;
+class ModelBuilder {
+public:
+	static Model BuildFromMesh(const std::vector<Mesh>& meshes, const std::vector<std::vector<glm::mat4>>& meshesTransform);
+	static Model BuildFromSingleMesh(const Mesh& mesh, const glm::mat4& transform);
 };

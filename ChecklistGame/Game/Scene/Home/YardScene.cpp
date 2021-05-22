@@ -55,15 +55,15 @@ void YardScene::setupPrefab()
 
 		glm::mat4 yardModelMat4(1.0f);
 		yardModelMat4 *= glm::scale(yardModelMat4, glm::vec3(0.1f));
-		yardModelMat4 *= glm::mat4_cast(glm::angleAxis(glm::radians(180.0f), Transform::UP));
+		//yardModelMat4 *= glm::mat4_cast(glm::angleAxis(glm::radians(180.0f), Transform::UP));
 
-		Model yardModel = modelLoader.LoadModel("Resources/Scene/Scene_1_3.FBX", yardModelMat4);
-
-		Renderer::ModelHandle yardModelHandle = renderer.GetModelHandle(std::move(yardModel));
+		Model yardModel = modelLoader.LoadFromFile("Resources/CG_HOME/NewHome.FBX", ModelLoadingPrefab::Optimize, yardModelMat4, true);
+		yardModel.SetMeshCulling(74, false);
+		Renderer::ModelHandle yardModelHandle = renderer.GetModelHandle(yardModel);
 		yardPrefab.SetName("YardModel");
 
 		yardPrefab.AddConstructor(new TransformComponentConstructor());
-		yardPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, yardModelHandle, std::move(plainShader)));
+		yardPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, yardModelHandle, plainShader));
 
 		b2BodyDef bodyDef;
 
@@ -166,10 +166,10 @@ void YardScene::setupPrefab()
 		Model skyboxModel = Box::GetSkybox("Resources/skybox/", std::vector<std::string>{"right.jpg", "left.jpg", "up.jpg", "down.jpg", "front.jpg", "back.jpg"});
 		skyboxShader = shaderLoader.BuildFromFile("Shaders/skybox.vs", "Shaders/skybox.fs");
 
-		Renderer::ModelHandle skyboxModelHandle = renderer.GetModelHandle(std::move(skyboxModel));
+		Renderer::ModelHandle skyboxModelHandle = renderer.GetModelHandle(skyboxModel);
 
 		skyboxPrefab.AddConstructor(new TransformComponentConstructor());
-		skyboxPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, skyboxModelHandle, std::move(skyboxShader)));
+		skyboxPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, skyboxModelHandle, skyboxShader));
 	}
 
 	/* Player */
@@ -178,24 +178,24 @@ void YardScene::setupPrefab()
 
 		glm::mat4 playerModelMat4(1.0f);
 		playerModelMat4 *= glm::scale(playerModelMat4, glm::vec3(0.5f));
-		playerModelMat4 *= glm::mat4_cast(glm::angleAxis(glm::radians(180.0f), Transform::UP));
+		//playerModelMat4 *= glm::mat4_cast(glm::angleAxis(glm::radians(180.0f), Transform::UP));
 
-		Model playerWalkModel = modelLoader.LoadModel("Resources/Walk.DAE", playerModelMat4);
-		Model playerPickLetterModel = modelLoader.LoadModel("Resources/PickLetter.DAE", playerModelMat4);
-		Model playerPutLetterModel = modelLoader.LoadModel("Resources/PutLetter.DAE", playerModelMat4);
-		Model playerTurnAroundModel = modelLoader.LoadModel("Resources/TurnAround.DAE", playerModelMat4);
+		Model playerWalkModel = modelLoader.LoadFromFile("Resources/Walk.DAE", ModelLoadingPrefab::Default, playerModelMat4);
+		Model playerPickLetterModel = modelLoader.LoadFromFile("Resources/PickLetter.DAE", ModelLoadingPrefab::Default, playerModelMat4);
+		Model playerPutLetterModel = modelLoader.LoadFromFile("Resources/PutLetter.DAE", ModelLoadingPrefab::Default, playerModelMat4);
+		Model playerTurnAroundModel = modelLoader.LoadFromFile("Resources/TurnAround.DAE", ModelLoadingPrefab::Default, playerModelMat4);
 
 		playerPrefab.SetName("Player");
 		playerPrefab.AddConstructor(new TransformComponentConstructor());
 
 		PlayerComponent::Data playerData;
-		playerData.walk = renderer.GetModelHandle(std::move(playerWalkModel));
-		playerData.pickLetter = renderer.GetModelHandle(std::move(playerPickLetterModel));
-		playerData.putLetter = renderer.GetModelHandle(std::move(playerPutLetterModel));
-		playerData.turnAround = renderer.GetModelHandle(std::move(playerTurnAroundModel));
+		playerData.walk = renderer.GetModelHandle(playerWalkModel);
+		playerData.pickLetter = renderer.GetModelHandle(playerPickLetterModel);
+		playerData.putLetter = renderer.GetModelHandle(playerPutLetterModel);
+		playerData.turnAround = renderer.GetModelHandle(playerTurnAroundModel);
 
 		playerPrefab.AddConstructor(new PlayerComponentConstructor(playerData));
-		playerPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, playerData.walk, std::move(skinnedShader)));
+		playerPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, playerData.walk, skinnedShader));
 		b2BodyDef bodyDef;
 		bodyDef.type = b2BodyType::b2_dynamicBody;
 		bodyDef.allowSleep = false;

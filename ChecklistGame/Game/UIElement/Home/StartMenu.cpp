@@ -78,14 +78,14 @@ void StartMenu::Draw()
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0, 0, 0));
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0, 0, 0));
 
-		ImGui::Image((void*)(intptr_t)titleTexture.impl->id, ImVec2(800, 279));
+		ImGui::Image((void*)(intptr_t)titleTexture.GetID(), ImVec2(800, 279));
 
 		ImGui::Dummy(ImVec2(0.0f, 150.0f));
 
 		ImGui::Dummy(ImVec2(200.0f, 0.0f));
 		ImGui::SameLine();
 
-		if (ImGui::ImageAnimButton((void*)(intptr_t)playBtnTexture.impl->id, (void*)(intptr_t)playBtnHoverTexture.impl->id, ImVec2(400, 121)))
+		if (ImGui::ImageAnimButton((void*)(intptr_t)playBtnTexture.GetID(), (void*)(intptr_t)playBtnHoverTexture.GetID(), ImVec2(400, 121)))
 		{
 			GameStartEvent evt;
 			eventManager.SendEvent(evt);
@@ -98,7 +98,7 @@ void StartMenu::Draw()
 		ImGui::Dummy(ImVec2(200.0f, 40.0f));
 		ImGui::SameLine();
 
-		if (ImGui::ImageAnimButton((void*)(intptr_t)exitBtnTexture.impl->id, (void*)(intptr_t)exitBtnHoverTexture.impl->id, ImVec2(400, 121)))
+		if (ImGui::ImageAnimButton((void*)(intptr_t)exitBtnTexture.GetID(), (void*)(intptr_t)exitBtnHoverTexture.GetID(), ImVec2(400, 121)))
 		{
 			GameCloseEvent evt;
 			eventManager.SendEvent(evt);

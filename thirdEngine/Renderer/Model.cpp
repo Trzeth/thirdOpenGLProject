@@ -136,6 +136,11 @@ void Model::SetMeshTransform(unsigned int meshIndex, unsigned int meshInstanceIn
 	// We dont't deal with transform buffer here because of culling => see renderer.cpp
 }
 
+void Model::SetMeshCulling(unsigned int meshIndex, bool val)
+{
+	data->meshes[meshIndex].hasBoundingSphere = val;
+}
+
 void Model::GenVAO() const
 {
 	for (int i = 0; i != data->meshesTransform.size(); i++)

@@ -6,6 +6,7 @@
 
 #include <glm/gtx/norm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <Renderer/ModelLoader.h>
 
 Renderer::Renderer()
 {
@@ -59,6 +60,7 @@ void Renderer::Initialize(int width, int height)
 	viewportWidth = width;
 	viewportHeight = height;
 
+	//因为是单例 要不等它自动释放吧
 	glGenBuffers(1, &baseMatrixUBO);
 
 	glBindBuffer(GL_UNIFORM_BUFFER, baseMatrixUBO);
@@ -66,6 +68,9 @@ void Renderer::Initialize(int width, int height)
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	glBindBufferRange(GL_UNIFORM_BUFFER, 0, baseMatrixUBO, 0, 2 * sizeof(glm::mat4));
+
+	debugBoundingSphere = ModelLoader().LoadFromFile("Resources/sphere.obj");
+	debugBoundingSphere.data->meshes[0].GenVAO();
 }
 
 void Renderer::SetDirLight(const DirLight& dirLight)
@@ -385,17 +390,20 @@ void Renderer::drawInternal(RenderSpace space)
 
 			std::vector<glm::mat4> visibleMeshTransform;
 			const auto& [buffer, transforms] = model.data->meshesTransform[i];
-			for (const auto& transform : transforms) {
+			for (const auto& transform : transforms)
+			{
 				totalMeshCount++;
 
+				float t = 0.0;
 				if (mesh.hasBoundingSphere)
 				{
 					/* Culling Per Mesh */
 
 					bool visible = true;
-					auto trans = modelMatrix * transform * glm::vec4(mesh.boundingSphere.center, 1);
-					auto matrix = modelMatrix * transform;
+					auto trans = transform * modelMatrix * glm::vec4(mesh.boundingSphere.center, 1);
+					auto matrix = transform * modelMatrix;
 					float maxScale = glm::max(glm::max(matrix[0][0], matrix[1][1]), matrix[2][2]);
+					t = maxScale;
 
 					assert(frustum.size() == 6);
 					for (int i = 0; i != frustum.size(); i++)
@@ -413,8 +421,20 @@ void Renderer::drawInternal(RenderSpace space)
 					}
 				}
 
+				/*
+				glm::mat4 trans = glm::scale(glm::mat4(1.0), glm::vec3(t));
+				trans[3] = transform * modelMatrix * glm::vec4(mesh.boundingSphere.center, 1);
+				shaderCache.shader.SetModelMatrix(trans);
+				debugBoundingSphere.data->meshes[0].material.Apply(shaderCache.shader);
+				debugBoundingSphere.data->meshes[0].Draw();
+
+				shaderCache.shader.SetModelMatrix(trans * glm::mat4(1.5f));
+				debugBoundingSphere.data->meshes[0].material.Apply(shaderCache.shader);
+				debugBoundingSphere.data->meshes[0].Draw();
+				*/
+
 				vertexCount += mesh.GetIndicesCount();
-				visibleMeshTransform.push_back(modelMatrix * transform);
+				visibleMeshTransform.push_back(transform * modelMatrix);
 			}
 
 			if (buffer)

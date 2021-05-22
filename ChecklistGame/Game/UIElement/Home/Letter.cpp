@@ -26,7 +26,7 @@ void Letter::Draw()
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0, 0, 0));
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0, 0, 0));
 
-		if (ImGui::ImageButton((void*)(intptr_t)letterTexture.impl->id, ImVec2(1280, 768))) {
+		if (ImGui::ImageButton((void*)(intptr_t)letterTexture.GetID(), ImVec2(1280, 768))) {
 			isVisible = false;
 
 			YardSceneLetterCloseEvent evt;

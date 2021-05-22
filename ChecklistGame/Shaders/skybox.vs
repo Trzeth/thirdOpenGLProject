@@ -2,8 +2,11 @@
 layout (location = 0) in vec3 position;
 out vec3 textureCoords;
 
-uniform mat4 projection;
-uniform mat4 view;
+layout (std140) uniform baseMatrices
+{
+    mat4 projection;
+    mat4 view;
+};
 
 void main()
 {

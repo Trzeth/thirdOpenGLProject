@@ -7,14 +7,13 @@
 struct ModelRenderComponent :public Component
 {
 	ModelRenderComponent() :rendererHandle(nullptr) { }
-
 	Renderer::RenderableHandle rendererHandle;
 };
 
 class ModelRenderComponentConstructor :public ComponentConstructor {
 public:
-	ModelRenderComponentConstructor(Renderer& renderer, const Renderer::ModelHandle& modelHandle, Shader&& shader, const std::string& defaultAnimation = "")
-		: renderer(renderer), modelHandle(modelHandle), shader(std::move(shader)), defaultAnimation(defaultAnimation) { }
+	ModelRenderComponentConstructor(Renderer& renderer, const Renderer::ModelHandle& modelHandle, const Shader& shader, const std::string& defaultAnimation = "")
+		: renderer(renderer), modelHandle(modelHandle), shader(shader), defaultAnimation(defaultAnimation) { }
 
 	virtual ComponentConstructorInfo Construct(World& world, eid_t parent, void* userinfo);
 

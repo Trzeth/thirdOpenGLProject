@@ -25,7 +25,7 @@ void Checklist::Draw()
 		ImVec2 pos = ImGui::GetWindowPos();
 		const ImRect image_bb(pos, pos + size);
 
-		drawList->AddImage(ImTextureID(checklistTexture.impl->id), image_bb.Min, image_bb.Max);
+		drawList->AddImage(ImTextureID(checklistTexture.GetID()), image_bb.Min, image_bb.Max);
 
 		ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(221, 0, 27, 255));
 		ImGui::Text("%.0f / %f", globalVariable.currentTime, globalVariable.totalTime);

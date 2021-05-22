@@ -174,20 +174,16 @@ xcopy $(OutDir)$(TargetFileName) $(SolutionDir)lib\ /y</Command>
     <ClInclude Include="Renderer\Animation.h" />
     <ClInclude Include="Renderer\Box.h" />
     <ClInclude Include="Renderer\Camera.h" />
-    <ClInclude Include="Renderer\Frustum.h" />
     <ClInclude Include="Renderer\HandlePool.h" />
     <ClInclude Include="Renderer\Material.h" />
     <ClInclude Include="Renderer\Mesh.h" />
-    <ClInclude Include="Renderer\MeshImpl.h" />
     <ClInclude Include="Renderer\Model.h" />
     <ClInclude Include="Renderer\ModelLoader.h" />
     <ClInclude Include="Renderer\Renderer.h" />
     <ClInclude Include="Renderer\RenderUtil.h" />
     <ClInclude Include="Renderer\Shader.h" />
-    <ClInclude Include="Renderer\ShaderImpl.h" />
     <ClInclude Include="Renderer\stb_image.h" />
     <ClInclude Include="Renderer\Texture.h" />
-    <ClInclude Include="Renderer\TextureImpl.h" />
     <ClInclude Include="Renderer\UI\ImGui\imconfig.h" />
     <ClInclude Include="Renderer\UI\ImGui\imgui.h" />
     <ClInclude Include="Renderer\UI\ImGui\imgui_impl_glfw.h" />
@@ -214,7 +210,6 @@ xcopy $(OutDir)$(TargetFileName) $(SolutionDir)lib\ /y</Command>
     <ClCompile Include="Renderer\Animation.cpp" />
     <ClCompile Include="Renderer\Box.cpp" />
     <ClCompile Include="Renderer\Camera.cpp" />
-    <ClCompile Include="Renderer\Frustum.cpp" />
     <ClCompile Include="Renderer\HandlePool.cpp" />
     <ClCompile Include="Renderer\Material.cpp" />
     <ClCompile Include="Renderer\Mesh.cpp" />
@@ -223,7 +218,6 @@ xcopy $(OutDir)$(TargetFileName) $(SolutionDir)lib\ /y</Command>
     <ClCompile Include="Renderer\Renderer.cpp" />
     <ClCompile Include="Renderer\RenderUtil.cpp" />
     <ClCompile Include="Renderer\Shader.cpp" />
-    <ClCompile Include="Renderer\ShaderImpl.cpp" />
     <ClCompile Include="Renderer\Texture.cpp" />
     <ClCompile Include="Renderer\UI\ImGui\imgui.cpp" />
     <ClCompile Include="Renderer\UI\ImGui\imgui_demo.cpp" />

@@ -19,31 +19,10 @@ Renderer::Renderer()
 }
 
 Renderer::ShaderCache::ShaderCache(const Shader& shader)
-	:shader(shader), pointLights(maxPointLights), bones(maxBones)
+	:shader(shader), bones(maxBones)
 {
 	// Bind to bindpoint 0
 	glUniformBlockBinding(shader.GetID(), glGetUniformBlockIndex(shader.GetID(), "baseMatrices"), 0);
-
-	for (unsigned int i = 0; i < pointLights.size(); i++) {
-		PointLightCache& light = this->pointLights[i];
-		std::stringstream sstream;
-		sstream << "pointLight[" << i << "]";
-		light.constant = shader.GetUniformLocation((sstream.str() + ".constant").c_str());
-		light.linear = shader.GetUniformLocation((sstream.str() + ".linear").c_str());
-		light.quadratic = shader.GetUniformLocation((sstream.str() + ".quadratic").c_str());
-		light.ambient = shader.GetUniformLocation((sstream.str() + ".ambient").c_str());
-		light.diffuse = shader.GetUniformLocation((sstream.str() + ".diffuse").c_str());
-		light.specular = shader.GetUniformLocation((sstream.str() + ".specular").c_str());
-		light.position = shader.GetUniformLocation((sstream.str() + ".position").c_str());
-		glCheckError();
-	}
-
-	this->dirLight.direction = shader.GetUniformLocation("dirLight.direction");
-	this->dirLight.ambient = shader.GetUniformLocation("dirLight.ambient");
-	this->dirLight.diffuse = shader.GetUniformLocation("dirLight.diffuse");
-	this->dirLight.specular = shader.GetUniformLocation("dirLight.specular");
-
-	this->pointLightCount = shader.GetUniformLocation("pointLightCount");
 
 	for (unsigned int i = 0; i < maxBones; i++) {
 		std::stringstream sstream;
@@ -67,10 +46,10 @@ void Renderer::Initialize(int width, int height)
 	glGenBuffers(1, &baseMatrixUBO);
 
 	glBindBuffer(GL_UNIFORM_BUFFER, baseMatrixUBO);
-	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_STREAM_DRAW);
+	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4) + 5 * sizeof(glm::vec4), NULL, GL_STREAM_DRAW);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-	glBindBufferRange(GL_UNIFORM_BUFFER, 0, baseMatrixUBO, 0, 2 * sizeof(glm::mat4));
+	glBindBufferRange(GL_UNIFORM_BUFFER, 0, baseMatrixUBO, 0, 2 * sizeof(glm::mat4) + 5 * sizeof(glm::vec4));
 
 	debugBoundingSphere = ModelLoader().LoadFromFile("Resources/sphere.obj");
 	debugBoundingSphere.data->meshes[0].GenVAO();
@@ -311,24 +290,12 @@ void Renderer::drawInternal(RenderSpace space)
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projectionMatrix));
 	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(viewMatrix));
 
-	for (auto iter = shaderMap.begin(); iter != shaderMap.end(); iter++) {
-		const ShaderCache& shaderCache = iter->second;
-
-		shaderCache.shader.Use();
-
-		//??? Viewpos lightSpaceMartix skyBox Shader如何处理
-
-		//Later
-
-		//处理点光源 再说
-		/*
-		glUniform3f(shaderCache.dirLight.direction, dirLight.direction.x, dirLight.direction.y, dirLight.direction.z);
-		glUniform3f(shaderCache.dirLight.ambient, dirLight.ambient.x, dirLight.ambient.y, dirLight.ambient.z);
-		glUniform3f(shaderCache.dirLight.diffuse, dirLight.diffuse.x, dirLight.diffuse.y, dirLight.diffuse.z);
-		glUniform3f(shaderCache.dirLight.specular, dirLight.specular.x, dirLight.specular.y, dirLight.specular.z);
-		*/
-		glCheckError();
-	}
+	// 注意对齐
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, sizeof(glm::vec3), glm::value_ptr(viewPos));
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2 + sizeof(glm::vec4) * 1, sizeof(glm::vec3), glm::value_ptr(dirLight.direction));
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2 + sizeof(glm::vec4) * 2, sizeof(glm::vec3), glm::value_ptr(dirLight.ambient));
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2 + sizeof(glm::vec4) * 3, sizeof(glm::vec3), glm::value_ptr(dirLight.diffuse));
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2 + sizeof(glm::vec4) * 4, sizeof(glm::vec3), glm::value_ptr(dirLight.specular));
 
 	// Calculate Frustum
 	{

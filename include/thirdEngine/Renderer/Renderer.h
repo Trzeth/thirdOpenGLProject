@@ -33,32 +33,8 @@ public:
 	{
 		ShaderCache(const Shader& shader);
 
-		struct PointLightCache
-		{
-			GLuint position;
-
-			GLuint constant;
-			GLuint linear;
-			GLuint quadratic;
-
-			GLuint ambient;
-			GLuint diffuse;
-			GLuint specular;
-		};
-
-		struct DirLightCache
-		{
-			GLuint direction;
-			GLuint ambient;
-			GLuint diffuse;
-			GLuint specular;
-		};
-
 		Shader shader;
-		DirLightCache dirLight;
-		std::vector<PointLightCache> pointLights;
 		std::vector<GLuint> bones;
-		GLuint pointLightCount;
 	};
 
 	/*! A renderable, stored internally in the renderer.

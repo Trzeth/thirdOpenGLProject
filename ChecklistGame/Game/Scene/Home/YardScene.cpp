@@ -55,13 +55,23 @@ void YardScene::setupPrefab()
 
 	/* Yard */
 	{
-		plainShader = shaderLoader.BuildFromFile("Shaders/plainShader.vs", "Shaders/plainShader.fs");
+		plainShader = shaderLoader.BuildFromFile("Shaders/lightingShader.vert", "Shaders/lightingShader.frag");
 
 		glm::mat4 yardModelMat4(1.0f);
 		yardModelMat4 *= glm::scale(yardModelMat4, glm::vec3(0.1f));
 
 		Model yardModel = modelLoader.LoadFromFile("Resources/CG_HOME/NewHome.FBX", ModelLoadingPrefab::Optimize, yardModelMat4, true);
+
+		DirLight dirLight;
+		dirLight.direction = glm::vec3(-1, -1, 1);
+		dirLight.ambient = glm::vec3(0.5, 0.5, 0.5);
+		dirLight.diffuse = glm::vec3(0.5, 0.5, 0.5);
+		dirLight.specular = glm::vec3(0.5, 0.5, 0.5);
+		renderer.SetDirLight(dirLight);
+
+		// Disable fence culling because it doesn't seems right
 		yardModel.SetMeshCulling(74, false);
+
 		Renderer::ModelHandle yardModelHandle = renderer.GetModelHandle(yardModel);
 		yardPrefab.SetName("YardModel");
 

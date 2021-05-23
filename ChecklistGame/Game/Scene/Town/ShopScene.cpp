@@ -1,4 +1,4 @@
-#include "HouseScene.h"
+#include "ShopScene.h"
 
 #include "Game/Scene/SceneManager.h"
 
@@ -13,9 +13,9 @@
 
 #include "Game/Event/HouseSceneEvent.h"
 
-#include "YardScene.h"
+#include "Game/Scene/Home/YardScene.h"
 
-void HouseScene::Setup()
+void ShopScene::Setup()
 {
 	setupPrefab();
 
@@ -33,7 +33,7 @@ void HouseScene::Setup()
 	world.ConstructPrefab(doorInteractPrefab);
 }
 
-void HouseScene::setupPrefab()
+void ShopScene::setupPrefab()
 {
 	if (prefabsSteup)
 		return;
@@ -42,9 +42,8 @@ void HouseScene::setupPrefab()
 	{
 		glm::mat4 houseModelMat4(1.0f);
 		houseModelMat4 *= glm::scale(houseModelMat4, glm::vec3(0.4f));
-		houseModelMat4 *= glm::mat4_cast(glm::angleAxis(glm::radians(180.0f), Transform::UP));
 
-		Model houseModel = modelLoader.LoadFromFile("Resources/Room/Room.FBX", ModelLoadingPrefab::Default, houseModelMat4, true);
+		Model houseModel = modelLoader.LoadFromFile("Resources/Room/Room.FBX", ModelLoadingPrefab::Optimize, houseModelMat4, true);
 		Renderer::ModelHandle houseModelHandle = renderer.GetModelHandle(houseModel);
 
 		housePrefab.SetName("HouseModel");
@@ -60,22 +59,22 @@ void HouseScene::setupPrefab()
 
 		b2FixtureDef left;
 		b2PolygonShape* s1 = new b2PolygonShape();
-		s1->SetAsBox(0.1f, 13.5f, b2Vec2(17.5f, 6.3f), 0);
+		s1->SetAsBox(0.1f, 13.5f, b2Vec2(-17.5f, -6.3f), 0);
 		left.shape = s1;
 
 		b2FixtureDef back;
 		b2PolygonShape* s2 = new b2PolygonShape();
-		s2->SetAsBox(13.0f, 0.1f, b2Vec2(4.0f, 20.0f), 0);
+		s2->SetAsBox(13.0f, 5.0f, b2Vec2(-4.0f, -20.0f), 0);
 		back.shape = s2;
 
 		b2FixtureDef right;
 		b2PolygonShape* s3 = new b2PolygonShape();
-		s3->SetAsBox(0.1f, 13.5f, b2Vec2(-9.6f, 6.3f), 0);
+		s3->SetAsBox(0.1f, 13.5f, b2Vec2(9.6f, -6.3f), 0);
 		right.shape = s3;
 
 		b2FixtureDef front;
 		b2PolygonShape* s4 = new b2PolygonShape();
-		s4->SetAsBox(13.0f, 0.1f, b2Vec2(4.0f, -7.5f), 0);
+		s4->SetAsBox(13.0f, 0.1f, b2Vec2(-4.0f, 7.5f), 0);
 		front.shape = s4;
 
 		fixtures.push_back(left);
@@ -96,7 +95,7 @@ void HouseScene::setupPrefab()
 		b2FixtureDef door;
 		door.isSensor = true;
 		b2PolygonShape* s1 = new b2PolygonShape();
-		s1->SetAsBox(5.0f, 0.1f, b2Vec2(4.0f, -7.0f), 0);
+		s1->SetAsBox(5.0f, 5.0f, b2Vec2(-4.0f, -19.0f), 0);
 		door.shape = s1;
 
 		doorInteractPrefab.SetName("Door Interact");
@@ -165,13 +164,13 @@ void HouseScene::setupPrefab()
 	prefabsSteup = true;
 }
 
-void HouseScene::Finish()
+void ShopScene::Finish()
 {
 	glEnable(GL_CULL_FACE);
 	renderer.GenVAO();
 }
 
-void HouseScene::PreDestruct()
+void ShopScene::PreDestruct()
 {
 	glDisable(GL_CULL_FACE);
 }

@@ -18,3 +18,9 @@ class YardSceneWaterPotInteractEvent :public Event
 
 class YardSceneDoorInteractEvent :public Event
 { };
+
+class YardSceneBikeInteractEvent :public Event
+{ };
+
+class YardSceneForestInteractEvent :public Event
+{ };

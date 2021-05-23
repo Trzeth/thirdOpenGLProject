@@ -15,6 +15,9 @@
 #include "Game/Event/GameEvent.h"
 
 #include "Game/Scene/Home/HouseScene.h"
+#include "Game/Scene/Forest/ForestScene.h"
+#include "Game/Scene/Town/TownScene.h"
+#include "Game/Scene/Town/ShopScene.h"
 
 #include "Game/Scene/SceneManager.h"
 
@@ -42,6 +45,7 @@ void YardScene::Setup()
 	world.ConstructPrefab(brushInteractPrefab);
 	world.ConstructPrefab(waterPotInteractPrefab);
 	world.ConstructPrefab(doorInteractPrefab);
+	world.ConstructPrefab(bikeInteractPrefab);
 }
 
 void YardScene::setupPrefab()
@@ -119,9 +123,8 @@ void YardScene::setupPrefab()
 
 	/* Scene Interact Object */
 	{
+		b2BodyDef bodyDef;
 		/* Brush */
-		b2BodyDef brushDef;
-
 		b2FixtureDef brush;
 		brush.isSensor = true;
 		b2PolygonShape* s1 = new b2PolygonShape();
@@ -129,12 +132,10 @@ void YardScene::setupPrefab()
 		brush.shape = s1;
 
 		brushInteractPrefab.SetName("Brush Interact");
-		brushInteractPrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(brushDef, brush)));
+		brushInteractPrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(bodyDef, brush)));
 		brushInteractPrefab.AddConstructor(new InteractComponentConstructor(InteractComponent::Data(typeid(YardSceneBrushInteractEvent).hash_code())));
 
 		/* Water Pot */
-		b2BodyDef waterPotDef;
-
 		b2FixtureDef waterPot;
 		waterPot.isSensor = true;
 		b2CircleShape* s2 = new b2CircleShape();
@@ -143,21 +144,30 @@ void YardScene::setupPrefab()
 		waterPot.shape = s2;
 
 		waterPotInteractPrefab.SetName("WaterPot Interact");
-		waterPotInteractPrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(waterPotDef, waterPot)));
+		waterPotInteractPrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(bodyDef, waterPot)));
 		waterPotInteractPrefab.AddConstructor(new InteractComponentConstructor(InteractComponent::Data(typeid(YardSceneWaterPotInteractEvent).hash_code())));
 
 		/* Door */
-		b2BodyDef doorDef;
-
 		b2FixtureDef door;
 		door.isSensor = true;
 		b2PolygonShape* s3 = new b2PolygonShape();
 		s3->SetAsBox(4.5f, 0.2f, b2Vec2(5.0f, 26.3f), 0);
 		door.shape = s3;
 
-		doorInteractPrefab.SetName("WaterPot Interact");
-		doorInteractPrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(doorDef, door)));
+		doorInteractPrefab.SetName("Door Interact");
+		doorInteractPrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(bodyDef, door)));
 		doorInteractPrefab.AddConstructor(new InteractComponentConstructor(InteractComponent::Data(typeid(YardSceneDoorInteractEvent).hash_code())));
+
+		/* Door */
+		b2FixtureDef bike;
+		bike.isSensor = true;
+		b2PolygonShape* s4 = new b2PolygonShape();
+		s4->SetAsBox(4.5f, 0.2f, b2Vec2(5.0f, -26.3f), 0);
+		bike.shape = s4;
+
+		bikeInteractPrefab.SetName("Bike Interact");
+		bikeInteractPrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(bodyDef, bike)));
+		bikeInteractPrefab.AddConstructor(new InteractComponentConstructor(InteractComponent::Data(typeid(YardSceneBikeInteractEvent).hash_code())));
 	}
 
 	/* Skybox */
@@ -337,6 +347,17 @@ void YardScene::setupPrefab()
 		};
 
 		eventManager.RegisterForEvent<YardSceneDoorInteractEvent>(doorInteractCallback);
+
+		std::function<void(const YardSceneBikeInteractEvent& event)> bikeInteractCallback =
+			[scene = this, &sceneManager = sceneManager](const YardSceneBikeInteractEvent& event) {
+			LoadingScreenInfo info;
+			info.LoopTime = 1.0f;
+			info.LoadingImagePath = std::vector<std::string>{ "GUI/Loading0.png" };
+
+			sceneManager.LoadScene<TownScene>(info);
+		};
+
+		eventManager.RegisterForEvent<YardSceneBikeInteractEvent>(bikeInteractCallback);
 
 #pragma endregion
 	}

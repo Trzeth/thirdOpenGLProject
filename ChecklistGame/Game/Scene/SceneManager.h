@@ -4,7 +4,6 @@
 #include <string>
 #include <thread>
 
-#include <GLFW/glfw3.h>
 #include <thirdEngine/Framework/EventManager.h>
 #include <thirdEngine/Renderer/Texture.h>
 #include <thirdEngine/Renderer/RenderUtil.h>

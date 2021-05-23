@@ -4,10 +4,12 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <unordered_map>
 
 #include <glm/glm.hpp>
 
 typedef unsigned int GLuint;
+typedef unsigned int GLenum;
 typedef int GLint;
 
 class Shader
@@ -62,8 +64,22 @@ struct Shader::Data
 	GLuint id;
 };
 
+enum class ShaderType {
+	Vertex,
+	Fragment,
+	TessellationContorl,
+	TessellationEvaluation,
+	Geometry
+};
+
 class ShaderLoader {
 public:
 	Shader BuildFromFile(const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
+	Shader BuildFromFile(const std::string& vertexShaderPath, const std::string& fragmentShaderPath, const std::string& tcs, const std::string& tes);
+	Shader BuildFromFile(const std::string& vertexShaderPath, const std::string& fragmentShaderPath, const std::string& geometryShaderPath);
 	Shader BuildFromString(const std::string& vertexShader, const std::string& fragmentShader);
+	Shader BuildFromFile(const std::unordered_map<std::string, ShaderType>& shaders);
+	Shader BuildFromString(const std::unordered_map<std::string, ShaderType>& shaders);
+private:
+	unsigned int CompileShader(GLenum shaderType, const std::string& shader);
 };

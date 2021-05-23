@@ -107,6 +107,15 @@
     <ClCompile Include="Game\Component\InteractComponent.cpp">
       <Filter>Game\Component</Filter>
     </ClCompile>
+    <ClCompile Include="Game\Scene\Forest\ForestScene.cpp">
+      <Filter>Game\Scene\Forest</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Scene\Town\TownScene.cpp">
+      <Filter>Game\Scene\Town</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Scene\Town\ShopScene.cpp">
+      <Filter>Game\Scene\Town</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Game">
@@ -147,6 +156,12 @@
     </Filter>
     <Filter Include="Game\Responder">
       <UniqueIdentifier>{34e0b26c-638a-4643-8d8c-dc88ee690206}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Scene\Town">
+      <UniqueIdentifier>{2cf43031-7665-4a5d-85ce-9370b03f178a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Scene\Forest">
+      <UniqueIdentifier>{4b19e94b-e316-4826-8185-ba3415cba6be}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -266,6 +281,15 @@
     </ClInclude>
     <ClInclude Include="Game\Event\HouseSceneEvent.h">
       <Filter>Game\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Scene\Forest\ForestScene.h">
+      <Filter>Game\Scene\Forest</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Scene\Town\ShopScene.h">
+      <Filter>Game\Scene\Town</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Scene\Town\TownScene.h">
+      <Filter>Game\Scene\Town</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

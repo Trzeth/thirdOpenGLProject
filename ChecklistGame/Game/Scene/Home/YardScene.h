@@ -57,6 +57,7 @@ private:
 	Prefab brushInteractPrefab;
 	Prefab waterPotInteractPrefab;
 	Prefab doorInteractPrefab;
+	Prefab bikeInteractPrefab;
 
 	std::shared_ptr<InteractEventResponder> interactEventResponder;
 

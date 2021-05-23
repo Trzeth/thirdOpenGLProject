@@ -163,10 +163,13 @@
     <ClCompile Include="Game\Physics.cpp" />
     <ClCompile Include="Game\PhysicsDebugDrawer.cpp" />
     <ClCompile Include="Game\Responder\InteractEventResponder.cpp" />
+    <ClCompile Include="Game\Scene\Forest\ForestScene.cpp" />
     <ClCompile Include="Game\Scene\Home\HouseScene.cpp" />
     <ClCompile Include="Game\Scene\Home\YardScene.cpp" />
     <ClCompile Include="Game\Scene\Scene.cpp" />
     <ClCompile Include="Game\Scene\SceneManager.cpp" />
+    <ClCompile Include="Game\Scene\Town\ShopScene.cpp" />
+    <ClCompile Include="Game\Scene\Town\TownScene.cpp" />
     <ClCompile Include="Game\Storyboard\Storyboard.cpp" />
     <ClCompile Include="Game\Storyboard\StoryboardLoader.cpp" />
     <ClCompile Include="Game\System\CameraSystem.cpp" />
@@ -205,10 +208,13 @@
     <ClInclude Include="Game\Physics.h" />
     <ClInclude Include="Game\PhysicsDebugDrawer.h" />
     <ClInclude Include="Game\Responder\InteractEventResponder.h" />
+    <ClInclude Include="Game\Scene\Forest\ForestScene.h" />
     <ClInclude Include="Game\Scene\Home\HouseScene.h" />
     <ClInclude Include="Game\Scene\Home\YardScene.h" />
     <ClInclude Include="Game\Scene\Scene.h" />
     <ClInclude Include="Game\Scene\SceneManager.h" />
+    <ClInclude Include="Game\Scene\Town\ShopScene.h" />
+    <ClInclude Include="Game\Scene\Town\TownScene.h" />
     <ClInclude Include="Game\Storyboard\Storyboard.h" />
     <ClInclude Include="Game\Storyboard\StoryboardLoader.h" />
     <ClInclude Include="Game\System\CameraSystem.h" />

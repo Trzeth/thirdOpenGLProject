@@ -142,12 +142,20 @@ private:
 	glm::mat4 projectionMatrix;
 	glm::mat4 viewMatrix;
 	glm::vec3 viewPos;
+	glm::mat4 lightSpaceMatrix;
 
 	Model debugBoundingSphere;
 
 	std::vector<glm::vec4> frustum;
 
 	GLuint baseMatrixUBO;
+
+	GLuint depthMapFBO;
+	GLuint depthMap;
+
+	Shader depthShader;
+
+	const GLuint SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
 
 	int viewportWidth;
 	int viewportHeight;

@@ -46,13 +46,34 @@ void Renderer::Initialize(int width, int height)
 	glGenBuffers(1, &baseMatrixUBO);
 
 	glBindBuffer(GL_UNIFORM_BUFFER, baseMatrixUBO);
-	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4) + 5 * sizeof(glm::vec4), NULL, GL_STREAM_DRAW);
+	glBufferData(GL_UNIFORM_BUFFER, 3 * sizeof(glm::mat4) + 5 * sizeof(glm::vec4), NULL, GL_STREAM_DRAW);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-	glBindBufferRange(GL_UNIFORM_BUFFER, 0, baseMatrixUBO, 0, 2 * sizeof(glm::mat4) + 5 * sizeof(glm::vec4));
+	glBindBufferRange(GL_UNIFORM_BUFFER, 0, baseMatrixUBO, 0, 3 * sizeof(glm::mat4) + 5 * sizeof(glm::vec4));
+
+	// Shadow
+	glGenFramebuffers(1, &depthMapFBO);
+	glGenTextures(1, &depthMap);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
+		SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	debugBoundingSphere = ModelLoader().LoadFromFile("Resources/sphere.obj");
 	debugBoundingSphere.data->meshes[0].GenVAO();
+
+	depthShader = ShaderLoader().BuildFromFile("Shaders/depthShader.vert", "Shaders/depthShader.frag");
+
+	frustum.resize(6);
 }
 
 void Renderer::SetDirLight(const DirLight& dirLight)
@@ -225,6 +246,9 @@ Renderer::RenderableHandle Renderer::GetRenderableHandle(const ModelHandle& mode
 
 	bool animatable = (model.data->animationData.animations.size() > 0);
 
+	shader.Use();
+	glUniform1i(shader.GetUniformLocation("shadowMap"), 0);
+
 	RenderableHandle handle = this->entityPool.GetNewHandle(Entity(shader, modelHandle, animatable));
 
 	return handle;
@@ -286,152 +310,212 @@ void Renderer::Update(float dt)
 
 void Renderer::drawInternal(RenderSpace space)
 {
-	glBindBuffer(GL_UNIFORM_BUFFER, baseMatrixUBO);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projectionMatrix));
-	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(viewMatrix));
+	for (const int drawIndex : {0, 1}) {
+		switch (drawIndex)
+		{
+		case 0:
+		{
+			// Depth Pass
+			GLfloat near_plane = 1.0f, far_plane = 1000.0f;
+			glm::mat4 lightProjection = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, near_plane, far_plane);
+			glm::mat4 lightView = glm::lookAt(-100.0f * dirLight.direction + viewPos, viewPos, glm::vec3(0.0f, 1.0f, 0.0f));
+			lightSpaceMatrix = lightProjection * lightView;
 
-	// 注意对齐
-	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, sizeof(glm::vec3), glm::value_ptr(viewPos));
-	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2 + sizeof(glm::vec4) * 1, sizeof(glm::vec3), glm::value_ptr(dirLight.direction));
-	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2 + sizeof(glm::vec4) * 2, sizeof(glm::vec3), glm::value_ptr(dirLight.ambient));
-	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2 + sizeof(glm::vec4) * 3, sizeof(glm::vec3), glm::value_ptr(dirLight.diffuse));
-	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2 + sizeof(glm::vec4) * 4, sizeof(glm::vec3), glm::value_ptr(dirLight.specular));
+			// Calculate Frustum
+			{
+				glm::mat4 matrix = glm::transpose(lightSpaceMatrix);
+				frustum[0] = matrix[3] + matrix[0];
+				frustum[1] = matrix[3] - matrix[0];
+				frustum[2] = matrix[3] + matrix[1];
+				frustum[3] = matrix[3] - matrix[1];
+				frustum[4] = matrix[3] + matrix[2];
+				frustum[5] = matrix[3] - matrix[2];
 
-	// Calculate Frustum
-	{
-		frustum.resize(6);
+				for (int i = 0; i != frustum.size(); i++)
+					frustum[i] /= glm::length2(glm::vec3(frustum[i]));
+			}
 
-		glm::mat4 matrix = glm::transpose(projectionMatrix * viewMatrix);
-		frustum[0] = matrix[3] + matrix[0];
-		frustum[1] = matrix[3] - matrix[0];
-		frustum[2] = matrix[3] + matrix[1];
-		frustum[3] = matrix[3] - matrix[1];
-		frustum[4] = matrix[3] + matrix[2];
-		frustum[5] = matrix[3] - matrix[2];
+			depthShader.Use();
+			glUniformMatrix4fv(depthShader.GetUniformLocation("lightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
 
-		for (int i = 0; i != frustum.size(); i++)
-			frustum[i] /= glm::length2(glm::vec3(frustum[i]));
-	}
+			glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+			glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+			glClear(GL_DEPTH_BUFFER_BIT);
+			break;
+		}
+		case 1:
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			glViewport(0, 0, viewportWidth, viewportHeight);
+			// Calculate Frustum
+			{
+				glm::mat4 matrix = glm::transpose(projectionMatrix * viewMatrix);
+				frustum[0] = matrix[3] + matrix[0];
+				frustum[1] = matrix[3] - matrix[0];
+				frustum[2] = matrix[3] + matrix[1];
+				frustum[3] = matrix[3] - matrix[1];
+				frustum[4] = matrix[3] + matrix[2];
+				frustum[5] = matrix[3] - matrix[2];
 
-	for (auto iter = entityPool.begin(); iter != entityPool.end(); iter++) {
-		Entity& renderable = iter->second;
-		if (renderable.space != space) {
-			continue;
+				for (int i = 0; i != frustum.size(); i++)
+					frustum[i] /= glm::length2(glm::vec3(frustum[i]));
+			}
+
+			glBindBuffer(GL_UNIFORM_BUFFER, baseMatrixUBO);
+			glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projectionMatrix));
+			glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 1, sizeof(glm::mat4), glm::value_ptr(viewMatrix));
+			glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, sizeof(glm::mat4), glm::value_ptr(lightSpaceMatrix));
+
+			// 注意对齐
+			glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 3, sizeof(glm::vec3), glm::value_ptr(viewPos));
+			glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 3 + sizeof(glm::vec4) * 1, sizeof(glm::vec3), glm::value_ptr(dirLight.direction));
+			glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 3 + sizeof(glm::vec4) * 2, sizeof(glm::vec3), glm::value_ptr(dirLight.ambient));
+			glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 3 + sizeof(glm::vec4) * 3, sizeof(glm::vec3), glm::value_ptr(dirLight.diffuse));
+			glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 3 + sizeof(glm::vec4) * 4, sizeof(glm::vec3), glm::value_ptr(dirLight.specular));
+		}
+		break;
 		}
 
-		std::optional<std::reference_wrapper<Model>> modelOpt = modelPool.Get(renderable.modelHandle);
-		assert(modelOpt);
-
-		Model& model = *modelOpt;
-		ShaderCache& shaderCache = renderable.shaderCache;
-		glm::mat4 modelMatrix = renderable.transform;
-
-		shaderCache.shader.Use();
-		glCheckError();
-
-		//只考虑了骨骼动画！！
-
-		unsigned int cullMeshCount = 0;
-		unsigned int totalMeshCount = 0;
-		unsigned int vertexCount = 0;
-
-		for (int i = 0; i != model.data->meshes.size(); i++)
-		{
-			const auto& mesh = model.data->meshes[i];
-
-			//Do Anim once per mesh
-			if (renderable.animatable) {
-				std::vector<glm::mat4> nodeTransforms = model.GetNodeTransforms(renderable.animName, renderable.time, renderable.context);
-
-				if (!mesh.hasVertexBoneData) {
-					// Not skinned animation
-				}
-				else
-				{
-					//Skinned animation
-					std::vector<glm::mat4> boneTransforms = mesh.GetBoneTransforms(nodeTransforms);
-					for (unsigned int j = 0; j < boneTransforms.size(); j++) {
-						glUniformMatrix4fv(shaderCache.bones[j], 1, GL_FALSE, &boneTransforms[j][0][0]);
-					}
-				}
+		for (auto iter = entityPool.begin(); iter != entityPool.end(); iter++) {
+			Entity& renderable = iter->second;
+			if (renderable.space != space) {
+				continue;
 			}
 
-			// We assume mesh won't under animted node
+			std::optional<std::reference_wrapper<Model>> modelOpt = modelPool.Get(renderable.modelHandle);
+			assert(modelOpt);
 
-			std::vector<glm::mat4> visibleMeshTransform;
-			const auto& [buffer, transforms] = model.data->meshesTransform[i];
-			for (const auto& transform : transforms)
+			Model& model = *modelOpt;
+			ShaderCache& shaderCache = renderable.shaderCache;
+			glm::mat4 modelMatrix = renderable.transform;
+
+			if (drawIndex == 1)
 			{
-				totalMeshCount++;
+				shaderCache.shader.Use();
 
-				float t = 0.0;
-				if (mesh.hasBoundingSphere)
-				{
-					/* Culling Per Mesh */
-
-					bool visible = true;
-					auto trans = modelMatrix * transform * glm::vec4(mesh.boundingSphere.center, 1);
-					auto matrix = modelMatrix * transform;
-					float maxScale = glm::max(glm::max(matrix[0][0], matrix[1][1]), matrix[2][2]);
-					t = maxScale;
-
-					assert(frustum.size() == 6);
-					for (int i = 0; i != frustum.size(); i++)
-					{
-						if (frustum[i].x * trans.x + frustum[i].y * trans.y + frustum[i].z * trans.z + frustum[i].w <= -mesh.boundingSphere.radius * maxScale)
-						{
-							visible = false;
-							break;
-						}
-					}
-
-					if (!visible) {
-						cullMeshCount++;
-						continue;
-					}
-				}
-
-				/*
-				glm::mat4 trans = glm::scale(glm::mat4(1.0), glm::vec3(t));
-				trans[3] = transform * modelMatrix * glm::vec4(mesh.boundingSphere.center, 1);
-				shaderCache.shader.SetModelMatrix(trans);
-				debugBoundingSphere.data->meshes[0].material.Apply(shaderCache.shader);
-				debugBoundingSphere.data->meshes[0].Draw();
-
-				shaderCache.shader.SetModelMatrix(trans * glm::mat4(1.5f));
-				debugBoundingSphere.data->meshes[0].material.Apply(shaderCache.shader);
-				debugBoundingSphere.data->meshes[0].Draw();
-				*/
-
-				vertexCount += mesh.GetIndicesCount();
-				visibleMeshTransform.push_back(modelMatrix * transform);
-			}
-
-			if (buffer)
-			{
-				if (!visibleMeshTransform.size())continue;
-
-				glBindBuffer(GL_ARRAY_BUFFER, buffer);
-				glBufferData(GL_ARRAY_BUFFER, visibleMeshTransform.size() * sizeof(glm::mat4), &visibleMeshTransform[0], GL_DYNAMIC_DRAW);
-
-				model.material.Apply(shaderCache.shader);
-				mesh.material.Apply(shaderCache.shader);
-				mesh.Draw(visibleMeshTransform.size());
-			}
-			else
-			{
-				// Don't use buffer
-				for (int i = 0; i != visibleMeshTransform.size(); i++) {
-					shaderCache.shader.SetModelMatrix(visibleMeshTransform[i]);
-					model.material.Apply(shaderCache.shader);
-					mesh.material.Apply(shaderCache.shader);
-					mesh.Draw();
-				}
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, depthMap);
 			}
 
 			glCheckError();
-		}
 
-		std::cout << "Cull Mesh:" << cullMeshCount << "\t Total Mesh:" << totalMeshCount << "\t Vetex:" << vertexCount << std::endl;
+			//只考虑了骨骼动画！！
+
+			unsigned int cullMeshCount = 0;
+			unsigned int totalMeshCount = 0;
+			unsigned int vertexCount = 0;
+
+			for (int i = 0; i != model.data->meshes.size(); i++)
+			{
+				const auto& mesh = model.data->meshes[i];
+
+				//Do Anim once per mesh
+				if (renderable.animatable && drawIndex != 0) {
+					std::vector<glm::mat4> nodeTransforms = model.GetNodeTransforms(renderable.animName, renderable.time, renderable.context);
+
+					if (!mesh.hasVertexBoneData) {
+						// Not skinned animation
+					}
+					else
+					{
+						//Skinned animation
+						std::vector<glm::mat4> boneTransforms = mesh.GetBoneTransforms(nodeTransforms);
+						for (unsigned int j = 0; j < boneTransforms.size(); j++) {
+							glUniformMatrix4fv(shaderCache.bones[j], 1, GL_FALSE, &boneTransforms[j][0][0]);
+						}
+					}
+				}
+
+				// We assume mesh won't under animted node
+
+				std::vector<glm::mat4> visibleMeshTransform;
+				const auto& [buffer, transforms] = model.data->meshesTransform[i];
+				for (const auto& transform : transforms)
+				{
+					totalMeshCount++;
+					glCheckError();
+
+					float t = 0.0;
+					if (mesh.hasBoundingSphere)
+					{
+						/* Culling Per Mesh */
+
+						bool visible = true;
+						auto trans = modelMatrix * transform * glm::vec4(mesh.boundingSphere.center, 1);
+						auto matrix = modelMatrix * transform;
+						float maxScale = glm::max(glm::max(matrix[0][0], matrix[1][1]), matrix[2][2]);
+						t = maxScale;
+
+						assert(frustum.size() == 6);
+						for (int i = 0; i != frustum.size(); i++)
+						{
+							if (frustum[i].x * trans.x + frustum[i].y * trans.y + frustum[i].z * trans.z + frustum[i].w <= -mesh.boundingSphere.radius * maxScale)
+							{
+								visible = false;
+								break;
+							}
+						}
+
+						if (!visible) {
+							cullMeshCount++;
+							continue;
+						}
+					}
+					glCheckError();
+
+					/*
+					glm::mat4 trans = glm::scale(glm::mat4(1.0), glm::vec3(t));
+					trans[3] = transform * modelMatrix * glm::vec4(mesh.boundingSphere.center, 1);
+					shaderCache.shader.SetModelMatrix(trans);
+					debugBoundingSphere.data->meshes[0].material.Apply(shaderCache.shader);
+					debugBoundingSphere.data->meshes[0].Draw();
+
+					shaderCache.shader.SetModelMatrix(trans * glm::mat4(1.5f));
+					debugBoundingSphere.data->meshes[0].material.Apply(shaderCache.shader);
+					debugBoundingSphere.data->meshes[0].Draw();
+					*/
+
+					vertexCount += mesh.GetIndicesCount();
+					visibleMeshTransform.push_back(modelMatrix * transform);
+				}
+
+				if (buffer)
+				{
+					if (!visibleMeshTransform.size())continue;
+
+					glBindBuffer(GL_ARRAY_BUFFER, buffer);
+					glBufferData(GL_ARRAY_BUFFER, visibleMeshTransform.size() * sizeof(glm::mat4), &visibleMeshTransform[0], GL_DYNAMIC_DRAW);
+
+					if (drawIndex == 1)
+					{
+						model.material.Apply(shaderCache.shader);
+						mesh.material.Apply(shaderCache.shader);
+					}
+					mesh.Draw(visibleMeshTransform.size());
+				}
+				else
+				{
+					// Don't use buffer
+					for (int i = 0; i != visibleMeshTransform.size(); i++) {
+						if (drawIndex == 0)
+						{
+							depthShader.SetModelMatrix(visibleMeshTransform[i]);
+							glUniform1i(depthShader.GetUniformLocation("useInstance"), 0);
+						}
+						else if (drawIndex == 1) {
+							shaderCache.shader.SetModelMatrix(visibleMeshTransform[i]);
+							model.material.Apply(shaderCache.shader);
+							mesh.material.Apply(shaderCache.shader);
+						}
+
+						mesh.Draw();
+					}
+				}
+
+				glCheckError();
+			}
+
+			std::cout << "Cull Mesh:" << cullMeshCount << "\t Total Mesh:" << totalMeshCount << "\t Vetex:" << vertexCount << std::endl;
+		}
 	}
 }

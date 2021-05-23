@@ -133,7 +133,8 @@ void Material::SetTextures(const std::vector<Texture>& textures)
 
 void Material::Apply(const Shader& shader) const
 {
-	unsigned int curTexture = 0;
+	// preserve 0 for shadow map
+	unsigned int curTexture = 1;
 
 	for (auto iter = properties.begin(); iter != properties.end(); ++iter) {
 		glCheckError();

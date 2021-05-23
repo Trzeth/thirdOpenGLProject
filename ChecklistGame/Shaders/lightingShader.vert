@@ -8,6 +8,7 @@ layout (std140) uniform baseMatrices
 {
     mat4 projection;
     mat4 view;
+    mat4 lightSpace;
     vec3 viewPos;
     vec3 direction;
     vec3 ambient;
@@ -24,6 +25,11 @@ out VS_OUT{
     vec3 fragPos;
     vec3 normal;
     vec2 texCoords;
+
+    // Shadow
+    vec4 fragPosLightSpace;
+
+    // Lighting
     vec3 direction;
     vec3 ambient;
     vec3 diffuse;
@@ -43,6 +49,7 @@ void main()
 
     vs_out.viewPos = viewPos;
     vs_out.fragPos = vec3(view * modelMat * pos);
+    vs_out.fragPosLightSpace = lightSpace * vec4(vs_out.fragPos, 1.0);
 
     vs_out.normal = mat3(transpose(inverse(modelMat))) * aNormal;
     vs_out.texCoords = aTexCoords;

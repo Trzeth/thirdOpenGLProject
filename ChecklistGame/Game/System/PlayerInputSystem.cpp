@@ -32,14 +32,14 @@ void PlayerInputSystem::updateEntity(float dt, eid_t entity)
 
 	horizontalRad -= lookHorizontal * dt;
 	verticalRad += lookVertical * dt;
-	verticalRad = glm::clamp(verticalRad, -glm::half_pi<float>() + 0.01f, glm::half_pi<float>() - 0.01f);
+	//verticalRad = glm::clamp(verticalRad, -glm::half_pi<float>() + 0.01f, glm::half_pi<float>() - 0.01f);
 
 	float r = 15;
 
 	glm::vec3 cameraPos = playerTransformComponent->data->GetPosition();
 	cameraPos.x += cos(horizontalRad) * r;
 	cameraPos.y += sin(horizontalRad) * cos(verticalRad) * r + 8;
-	cameraPos.z += sin(verticalRad) * sin(horizontalRad) * r + 3;
+	cameraPos.z += sin(verticalRad) * sin(horizontalRad) * r - 3;
 
 	cameraTransformComponent->data->SetPosition(cameraPos);
 	cameraTransformComponent->data->SetRotation(glm::angleAxis(verticalRad - glm::pi<float>() / 2, Transform::RIGHT) * glm::angleAxis(glm::pi<float>() / 2 - horizontalRad, Transform::UP));
@@ -64,5 +64,5 @@ void PlayerInputSystem::updateEntity(float dt, eid_t entity)
 		rigidbodyMotorComponent->facing = glm::angleAxis(-glm::pi<float>() / 2 * horizontal, Transform::UP);
 	}
 
-	rigidbodyMotorComponent->movement = glm::vec2(vertical, horizontal);
+	rigidbodyMotorComponent->movement = glm::vec2(-vertical, -horizontal);
 }

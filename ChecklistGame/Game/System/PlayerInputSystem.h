@@ -15,6 +15,6 @@ private:
 	EventManager& eventManager;
 
 	const float PI = 3.14159265358979323846264338327950288;
-	float horizontalRad = PI / 2;
+	float horizontalRad = -PI / 2;
 	float verticalRad = PI / 4;
 };

@@ -43,7 +43,7 @@ void HouseScene::setupPrefab()
 		glm::mat4 houseModelMat4(1.0f);
 		houseModelMat4 *= glm::scale(houseModelMat4, glm::vec3(0.4f));
 
-		Model houseModel = modelLoader.LoadFromFile("Resources/CG_Town/NewTown_Scale.FBX", ModelLoadingPrefab::Optimize, houseModelMat4, true);
+		Model houseModel = modelLoader.LoadFromFile("Resources/Room/Room.FBX", ModelLoadingPrefab::Optimize, houseModelMat4, true);
 		Renderer::ModelHandle houseModelHandle = renderer.GetModelHandle(houseModel);
 
 		housePrefab.SetName("HouseModel");
@@ -98,7 +98,7 @@ void HouseScene::setupPrefab()
 		s1->SetAsBox(5.0f, 5.0f, b2Vec2(-4.0f, -19.0f), 0);
 		door.shape = s1;
 
-		doorInteractPrefab.SetName("Brush Interact");
+		doorInteractPrefab.SetName("Door Interact");
 		doorInteractPrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(doorDef, door)));
 		doorInteractPrefab.AddConstructor(new InteractComponentConstructor(InteractComponent::Data(typeid(HouseSceneDoorInteractEvent).hash_code())));
 	}

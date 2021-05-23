@@ -400,8 +400,8 @@ void Renderer::drawInternal(RenderSpace space)
 					/* Culling Per Mesh */
 
 					bool visible = true;
-					auto trans = transform * modelMatrix * glm::vec4(mesh.boundingSphere.center, 1);
-					auto matrix = transform * modelMatrix;
+					auto trans = modelMatrix * transform * glm::vec4(mesh.boundingSphere.center, 1);
+					auto matrix = modelMatrix * transform;
 					float maxScale = glm::max(glm::max(matrix[0][0], matrix[1][1]), matrix[2][2]);
 					t = maxScale;
 
@@ -434,7 +434,7 @@ void Renderer::drawInternal(RenderSpace space)
 				*/
 
 				vertexCount += mesh.GetIndicesCount();
-				visibleMeshTransform.push_back(transform * modelMatrix);
+				visibleMeshTransform.push_back(modelMatrix * transform);
 			}
 
 			if (buffer)

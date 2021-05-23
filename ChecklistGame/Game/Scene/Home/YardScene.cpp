@@ -55,7 +55,6 @@ void YardScene::setupPrefab()
 
 		glm::mat4 yardModelMat4(1.0f);
 		yardModelMat4 *= glm::scale(yardModelMat4, glm::vec3(0.1f));
-		//yardModelMat4 *= glm::mat4_cast(glm::angleAxis(glm::radians(180.0f), Transform::UP));
 
 		Model yardModel = modelLoader.LoadFromFile("Resources/CG_HOME/NewHome.FBX", ModelLoadingPrefab::Optimize, yardModelMat4, true);
 		yardModel.SetMeshCulling(74, false);
@@ -113,7 +112,7 @@ void YardScene::setupPrefab()
 		fixtures.push_back(tree1);
 		fixtures.push_back(tree2);
 
-		yardPrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(bodyDef, fixtures)));
+		//yardPrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(bodyDef, fixtures)));
 	}
 
 	interactEventResponder = std::make_shared<InteractEventResponder>(world, eventManager);
@@ -153,7 +152,7 @@ void YardScene::setupPrefab()
 		b2FixtureDef door;
 		door.isSensor = true;
 		b2PolygonShape* s3 = new b2PolygonShape();
-		s3->SetAsBox(4.5f, 0.2f, b2Vec2(-3.0f, -28.5f), 0);
+		s3->SetAsBox(4.5f, 0.2f, b2Vec2(5.0f, 26.3f), 0);
 		door.shape = s3;
 
 		doorInteractPrefab.SetName("WaterPot Interact");
@@ -178,7 +177,6 @@ void YardScene::setupPrefab()
 
 		glm::mat4 playerModelMat4(1.0f);
 		playerModelMat4 *= glm::scale(playerModelMat4, glm::vec3(0.5f));
-		//playerModelMat4 *= glm::mat4_cast(glm::angleAxis(glm::radians(180.0f), Transform::UP));
 
 		Model playerWalkModel = modelLoader.LoadFromFile("Resources/Walk.DAE", ModelLoadingPrefab::Default, playerModelMat4);
 		Model playerPickLetterModel = modelLoader.LoadFromFile("Resources/PickLetter.DAE", ModelLoadingPrefab::Default, playerModelMat4);

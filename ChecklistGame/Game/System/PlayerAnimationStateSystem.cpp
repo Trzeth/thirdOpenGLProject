@@ -4,6 +4,7 @@
 
 #include "Game/Component/PlayerComponent.h"
 #include "Game/Component/ModelRenderComponent.h"
+#include "Game/Component/TransformComponent.h"
 
 PlayerAnimationStateSystem::PlayerAnimationStateSystem(World& world, Renderer& renderer) :
 	System(world), renderer(renderer)
@@ -16,6 +17,10 @@ void PlayerAnimationStateSystem::updateEntity(float dt, eid_t entity)
 {
 	ModelRenderComponent* modelRendererComponent = world.GetComponent<ModelRenderComponent>(entity);
 	PlayerComponent* playerComponent = world.GetComponent<PlayerComponent>(entity);
+	TransformComponent* transformComponent = world.GetComponent<TransformComponent>(entity);
+
+	auto pos = glm::vec3(transformComponent->data->GetWorldPosition());
+	std::cout << pos.x << "\t" << pos.y << "\t" << pos.z << std::endl;
 
 	auto& animationTimer = playerComponent->animationTimer;
 

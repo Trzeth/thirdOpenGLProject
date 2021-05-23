@@ -1,15 +1,22 @@
 #version 330 core
-layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec3 aNormal;
-layout (location = 2) in vec2 aTexCoords;
-layout (location = 3) in ivec4 BoneIDs;
-layout (location = 4) in vec4 Weights;
+layout (location = 0) in mat4 instanceMatrix;
+layout (location = 4) in vec3 aPos;
+layout (location = 5) in vec3 aNormal;
+layout (location = 6) in vec2 aTexCoords;
+layout (location = 7) in ivec4 BoneIDs;
+layout (location = 8) in vec4 Weights;
 
 const int MAX_BONES = 100;
 
+layout (std140) uniform baseMatrices
+{
+    mat4 projection;
+    mat4 view;
+};
+
 uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
+uniform int useInstance;
+
 uniform mat4 bones[MAX_BONES];
 
 out vec3 FragPos;
@@ -26,9 +33,13 @@ void main()
     vec4 pos_anim = bone_transform * vec4(aPos, 1.0f);
 	vec4 normal_anim = bone_transform * vec4(aNormal, 0.0f);
 
-    gl_Position = projection * view * model * pos_anim;
-    FragPos = vec3(view * model * pos_anim);
+    mat4 modelMat;
+    if(useInstance == 0) modelMat = model;
+    else modelMat = instanceMatrix;
 
-    Normal = (transpose(inverse(view * model)) * normal_anim).xyz;
+    gl_Position = projection * view * modelMat * pos_anim;
+    FragPos = vec3(view * modelMat * pos_anim);
+
+    Normal = (transpose(inverse(view * modelMat)) * normal_anim).xyz;
     TexCoords = aTexCoords;
 }

@@ -249,7 +249,7 @@ Model ModelLoader::Impl::processModel(aiNode* rootNode, const aiScene* scene)
 		const auto& transforms = meshesTransform[i];
 		auto& mesh = model.data->meshes[i];
 
-		if (meshesTransform.size() < 2)
+		if (transforms.size() < 2)
 		{
 			// Don't use instance buffer
 			model.data->meshesTransform.push_back(std::tuple<GLuint, std::vector<glm::mat4>>(0, transforms));

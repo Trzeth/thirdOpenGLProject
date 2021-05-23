@@ -1,5 +1,5 @@
 #version 330 core
-layout (location = 0) in vec3 position;
+layout (location = 4) in vec3 position;
 out vec3 textureCoords;
 
 layout (std140) uniform baseMatrices

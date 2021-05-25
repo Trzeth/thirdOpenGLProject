@@ -6,10 +6,11 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-
 #include <glm/gtx/norm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
 #include <Renderer/ModelLoader.h>
+#include <Renderer/UI/ImGui/imgui.h>
 
 Renderer::Renderer()
 {
@@ -71,7 +72,7 @@ void Renderer::Initialize(int width, int height)
 	debugBoundingSphere = ModelLoader().LoadFromFile("Resources/sphere.obj");
 	debugBoundingSphere.data->meshes[0].GenVAO();
 
-	depthShader = ShaderLoader().BuildFromFile("Shaders/depthShader.vert", "Shaders/depthShader.frag");
+	depthShaderCache = ShaderCache(ShaderLoader().BuildFromFile("Shaders/depthShader.vert", "Shaders/depthShader.frag"));
 
 	frustum.resize(6);
 }
@@ -310,6 +311,15 @@ void Renderer::Update(float dt)
 
 void Renderer::drawInternal(RenderSpace space)
 {
+	ImGui::Begin("Dirlight");
+
+	ImGui::DragFloat3("Direction", glm::value_ptr(dirLight.direction));
+	ImGui::DragFloat3("Ambient", glm::value_ptr(dirLight.ambient));
+	ImGui::DragFloat3("Diffuse", glm::value_ptr(dirLight.diffuse));
+	ImGui::DragFloat3("Specular", glm::value_ptr(dirLight.specular));
+
+	ImGui::End();
+
 	for (const int drawIndex : {0, 1}) {
 		switch (drawIndex)
 		{
@@ -318,7 +328,7 @@ void Renderer::drawInternal(RenderSpace space)
 			// Depth Pass
 			GLfloat near_plane = 1.0f, far_plane = 1000.0f;
 			glm::mat4 lightProjection = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, near_plane, far_plane);
-			glm::mat4 lightView = glm::lookAt(-100.0f * dirLight.direction + viewPos, viewPos, glm::vec3(0.0f, 1.0f, 0.0f));
+			glm::mat4 lightView = glm::lookAt(-100.0f * dirLight.direction, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 			lightSpaceMatrix = lightProjection * lightView;
 
 			// Calculate Frustum
@@ -335,8 +345,8 @@ void Renderer::drawInternal(RenderSpace space)
 					frustum[i] /= glm::length2(glm::vec3(frustum[i]));
 			}
 
-			depthShader.Use();
-			glUniformMatrix4fv(depthShader.GetUniformLocation("lightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
+			depthShaderCache.shader.Use();
+			glUniformMatrix4fv(depthShaderCache.shader.GetUniformLocation("lightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
 
 			glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 			glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
@@ -367,7 +377,7 @@ void Renderer::drawInternal(RenderSpace space)
 			glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, sizeof(glm::mat4), glm::value_ptr(lightSpaceMatrix));
 
 			// ×¢Òâ¶ÔÆë
-			glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 3, sizeof(glm::vec3), glm::value_ptr(viewPos));
+			glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 3 + sizeof(glm::vec4) * 0, sizeof(glm::vec3), glm::value_ptr(viewPos));
 			glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 3 + sizeof(glm::vec4) * 1, sizeof(glm::vec3), glm::value_ptr(dirLight.direction));
 			glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 3 + sizeof(glm::vec4) * 2, sizeof(glm::vec3), glm::value_ptr(dirLight.ambient));
 			glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 3 + sizeof(glm::vec4) * 3, sizeof(glm::vec3), glm::value_ptr(dirLight.diffuse));
@@ -410,7 +420,7 @@ void Renderer::drawInternal(RenderSpace space)
 				const auto& mesh = model.data->meshes[i];
 
 				//Do Anim once per mesh
-				if (renderable.animatable && drawIndex != 0) {
+				if (renderable.animatable) {
 					std::vector<glm::mat4> nodeTransforms = model.GetNodeTransforms(renderable.animName, renderable.time, renderable.context);
 
 					if (!mesh.hasVertexBoneData) {
@@ -421,7 +431,10 @@ void Renderer::drawInternal(RenderSpace space)
 						//Skinned animation
 						std::vector<glm::mat4> boneTransforms = mesh.GetBoneTransforms(nodeTransforms);
 						for (unsigned int j = 0; j < boneTransforms.size(); j++) {
-							glUniformMatrix4fv(shaderCache.bones[j], 1, GL_FALSE, &boneTransforms[j][0][0]);
+							if (drawIndex == 0)
+								glUniformMatrix4fv(depthShaderCache.bones[j], 1, GL_FALSE, &boneTransforms[j][0][0]);
+							else if (drawIndex == 1)
+								glUniformMatrix4fv(shaderCache.bones[j], 1, GL_FALSE, &boneTransforms[j][0][0]);
 						}
 					}
 				}
@@ -486,7 +499,12 @@ void Renderer::drawInternal(RenderSpace space)
 					glBindBuffer(GL_ARRAY_BUFFER, buffer);
 					glBufferData(GL_ARRAY_BUFFER, visibleMeshTransform.size() * sizeof(glm::mat4), &visibleMeshTransform[0], GL_DYNAMIC_DRAW);
 
-					if (drawIndex == 1)
+					if (drawIndex == 0)
+					{
+						model.material.Apply(depthShaderCache.shader);
+						mesh.material.Apply(depthShaderCache.shader);
+					}
+					else if (drawIndex == 1)
 					{
 						model.material.Apply(shaderCache.shader);
 						mesh.material.Apply(shaderCache.shader);
@@ -499,8 +517,9 @@ void Renderer::drawInternal(RenderSpace space)
 					for (int i = 0; i != visibleMeshTransform.size(); i++) {
 						if (drawIndex == 0)
 						{
-							depthShader.SetModelMatrix(visibleMeshTransform[i]);
-							glUniform1i(depthShader.GetUniformLocation("useInstance"), 0);
+							depthShaderCache.shader.SetModelMatrix(visibleMeshTransform[i]);
+							model.material.Apply(depthShaderCache.shader);
+							mesh.material.Apply(depthShaderCache.shader);
 						}
 						else if (drawIndex == 1) {
 							shaderCache.shader.SetModelMatrix(visibleMeshTransform[i]);

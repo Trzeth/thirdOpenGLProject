@@ -49,7 +49,7 @@ void HouseScene::setupPrefab()
 
 		housePrefab.SetName("HouseModel");
 
-		plainShader = shaderLoader.BuildFromFile("Shaders/plainShader.vs", "Shaders/plainShader.fs");
+		plainShader = shaderLoader.BuildFromFile("Shaders/plainShader.vert", "Shaders/plainShader.frag");
 
 		housePrefab.AddConstructor(new TransformComponentConstructor());
 		housePrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, houseModelHandle, plainShader));
@@ -106,7 +106,7 @@ void HouseScene::setupPrefab()
 
 	/* Player */
 	{
-		skinnedShader = shaderLoader.BuildFromFile("Shaders/skinnedShader.vs", "Shaders/skinnedShader.fs");
+		skinnedShader = shaderLoader.BuildFromFile("Shaders/plainShader.vert", "Shaders/plainShader.frag");
 
 		glm::mat4 playerModelMat4(1.0f);
 		playerModelMat4 *= glm::scale(playerModelMat4, glm::vec3(0.5f));

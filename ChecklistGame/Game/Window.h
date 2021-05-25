@@ -32,6 +32,9 @@ private:
 	bool firstMouse = true;
 	float lastX, lastY;
 
+	bool firstAltShow = false;
+	bool altPress = false;
+
 	bool windowCloseFlag = false;
 
 	void setupGLFW();

@@ -31,6 +31,7 @@ public:
 	/*! Shader cache. Stores a shader along with its uniform locations. */
 	struct ShaderCache
 	{
+		ShaderCache() { };
 		ShaderCache(const Shader& shader);
 
 		Shader shader;
@@ -153,9 +154,9 @@ private:
 	GLuint depthMapFBO;
 	GLuint depthMap;
 
-	Shader depthShader;
+	ShaderCache depthShaderCache;
 
-	const GLuint SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+	const GLuint SHADOW_WIDTH = 2048, SHADOW_HEIGHT = 2048;
 
 	int viewportWidth;
 	int viewportHeight;

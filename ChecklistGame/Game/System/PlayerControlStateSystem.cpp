@@ -18,13 +18,13 @@ void PlayerControlStateSystem::updateEntity(float dt, eid_t entity)
 		if (playerComponent->controlState == PlayerControlState::Normal
 			&& playerComponent->preControlState == PlayerControlState::InGUI)
 		{
-			glfwSetInputMode(window.GetWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+			//glfwSetInputMode(window.GetWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		}
 
 		if (playerComponent->controlState == PlayerControlState::InGUI
 			&& playerComponent->preControlState == PlayerControlState::Normal)
 		{
-			glfwSetInputMode(window.GetWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			//glfwSetInputMode(window.GetWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		}
 	}
 }

@@ -183,7 +183,7 @@ void YardScene::setupPrefab()
 	/* Skybox */
 	{
 		Model skyboxModel = Box::GetSkybox("Resources/skybox/", std::vector<std::string>{"right.jpg", "left.jpg", "up.jpg", "down.jpg", "front.jpg", "back.jpg"});
-		skyboxShader = shaderLoader.BuildFromFile("Shaders/skybox.vs", "Shaders/skybox.fs");
+		skyboxShader = shaderLoader.BuildFromFile("Shaders/skybox.vert", "Shaders/skybox.frag");
 
 		Renderer::ModelHandle skyboxModelHandle = renderer.GetModelHandle(skyboxModel);
 
@@ -193,7 +193,7 @@ void YardScene::setupPrefab()
 
 	/* Player */
 	{
-		skinnedShader = shaderLoader.BuildFromFile("Shaders/skinnedShader.vs", "Shaders/skinnedShader.fs");
+		skinnedShader = shaderLoader.BuildFromFile("Shaders/lightingShader.vert", "Shaders/lightingShader.frag");
 
 		glm::mat4 playerModelMat4(1.0f);
 		playerModelMat4 *= glm::scale(playerModelMat4, glm::vec3(0.5f));
@@ -318,6 +318,7 @@ void YardScene::setupPrefab()
 			collision->controlMovement = true;
 
 			PlayerComponent* playerComponent = world->GetComponent<PlayerComponent>(entityId->player);
+			//playerComponent->SetControlState(PlayerControlState::Normal);
 			playerComponent->SetControlState(PlayerControlState::Normal);
 
 			CameraComponent* storyboardCamera = world->GetComponent<CameraComponent>(entityId->storyboard);

@@ -47,10 +47,6 @@ void UIRenderer::Update(float dt)
 
 void UIRenderer::Draw()
 {
-	ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplGlfw_NewFrame();
-	ImGui::NewFrame();
-
 	for (auto iter = entityPool.begin(); iter != entityPool.end(); iter++) {
 		if (!iter->second.element->IsVisible()) {
 			continue;

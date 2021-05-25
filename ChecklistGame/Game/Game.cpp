@@ -6,6 +6,11 @@
 #include "Event/LoadSceneEvent.h"
 
 #include "Scene/Home/YardScene.h"
+
+#include <thirdEngine/Renderer/UI/ImGui/imgui.h>
+#include <thirdEngine/Renderer/UI/ImGui/imgui_impl_glfw.h>
+#include <thirdEngine/Renderer/UI/ImGui/imgui_impl_opengl3.h>
+
 Game::Game() :
 	renderer(), uiRenderer(), world(), input(),
 	window(input, renderer), eventManager(world),
@@ -209,6 +214,10 @@ void Game::draw()
 		window.NextFrame();
 		return;
 	}
+
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
 
 	renderer.Draw();
 	dynamicsWorld->DebugDraw();

@@ -217,5 +217,7 @@ Mesh MeshBuilder::BuildFromVertices(const std::vector<Vertex>& vertices, const s
 		r.hasBoundingSphere = true;
 	}
 
+	r.material.SetProperty("hasBone", vertexBoneData.size() == 0 ? 0 : 1);
+
 	return std::move(r);
 }

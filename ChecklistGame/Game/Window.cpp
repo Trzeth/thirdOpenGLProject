@@ -35,7 +35,8 @@ struct MouseCallback {
 		obj->lastX = xpos;
 		obj->lastY = ypos;
 
-		obj->input.HandleMouseCallback(xoffset, yoffset);
+		if (!obj->altPress)
+			obj->input.HandleMouseCallback(xoffset, yoffset);
 	}
 };
 Window* MouseCallback::obj;
@@ -67,6 +68,24 @@ struct KeyCallback {
 	static void callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 		if (key == GLFW_KEY_ESCAPE)
 			glfwSetWindowShouldClose(window, true);
+
+		if (mods == GLFW_MOD_ALT) {
+			obj->altPress = true;
+			if (obj->firstAltShow) {
+				glfwSetCursorPos(window, obj->lastX, obj->lastY);
+				obj->firstAltShow = false;
+			}
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
+			return;
+			//不再处理之后的键盘操作
+		}
+		else
+		{
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+			obj->firstAltShow = true;
+			obj->altPress = false;
+		}
 
 		obj->input.HandleKeyCallBack(key, scancode, action, mods);
 	}

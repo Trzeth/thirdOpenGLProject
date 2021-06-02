@@ -92,9 +92,9 @@ inline std::vector<KeyFrame<glm::quat>> StoryboardLoader::parseJsonArray(const G
 		assert(val.Size() == 3 || val.Size() == 4);
 		if (val.Size() == 3)
 		{
-			//Yaw Pitch Roll
+			// Pitch Yaw Roll
 			glm::vec3 UP(0, 1, 0), RIGHT(1, 0, 0), FRONT(0, 0, -1);
-			glm::quat q = glm::angleAxis(glm::radians(val[0].GetFloat()), UP) * glm::angleAxis(glm::radians(val[1].GetFloat()), RIGHT) * glm::angleAxis(glm::radians(val[2].GetFloat()), FRONT);
+			glm::quat q = glm::angleAxis(glm::radians(val[0].GetFloat()), RIGHT) * glm::angleAxis(glm::radians(val[1].GetFloat()), UP) * glm::angleAxis(glm::radians(val[2].GetFloat()), FRONT);
 			v.push_back(KeyFrame<glm::quat>(q, obj["Time"].GetFloat()));
 		}
 		else

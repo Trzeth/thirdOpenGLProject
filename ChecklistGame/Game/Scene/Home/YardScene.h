@@ -20,7 +20,7 @@
 class YardScene :public Scene
 {
 public:
-	YardScene(const SceneInfo& info) :Scene(info) { }
+	YardScene(const SceneInfo& info) :Scene(info) { spawnPosition = info.spawnPosition; }
 
 	void Setup();
 
@@ -36,6 +36,8 @@ private:
 		eid_t camera;
 		eid_t storyboard;
 	};
+
+	Transform spawnPosition;
 
 	EntityId entityId;
 

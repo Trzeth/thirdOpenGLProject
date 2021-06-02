@@ -120,7 +120,7 @@ void StoryboardDirectorSystem::updateEntity(float dt, eid_t entity)
 					interpolateKeyframes<glm::quat>(
 						animatedEle.RotationChannel,
 						currentTime,
-						storyboardDir->animatedElementContexts[keypair.second].scaleKey));
+						storyboardDir->animatedElementContexts[keypair.second].rotationKey));
 			}
 			if (animatedEle.ScaleChannel.size() > 0)
 			{
@@ -128,7 +128,7 @@ void StoryboardDirectorSystem::updateEntity(float dt, eid_t entity)
 					interpolateKeyframes<glm::vec3>(
 						animatedEle.ScaleChannel,
 						currentTime,
-						storyboardDir->animatedElementContexts[keypair.second].rotationKey));
+						storyboardDir->animatedElementContexts[keypair.second].scaleKey));
 			}
 
 			// Deal with PlayerAnimationState

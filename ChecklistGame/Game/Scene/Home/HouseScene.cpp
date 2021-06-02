@@ -49,7 +49,7 @@ void HouseScene::setupPrefab()
 
 		housePrefab.SetName("HouseModel");
 
-		plainShader = shaderLoader.BuildFromFile("Shaders/plainShader.vert", "Shaders/plainShader.frag");
+		plainShader = shaderLoader.BuildFromFile("Shaders/lightingShader.vert", "Shaders/lightingShader.frag");
 
 		housePrefab.AddConstructor(new TransformComponentConstructor());
 		housePrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, houseModelHandle, plainShader));
@@ -106,7 +106,7 @@ void HouseScene::setupPrefab()
 
 	/* Player */
 	{
-		skinnedShader = shaderLoader.BuildFromFile("Shaders/plainShader.vert", "Shaders/plainShader.frag");
+		skinnedShader = shaderLoader.BuildFromFile("Shaders/lightingShader.vert", "Shaders/lightingShader.frag");
 
 		glm::mat4 playerModelMat4(1.0f);
 		playerModelMat4 *= glm::scale(playerModelMat4, glm::vec3(0.5f));
@@ -155,7 +155,7 @@ void HouseScene::setupPrefab()
 			LoadingScreenInfo info;
 			info.LoopTime = 1.0f;
 			info.LoadingImagePath = std::vector<std::string>{ "GUI/Loading1.png" };
-
+			sceneManager.SetSpawnPosition(Transform(glm::vec3(5.0, 0, 24)));
 			sceneManager.LoadScene<YardScene>(info);
 		};
 

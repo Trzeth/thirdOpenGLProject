@@ -90,6 +90,7 @@ int Game::setup()
 	sceneInfo.globalVariable = &globalVariable;
 	sceneInfo.input = &input;
 	sceneInfo.eventManager = &eventManager;
+	sceneInfo.spawnPosition = Transform();
 
 	sceneManager = std::make_unique<SceneManager>(window, sceneInfo);
 

@@ -4,6 +4,11 @@
 #include <thirdEngine/Renderer/UI/ImGui/imgui_impl_glfw.h>
 #include <thirdEngine/Renderer/UI/ImGui/imgui_impl_opengl3.h>
 
+void SceneManager::SetSpawnPosition(const Transform& t)
+{
+	sceneInfo.spawnPosition = t;
+}
+
 void SceneManager::LoadBegin()
 {
 	loadingImage.clear();

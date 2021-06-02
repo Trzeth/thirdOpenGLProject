@@ -41,7 +41,7 @@ void TownScene::setupPrefab()
 	/* House */
 	{
 		glm::mat4 houseModelMat4(1.0f);
-		houseModelMat4 *= glm::scale(houseModelMat4, glm::vec3(0.1f));
+		//houseModelMat4 *= glm::scale(houseModelMat4, glm::vec3(0.1f));
 
 		Model houseModel = modelLoader.LoadFromFile("Resources/CG_Town/NewTown.FBX", ModelLoadingPrefab::Optimize, houseModelMat4, true);
 		Renderer::ModelHandle houseModelHandle = renderer.GetModelHandle(houseModel);

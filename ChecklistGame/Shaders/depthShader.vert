@@ -13,6 +13,7 @@ uniform int hasBone;
 
 uniform mat4 lightSpaceMatrix;
 
+
 void main()
 {
     vec4 pos;

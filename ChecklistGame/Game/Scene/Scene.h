@@ -5,6 +5,7 @@
 #include <thirdEngine/Renderer/UI/UIRenderer.h>
 #include <thirdEngine/Input/Input.h>
 #include <thirdEngine/Framework/EventManager.h>
+#include <Game/Extra/Transform.h>
 
 class GlobalVariable;
 class SceneManager;
@@ -18,6 +19,8 @@ struct SceneInfo {
 	EventManager* eventManager;
 	SceneManager* sceneManager;
 	GlobalVariable* globalVariable;
+
+	Transform spawnPosition;
 };
 
 class Scene

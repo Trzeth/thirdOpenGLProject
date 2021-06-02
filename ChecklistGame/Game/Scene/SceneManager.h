@@ -52,6 +52,8 @@ public:
 	template<class T>
 	void LoadScene(LoadingScreenInfo info);
 
+	void SetSpawnPosition(const Transform& t);
+
 	void LoadBegin();
 
 	// On Main thread

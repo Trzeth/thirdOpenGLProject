@@ -16,6 +16,8 @@ void CameraSystem::updateEntity(float dt, eid_t entity)
 	CameraComponent* cameraComponent = world.GetComponent<CameraComponent>(entity);
 	TransformComponent* transformComponent = world.GetComponent<TransformComponent>(entity);
 
+	auto qut = transformComponent->data->GetRotation();
+
 	if (!cameraComponent->isEnable)
 		return;
 

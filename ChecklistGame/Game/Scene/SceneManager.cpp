@@ -63,6 +63,7 @@ void SceneManager::LoadBegin()
 void SceneManager::LoadFinish()
 {
 	currentScene->Finish();
+	sceneInfo.renderer->ClearStaticShadowMap();
 }
 
 void SceneManager::Update(float dt)

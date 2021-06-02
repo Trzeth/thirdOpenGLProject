@@ -44,30 +44,52 @@ void Renderer::Initialize(int width, int height)
 	viewportHeight = height;
 
 	//因为是单例 要不等它自动释放吧
-	glGenBuffers(1, &baseMatrixUBO);
+	{
+		// Uniform Buffer Object
+		glGenBuffers(1, &baseMatrixUBO);
 
-	glBindBuffer(GL_UNIFORM_BUFFER, baseMatrixUBO);
-	glBufferData(GL_UNIFORM_BUFFER, 3 * sizeof(glm::mat4) + 5 * sizeof(glm::vec4), NULL, GL_STREAM_DRAW);
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+		glBindBuffer(GL_UNIFORM_BUFFER, baseMatrixUBO);
+		glBufferData(GL_UNIFORM_BUFFER, 3 * sizeof(glm::mat4) + 5 * sizeof(glm::vec4), NULL, GL_STREAM_DRAW);
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-	glBindBufferRange(GL_UNIFORM_BUFFER, 0, baseMatrixUBO, 0, 3 * sizeof(glm::mat4) + 5 * sizeof(glm::vec4));
+		glBindBufferRange(GL_UNIFORM_BUFFER, 0, baseMatrixUBO, 0, 3 * sizeof(glm::mat4) + 5 * sizeof(glm::vec4));
+		glCheckError();
+	}
 
-	// Shadow
-	glGenFramebuffers(1, &depthMapFBO);
-	glGenTextures(1, &depthMap);
-	glBindTexture(GL_TEXTURE_2D, depthMap);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
-		SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	{
+		// Shadow
+		glGenFramebuffers(1, &depthMapFBO);
+		glGenFramebuffers(1, &depthStaticMapFBO);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
-	glDrawBuffer(GL_NONE);
-	glReadBuffer(GL_NONE);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glGenTextures(1, &depthMap);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+		glGenTextures(1, &depthStaticMap);
+		glBindTexture(GL_TEXTURE_2D, depthStaticMap);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+		glDrawBuffer(GL_NONE);
+		glReadBuffer(GL_NONE);
+		glCheckError();
+
+		glBindFramebuffer(GL_FRAMEBUFFER, depthStaticMapFBO);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthStaticMap, 0);
+		glDrawBuffer(GL_NONE);
+		glReadBuffer(GL_NONE);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glCheckError();
+	}
 
 	debugBoundingSphere = ModelLoader().LoadFromFile("Resources/sphere.obj");
 	debugBoundingSphere.data->meshes[0].GenVAO();
@@ -231,7 +253,7 @@ Renderer::ModelHandle Renderer::GetModelHandle(Model model)
 	return modelPool.GetNewHandle(model);
 }
 
-Renderer::RenderableHandle Renderer::GetRenderableHandle(const ModelHandle& modelHandle, const Shader& shader)
+Renderer::RenderableHandle Renderer::GetRenderableHandle(const ModelHandle& modelHandle, const Shader& shader, bool isDynamic)
 {
 	auto shaderIter = shaderMap.find(shader.GetID());
 	if (shaderIter == shaderMap.end()) {
@@ -250,7 +272,7 @@ Renderer::RenderableHandle Renderer::GetRenderableHandle(const ModelHandle& mode
 	shader.Use();
 	glUniform1i(shader.GetUniformLocation("shadowMap"), 0);
 
-	RenderableHandle handle = this->entityPool.GetNewHandle(Entity(shader, modelHandle, animatable));
+	RenderableHandle handle = this->entityPool.GetNewHandle(Entity(shader, modelHandle, animatable, isDynamic));
 
 	return handle;
 }
@@ -259,6 +281,13 @@ void Renderer::ClearBuffer() const
 {
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void Renderer::ClearStaticShadowMap()
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, depthStaticMapFBO);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	redrawDepthStaticMap = true;
 }
 
 void Renderer::Draw()
@@ -307,6 +336,157 @@ void Renderer::Update(float dt)
 			}
 		}
 	}
+
+	redrawDepthStaticMap = false;
+}
+
+void Renderer::drawStaticEntity()
+{
+	glCheckError();
+
+	glBindFramebuffer(GL_FRAMEBUFFER, depthStaticMapFBO);
+
+	// Depth Pass
+	GLfloat near_plane = 1.0f, far_plane = 1000.0f;
+	glm::mat4 lightProjection = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, near_plane, far_plane);
+	glm::mat4 lightView = glm::lookAt(-100.0f * dirLight.direction, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	lightSpaceMatrix = lightProjection * lightView;
+
+	// Calculate Frustum
+	{
+		glm::mat4 matrix = glm::transpose(lightSpaceMatrix);
+		frustum[0] = matrix[3] + matrix[0];
+		frustum[1] = matrix[3] - matrix[0];
+		frustum[2] = matrix[3] + matrix[1];
+		frustum[3] = matrix[3] - matrix[1];
+		frustum[4] = matrix[3] + matrix[2];
+		frustum[5] = matrix[3] - matrix[2];
+
+		for (int i = 0; i != frustum.size(); i++)
+			frustum[i] /= glm::length2(glm::vec3(frustum[i]));
+	}
+
+	depthShaderCache.shader.Use();
+	glUniformMatrix4fv(depthShaderCache.shader.GetUniformLocation("lightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
+
+	glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+	glClear(GL_DEPTH_BUFFER_BIT);
+
+	for (auto iter = entityPool.begin(); iter != entityPool.end(); iter++) {
+		Entity& renderable = iter->second;
+
+		if (renderable.isDynamic)
+		{
+			continue;
+		}
+
+		std::optional<std::reference_wrapper<Model>> modelOpt = modelPool.Get(renderable.modelHandle);
+		assert(modelOpt);
+
+		Model& model = *modelOpt;
+		ShaderCache& shaderCache = renderable.shaderCache;
+		glm::mat4 modelMatrix = renderable.transform;
+
+		glCheckError();
+
+		//只考虑了骨骼动画！！
+
+		unsigned int cullMeshCount = 0;
+		unsigned int totalMeshCount = 0;
+		unsigned int vertexCount = 0;
+
+		for (int i = 0; i != model.data->meshes.size(); i++)
+		{
+			const auto& mesh = model.data->meshes[i];
+
+			//Do Anim once per mesh
+			if (renderable.animatable) {
+				std::vector<glm::mat4> nodeTransforms = model.GetNodeTransforms(renderable.animName, renderable.time, renderable.context);
+
+				if (!mesh.hasVertexBoneData) {
+					// Not skinned animation
+				}
+				else
+				{
+					//Skinned animation
+					std::vector<glm::mat4> boneTransforms = mesh.GetBoneTransforms(nodeTransforms);
+					for (unsigned int j = 0; j < boneTransforms.size(); j++) {
+						glUniformMatrix4fv(depthShaderCache.bones[j], 1, GL_FALSE, &boneTransforms[j][0][0]);
+					}
+				}
+			}
+
+			// We assume mesh won't under animted node
+
+			std::vector<glm::mat4> visibleMeshTransform;
+			const auto& [buffer, transforms] = model.data->meshesTransform[i];
+			for (const auto& transform : transforms)
+			{
+				totalMeshCount++;
+				glCheckError();
+
+				float t = 0.0;
+				if (mesh.hasBoundingSphere)
+				{
+					/* Culling Per Mesh */
+
+					bool visible = true;
+					auto trans = modelMatrix * transform * glm::vec4(mesh.boundingSphere.center, 1);
+					auto matrix = modelMatrix * transform;
+					float maxScale = glm::max(glm::max(matrix[0][0], matrix[1][1]), matrix[2][2]);
+					t = maxScale;
+
+					assert(frustum.size() == 6);
+					for (int i = 0; i != frustum.size(); i++)
+					{
+						if (frustum[i].x * trans.x + frustum[i].y * trans.y + frustum[i].z * trans.z + frustum[i].w <= -mesh.boundingSphere.radius * maxScale)
+						{
+							visible = false;
+							break;
+						}
+					}
+
+					if (!visible) {
+						cullMeshCount++;
+						continue;
+					}
+				}
+				glCheckError();
+
+				vertexCount += mesh.GetIndicesCount();
+				visibleMeshTransform.push_back(modelMatrix * transform);
+			}
+
+			if (buffer)
+			{
+				if (!visibleMeshTransform.size())continue;
+
+				glBindBuffer(GL_ARRAY_BUFFER, buffer);
+				glBufferData(GL_ARRAY_BUFFER, visibleMeshTransform.size() * sizeof(glm::mat4), &visibleMeshTransform[0], GL_DYNAMIC_DRAW);
+
+				model.material.Apply(depthShaderCache.shader);
+				mesh.material.Apply(depthShaderCache.shader);
+
+				mesh.Draw(visibleMeshTransform.size());
+			}
+			else
+			{
+				// Don't use buffer
+				for (int i = 0; i != visibleMeshTransform.size(); i++) {
+					depthShaderCache.shader.SetModelMatrix(visibleMeshTransform[i]);
+					model.material.Apply(depthShaderCache.shader);
+					mesh.material.Apply(depthShaderCache.shader);
+
+					mesh.Draw();
+				}
+			}
+
+			glCheckError();
+		}
+	}
+	glCheckError();
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Renderer::drawInternal(RenderSpace space)
@@ -320,12 +500,19 @@ void Renderer::drawInternal(RenderSpace space)
 
 	ImGui::End();
 
+	if (redrawDepthStaticMap)
+	{
+		// Static Shadow Pass
+		drawStaticEntity();
+	}
+
+	// 0 Dynamic Shadow Depth Pass 1 Normal Draw
 	for (const int drawIndex : {0, 1}) {
 		switch (drawIndex)
 		{
 		case 0:
 		{
-			// Depth Pass
+			// Dynamic Depth Pass
 			GLfloat near_plane = 1.0f, far_plane = 1000.0f;
 			glm::mat4 lightProjection = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, near_plane, far_plane);
 			glm::mat4 lightView = glm::lookAt(-100.0f * dirLight.direction, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -348,9 +535,13 @@ void Renderer::drawInternal(RenderSpace space)
 			depthShaderCache.shader.Use();
 			glUniformMatrix4fv(depthShaderCache.shader.GetUniformLocation("lightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
 
+			glBindFramebuffer(GL_READ_FRAMEBUFFER, depthStaticMapFBO);
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, depthMapFBO);
+			glBlitFramebuffer(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT, 0, 0, SHADOW_WIDTH, SHADOW_HEIGHT, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 			glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 			glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-			glClear(GL_DEPTH_BUFFER_BIT);
+			glCheckError();
+
 			break;
 		}
 		case 1:
@@ -388,7 +579,9 @@ void Renderer::drawInternal(RenderSpace space)
 
 		for (auto iter = entityPool.begin(); iter != entityPool.end(); iter++) {
 			Entity& renderable = iter->second;
-			if (renderable.space != space) {
+
+			if (renderable.space != space ||
+				(!renderable.isDynamic && drawIndex == 0)) {
 				continue;
 			}
 

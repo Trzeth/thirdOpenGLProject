@@ -43,13 +43,14 @@ public:
 	their own transforms. */
 	struct Entity
 	{
-		Entity(const Shader& shader, HandlePool<Model>::Handle modelHandle, bool animatable)
+		Entity(const Shader& shader, HandlePool<Model>::Handle modelHandle, bool animatable, bool isDynamic)
 			: shaderCache(shader), modelHandle(modelHandle), space(RenderSpace::World),
 			animatable(animatable), loopAnimation(false), autoUpdate(true), time(0),
-			transform(1.0f), culling(true)
+			transform(1.0f), culling(true), isDynamic(isDynamic)
 		{ }
 
 		HandlePool<Model>::Handle modelHandle;
+		bool isDynamic;
 
 		bool culling;
 
@@ -122,14 +123,17 @@ public:
 
 	ModelHandle GetModelHandle(Model model);
 
-	RenderableHandle GetRenderableHandle(const ModelHandle& modelHandle, const Shader& shader);
+	RenderableHandle GetRenderableHandle(const ModelHandle& modelHandle, const Shader& shader, bool isDynamic = false);
 
 	void ClearBuffer() const;
+
+	void ClearStaticShadowMap();
 
 	void Draw();
 
 	void Update(float dt);
 private:
+	void drawStaticEntity();
 	void drawInternal(RenderSpace space);
 
 	DirLight dirLight;
@@ -151,8 +155,14 @@ private:
 
 	GLuint baseMatrixUBO;
 
+	// Full combined shadow map
 	GLuint depthMapFBO;
 	GLuint depthMap;
+
+	// Draw on first render
+	bool redrawDepthStaticMap;
+	GLuint depthStaticMapFBO;
+	GLuint depthStaticMap;
 
 	ShaderCache depthShaderCache;
 

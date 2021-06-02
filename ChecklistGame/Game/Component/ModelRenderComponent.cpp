@@ -6,7 +6,7 @@
 ComponentConstructorInfo ModelRenderComponentConstructor::Construct(World& world, eid_t parent, void* userinfo)
 {
 	ModelRenderComponent* component = new ModelRenderComponent();
-	component->rendererHandle = renderer.GetRenderableHandle(modelHandle, shader);
+	component->rendererHandle = renderer.GetRenderableHandle(modelHandle, shader, isDynamic);
 
 	if (userinfo != nullptr) {
 		PrefabConstructionInfo* info = (PrefabConstructionInfo*)userinfo;

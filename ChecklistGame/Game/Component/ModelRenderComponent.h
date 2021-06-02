@@ -12,8 +12,8 @@ struct ModelRenderComponent :public Component
 
 class ModelRenderComponentConstructor :public ComponentConstructor {
 public:
-	ModelRenderComponentConstructor(Renderer& renderer, const Renderer::ModelHandle& modelHandle, const Shader& shader, const std::string& defaultAnimation = "")
-		: renderer(renderer), modelHandle(modelHandle), shader(shader), defaultAnimation(defaultAnimation) { }
+	ModelRenderComponentConstructor(Renderer& renderer, const Renderer::ModelHandle& modelHandle, const Shader& shader, bool isDynamic = false, const std::string& defaultAnimation = "")
+		: renderer(renderer), modelHandle(modelHandle), shader(shader), defaultAnimation(defaultAnimation), isDynamic(isDynamic) { }
 
 	virtual ComponentConstructorInfo Construct(World& world, eid_t parent, void* userinfo);
 
@@ -23,4 +23,5 @@ private:
 	Shader shader;
 	Renderer::ModelHandle modelHandle;
 	std::string defaultAnimation;
+	bool isDynamic;
 };

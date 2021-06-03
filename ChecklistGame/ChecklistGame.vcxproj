@@ -155,6 +155,7 @@
     <ClCompile Include="Game\Component\RigidbodyMotorComponent.cpp" />
     <ClCompile Include="Game\Component\StoryboardDirectorComponent.cpp" />
     <ClCompile Include="Game\Component\TransformComponent.cpp" />
+    <ClCompile Include="Game\Extra\ExternalUI.cpp" />
     <ClCompile Include="Game\Extra\PrefabConstructionInfo.cpp" />
     <ClCompile Include="Game\Extra\Transform.cpp" />
     <ClCompile Include="Game\Extra\Util.cpp" />
@@ -181,8 +182,11 @@
     <ClCompile Include="Game\System\RigidbodyMotorSystem.cpp" />
     <ClCompile Include="Game\System\StoryboardDirectorSystem.cpp" />
     <ClCompile Include="Game\UIElement\Checklist.cpp" />
+    <ClCompile Include="Game\UIElement\Home\BrushLoading.cpp" />
+    <ClCompile Include="Game\UIElement\Home\BrushSelector.cpp" />
     <ClCompile Include="Game\UIElement\Home\Letter.cpp" />
     <ClCompile Include="Game\UIElement\Home\StartMenu.cpp" />
+    <ClCompile Include="Game\UIElement\Home\WaterFlower.cpp" />
     <ClCompile Include="Game\Window.cpp" />
     <ClCompile Include="Lib\glad.c" />
   </ItemGroup>
@@ -200,6 +204,7 @@
     <ClInclude Include="Game\Event\HouseSceneEvent.h" />
     <ClInclude Include="Game\Event\LoadSceneEvent.h" />
     <ClInclude Include="Game\Event\YardSceneEvent.h" />
+    <ClInclude Include="Game\Extra\ExternalUI.h" />
     <ClInclude Include="Game\Extra\PrefabConstructionInfo.h" />
     <ClInclude Include="Game\Extra\Transform.h" />
     <ClInclude Include="Game\Extra\Util.h" />
@@ -226,8 +231,11 @@
     <ClInclude Include="Game\System\RigidbodyMotorSystem.h" />
     <ClInclude Include="Game\System\StoryboardDirectorSystem.h" />
     <ClInclude Include="Game\UIElement\Checklist.h" />
+    <ClInclude Include="Game\UIElement\Home\BrushLoading.h" />
+    <ClInclude Include="Game\UIElement\Home\BrushSelector.h" />
     <ClInclude Include="Game\UIElement\Home\Letter.h" />
     <ClInclude Include="Game\UIElement\Home\StartMenu.h" />
+    <ClInclude Include="Game\UIElement\Home\WaterFlower.h" />
     <ClInclude Include="Game\Window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

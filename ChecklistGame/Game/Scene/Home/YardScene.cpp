@@ -68,12 +68,12 @@ void YardScene::setupPrefab()
 		glm::mat4 yardModelMat4(1.0f);
 		yardModelMat4 *= glm::scale(yardModelMat4, glm::vec3(0.1f));
 
-		Model yardModel = modelLoader.LoadFromFile("Resources/CG_HOME/NewHome.FBX", ModelLoadingPrefab::Optimize, yardModelMat4, true);
+		yardModel = modelLoader.LoadFromFile("Resources/CG_HOME/NewHome.FBX", ModelLoadingPrefab::Optimize, yardModelMat4, true);
 
 		DirLight dirLight;
 		dirLight.direction = glm::vec3(-1, -1, 1);
-		dirLight.ambient = glm::vec3(0.5, 0.5, 0.5);
-		dirLight.diffuse = glm::vec3(0.5, 0.5, 0.5);
+		dirLight.ambient = glm::vec3(0.5, 0.5, 0.4);
+		dirLight.diffuse = glm::vec3(0.7, 0.7, 0.75);
 		dirLight.specular = glm::vec3(0.5, 0.5, 0.5);
 		renderer.SetDirLight(dirLight);
 
@@ -85,6 +85,13 @@ void YardScene::setupPrefab()
 
 		yardPrefab.AddConstructor(new TransformComponentConstructor());
 		yardPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, yardModelHandle, plainShader));
+
+		/* Fence */
+		std::string paths[]{ "Resources/fobj_fence.png","Resources/fobj_fence2.png","Resources/fobj_fence3.png","Resources/fobj_fence4.png" };
+		for (int i = 0; i != 4; i++)
+		{
+			fenceTexture[i] = textureLoader.LoadFromFile(TextureType::Diffuse, paths[i]);
+		}
 
 		b2BodyDef bodyDef;
 
@@ -254,6 +261,13 @@ void YardScene::setupPrefab()
 
 		checklist = std::make_shared<Checklist>(input, globalVariable);
 		checklistHandle = uiRenderer.GetEntityHandle(checklist);
+
+		brushLoading = std::make_shared<BrushLoading>(eventManager);
+		brushLoadingHandle = uiRenderer.GetEntityHandle(brushLoading);
+		brushSelector = std::make_shared<BrushSelector>(eventManager);
+		brushSelectorHandle = uiRenderer.GetEntityHandle(brushSelector);
+		waterFlower = std::make_shared<WaterFlower>(eventManager);
+		waterFlowerHandle = uiRenderer.GetEntityHandle(waterFlower);
 	}
 
 	/* Callback */
@@ -333,20 +347,53 @@ void YardScene::setupPrefab()
 #pragma region In Scene Interact
 
 		std::function<void(const YardSceneBrushInteractEvent& event)> brushInteractCallback =
-			[scene = this, &sceneManager = sceneManager](const YardSceneBrushInteractEvent& event) {
-			printf("Brush Interact.\n");
+			[scene = this, brushSelector = brushSelector, &entityId = entityId, &world = world](const YardSceneBrushInteractEvent& event) {
+			PlayerComponent* playerComponent = world.GetComponent<PlayerComponent>(entityId.player);
+			playerComponent->SetControlState(PlayerControlState::InGUI);
+			brushSelector->Show();
 		};
 
 		eventManager.RegisterForEvent<YardSceneBrushInteractEvent>(brushInteractCallback);
 
+		std::function<void(const YardSceneBrushChangedEvent& event)> brushChangedCallback =
+			[scene = this, brushLoading = brushLoading](const YardSceneBrushChangedEvent& event) {
+			brushLoading->Show();
+		};
+
+		eventManager.RegisterForEvent<YardSceneBrushChangedEvent>(brushChangedCallback);
+
+		std::function<void(const YardSceneBrushLoadingMidEvent& event)> brushLoadingMidCallback =
+			[scene = this, &yardModel = yardModel, fenceTexture = fenceTexture, brushSelector = brushSelector](const YardSceneBrushLoadingMidEvent& event) {
+			Material i = yardModel.GetMeshMaterial(74);
+			i.SetProperty("texture_diffuse", MaterialProperty(fenceTexture[brushSelector->GetCurrentSelected()]));
+			yardModel.SetMeshMaterial(74, i);
+		};
+
+		eventManager.RegisterForEvent<YardSceneBrushLoadingMidEvent>(brushLoadingMidCallback);
+
+		std::function<void(const YardSceneBrushFinishEvent& event)> brushFinishCallback =
+			[scene = this, &entityId = entityId, &world = world](const YardSceneBrushFinishEvent& event) {
+			PlayerComponent* playerComponent = world.GetComponent<PlayerComponent>(entityId.player);
+			playerComponent->SetControlState(PlayerControlState::Normal);
+		};
+
+		eventManager.RegisterForEvent<YardSceneBrushFinishEvent>(brushFinishCallback);
+
 		std::function<void(const YardSceneWaterPotInteractEvent& event)> waterPotInteractCallback =
-			[scene = this, &sceneManager = sceneManager](const YardSceneWaterPotInteractEvent& event) {
-			printf("Waterpot Interact.\n");
+			[scene = this, waterFlower = waterFlower](const YardSceneWaterPotInteractEvent& event) {
+			waterFlower->Show();
 		};
 
 		eventManager.RegisterForEvent<YardSceneWaterPotInteractEvent>(waterPotInteractCallback);
 
-		/*
+		std::function<void(const YardSceneWaterPotFinishEvent& event)> waterPotFinishCallback =
+			[scene = this, &entityId = entityId, &world = world](const YardSceneWaterPotFinishEvent& event) {
+			PlayerComponent* playerComponent = world.GetComponent<PlayerComponent>(entityId.player);
+			playerComponent->SetControlState(PlayerControlState::Normal);
+		};
+
+		eventManager.RegisterForEvent<YardSceneWaterPotFinishEvent>(waterPotFinishCallback);
+
 		std::function<void(const YardSceneDoorInteractEvent& event)> doorInteractCallback =
 			[scene = this, &sceneManager = sceneManager](const YardSceneDoorInteractEvent& event) {
 			LoadingScreenInfo info;
@@ -357,7 +404,6 @@ void YardScene::setupPrefab()
 		};
 
 		eventManager.RegisterForEvent<YardSceneDoorInteractEvent>(doorInteractCallback);
-		*/
 
 		std::function<void(const YardSceneBikeInteractEvent& event)> bikeInteractCallback =
 			[scene = this, &sceneManager = sceneManager](const YardSceneBikeInteractEvent& event) {

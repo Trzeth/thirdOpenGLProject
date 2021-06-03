@@ -47,6 +47,13 @@ void HouseScene::setupPrefab()
 		Model houseModel = modelLoader.LoadFromFile("Resources/Room/Room.FBX", ModelLoadingPrefab::Default, houseModelMat4, true);
 		Renderer::ModelHandle houseModelHandle = renderer.GetModelHandle(houseModel);
 
+		DirLight dirLight;
+		dirLight.direction = glm::vec3(0.04, -1, -0.01);
+		dirLight.ambient = glm::vec3(0.8, 0.8, 0.8);
+		dirLight.diffuse = glm::vec3(0.5, 0.5, 0.5);
+		dirLight.specular = glm::vec3(0.5, 0.5, 0.5);
+		renderer.SetDirLight(dirLight);
+
 		housePrefab.SetName("HouseModel");
 
 		plainShader = shaderLoader.BuildFromFile("Shaders/lightingShader.vert", "Shaders/lightingShader.frag");
@@ -174,4 +181,5 @@ void HouseScene::Finish()
 void HouseScene::PreDestruct()
 {
 	glDisable(GL_CULL_FACE);
+	eventManager.ClearEventListener<HouseSceneDoorInteractEvent>();
 }

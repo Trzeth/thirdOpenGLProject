@@ -568,6 +568,7 @@ void Renderer::drawInternal(RenderSpace space)
 			glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, sizeof(glm::mat4), glm::value_ptr(lightSpaceMatrix));
 
 			// ×¢Òâ¶ÔÆë
+			//vec3 => offset vec4
 			glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 3 + sizeof(glm::vec4) * 0, sizeof(glm::vec3), glm::value_ptr(viewPos));
 			glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 3 + sizeof(glm::vec4) * 1, sizeof(glm::vec3), glm::value_ptr(dirLight.direction));
 			glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 3 + sizeof(glm::vec4) * 2, sizeof(glm::vec3), glm::value_ptr(dirLight.ambient));

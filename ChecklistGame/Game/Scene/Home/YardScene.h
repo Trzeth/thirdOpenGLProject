@@ -13,6 +13,9 @@
 
 #include "Game/UIElement/Home/StartMenu.h"
 #include "Game/UIElement/Home/Letter.h"
+#include "Game/UIElement/Home/BrushLoading.h"
+#include "Game/UIElement/Home/BrushSelector.h"
+#include "Game/UIElement/Home/WaterFlower.h"
 #include "Game/UIElement/Checklist.h"
 
 #include "Game/Scene/Scene.h"
@@ -65,11 +68,25 @@ private:
 
 	std::vector<Storyboard> storyboards;
 
+	/* For change fence */
+	Model yardModel;
+
+	Texture fenceTexture[4];
+
 	/* GUI */
 	std::shared_ptr<StartMenu> startMenu;
 	std::shared_ptr<Letter> letter;
-	std::shared_ptr<Checklist> checklist;
+	std::shared_ptr<BrushLoading> brushLoading;
+	std::shared_ptr<BrushSelector> brushSelector;
+	std::shared_ptr<WaterFlower> waterFlower;
+
 	UIRenderer::UIElementHandle startMenuHandle;
 	UIRenderer::UIElementHandle letterHandle;
+	UIRenderer::UIElementHandle brushLoadingHandle;
+	UIRenderer::UIElementHandle brushSelectorHandle;
+	UIRenderer::UIElementHandle waterFlowerHandle;
+
+	/* Global GUI */
+	std::shared_ptr<Checklist> checklist;
 	UIRenderer::UIElementHandle checklistHandle;
 };

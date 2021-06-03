@@ -2,6 +2,7 @@
 
 #include "Game/Window.h"
 #include "Game/Component/PlayerComponent.h"
+#include <Game/Component/RigidbodyMotorComponent.h>
 
 PlayerControlStateSystem::PlayerControlStateSystem(World& world, Window& window)
 	:System(world), window(window)
@@ -12,6 +13,7 @@ PlayerControlStateSystem::PlayerControlStateSystem(World& world, Window& window)
 void PlayerControlStateSystem::updateEntity(float dt, eid_t entity)
 {
 	PlayerComponent* playerComponent = world.GetComponent<PlayerComponent>(entity);
+	RigidbodyMotorComponent* rigidbodyMotorComponent = world.GetComponent<RigidbodyMotorComponent>(entity);
 
 	if (playerComponent->preControlState != playerComponent->controlState)
 	{
@@ -25,6 +27,7 @@ void PlayerControlStateSystem::updateEntity(float dt, eid_t entity)
 			&& playerComponent->preControlState == PlayerControlState::Normal)
 		{
 			//glfwSetInputMode(window.GetWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			rigidbodyMotorComponent->movement = glm::vec2(0.0, 0.0);
 		}
 	}
 }

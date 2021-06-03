@@ -116,6 +116,18 @@
     <ClCompile Include="Game\Scene\Town\ShopScene.cpp">
       <Filter>Game\Scene\Town</Filter>
     </ClCompile>
+    <ClCompile Include="Game\UIElement\Home\WaterFlower.cpp">
+      <Filter>Game\UIElement\Home</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\UIElement\Home\BrushSelector.cpp">
+      <Filter>Game\UIElement\Home</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\UIElement\Home\BrushLoading.cpp">
+      <Filter>Game\UIElement\Home</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Extra\ExternalUI.cpp">
+      <Filter>Game\Extra</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Game">
@@ -290,6 +302,18 @@
     </ClInclude>
     <ClInclude Include="Game\Scene\Town\TownScene.h">
       <Filter>Game\Scene\Town</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\UIElement\Home\WaterFlower.h">
+      <Filter>Game\UIElement\Home</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\UIElement\Home\BrushSelector.h">
+      <Filter>Game\UIElement\Home</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\UIElement\Home\BrushLoading.h">
+      <Filter>Game\UIElement\Home</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Extra\ExternalUI.h">
+      <Filter>Game\Extra</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

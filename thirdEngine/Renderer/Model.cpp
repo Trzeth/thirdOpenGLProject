@@ -141,6 +141,16 @@ void Model::SetMeshCulling(unsigned int meshIndex, bool val)
 	data->meshes[meshIndex].hasBoundingSphere = val;
 }
 
+Material Model::GetMeshMaterial(unsigned int meshIndex) const
+{
+	return data->meshes[meshIndex].material;
+}
+
+void Model::SetMeshMaterial(unsigned int meshIndex, const Material& material)
+{
+	data->meshes[meshIndex].material = material;
+}
+
 void Model::GenVAO() const
 {
 	for (int i = 0; i != data->meshesTransform.size(); i++)

@@ -40,15 +40,15 @@ void PlayerAnimationStateSystem::updateEntity(float dt, eid_t entity)
 			break;
 		case PlayerAnimationState::PickLetter:
 			renderer.SetRenderableModelHandle(modelRendererComponent->rendererHandle, playerComponent->data.pickLetter);
-			renderer.SetRenderableAnimation(modelRendererComponent->rendererHandle, "combinedAnim", false);
+			renderer.SetRenderableAnimation(modelRendererComponent->rendererHandle, "combinedAnim", 0.0, true, false);
 			break;
 		case PlayerAnimationState::PutLetter:
 			renderer.SetRenderableModelHandle(modelRendererComponent->rendererHandle, playerComponent->data.putLetter);
-			renderer.SetRenderableAnimation(modelRendererComponent->rendererHandle, "combinedAnim", false);
+			renderer.SetRenderableAnimation(modelRendererComponent->rendererHandle, "combinedAnim", 0.0, true, false);
 			break;
 		case PlayerAnimationState::TurnAround:
 			renderer.SetRenderableModelHandle(modelRendererComponent->rendererHandle, playerComponent->data.turnAround);
-			renderer.SetRenderableAnimation(modelRendererComponent->rendererHandle, "combinedAnim", false);
+			renderer.SetRenderableAnimation(modelRendererComponent->rendererHandle, "combinedAnim", 0.0, true, false);
 			break;
 		case PlayerAnimationState::Idle:
 		{

@@ -98,10 +98,10 @@ void SceneManager::Draw()
 		const ImGuiViewport* viewport = ImGui::GetMainViewport();
 
 		ImGui::Begin("Loading", 0, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoMove);
-		ImGui::SetWindowSize(ImVec2(400, 583));
+		ImGui::SetWindowSize(ImVec2(loadingScreenInfo.ImageWidth, loadingScreenInfo.ImageHeight));
 
-		ImGui::SetWindowPos(ImVec2(viewport->Size.x / 2 - (400 / 2), viewport->Size.y / 2 - (583 / 2)));
-		ImGui::Image((void*)(intptr_t)loadingImage[curPos].GetID(), ImVec2(400, 583));
+		ImGui::SetWindowPos(ImVec2(viewport->Size.x / 2 - (loadingScreenInfo.ImageWidth / 2), viewport->Size.y / 2 - (loadingScreenInfo.ImageHeight / 2)));
+		ImGui::Image((void*)(intptr_t)loadingImage[curPos].GetID(), ImVec2(loadingScreenInfo.ImageWidth, loadingScreenInfo.ImageHeight));
 
 		ImGui::End();
 	}

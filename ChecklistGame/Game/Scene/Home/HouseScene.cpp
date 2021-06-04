@@ -161,7 +161,10 @@ void HouseScene::setupPrefab()
 			[scene = this, &sceneManager = sceneManager](const HouseSceneDoorInteractEvent& event) {
 			LoadingScreenInfo info;
 			info.LoopTime = 1.0f;
-			info.LoadingImagePath = std::vector<std::string>{ "GUI/Loading1.png" };
+			info.ImageWidth = 400;
+			info.ImageHeight = 400;
+			info.LoadingImagePath = std::vector<std::string>{ "GUI/Loading/Key/0.png","GUI/Loading/Key/1.png","GUI/Loading/Key/2.png" };
+
 			sceneManager.SetSpawnPosition(Transform(glm::vec3(5.0, 0, 24)));
 			sceneManager.LoadScene<YardScene>(info);
 		};

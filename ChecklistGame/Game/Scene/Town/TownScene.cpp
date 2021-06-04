@@ -44,6 +44,9 @@ void TownScene::setupPrefab()
 		//houseModelMat4 *= glm::scale(houseModelMat4, glm::vec3(0.1f));
 
 		Model houseModel = modelLoader.LoadFromFile("Resources/CG_Town/NewTown.FBX", ModelLoadingPrefab::Optimize, houseModelMat4, true);
+		// Disable fence culling because it doesn't seems right
+		houseModel.SetMeshCulling(29, false);
+
 		Renderer::ModelHandle houseModelHandle = renderer.GetModelHandle(houseModel);
 
 		housePrefab.SetName("HouseModel");
@@ -108,7 +111,7 @@ void TownScene::setupPrefab()
 		skinnedShader = shaderLoader.BuildFromFile("Shaders/plainShader.vert", "Shaders/plainShader.frag");
 
 		glm::mat4 playerModelMat4(1.0f);
-		playerModelMat4 *= glm::scale(playerModelMat4, glm::vec3(0.5f));
+		playerModelMat4 *= glm::scale(playerModelMat4, glm::vec3(0.7f));
 
 		Model playerWalkModel = modelLoader.LoadFromFile("Resources/Walk.DAE", ModelLoadingPrefab::Default, playerModelMat4);
 		Model playerPickLetterModel = modelLoader.LoadFromFile("Resources/PickLetter.DAE", ModelLoadingPrefab::Default, playerModelMat4);

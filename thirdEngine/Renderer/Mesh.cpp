@@ -209,7 +209,7 @@ Mesh MeshBuilder::BuildFromVertices(const std::vector<Vertex>& vertices, const s
 				radius = newRadius;
 				sq_radius = radius * radius;
 
-				center += k * direction;
+				center -= k * direction;
 			}
 		}
 

@@ -24,14 +24,18 @@ enum class Effect {
 struct LoadingScreenInfo
 {
 	LoadingScreenInfo()
-		:LoadingImagePath(), LoopTime(), EnterEffect(), ExitEffect()
+		:LoadingImagePath(), LoopTime(), EnterEffect(), ExitEffect(), ImageWidth(), ImageHeight()
 	{ }
 
-	LoadingScreenInfo(std::vector<std::string> loadingImagePath, float loopTime, Effect enter = Effect::None, Effect exit = Effect::None)
-		:LoadingImagePath(loadingImagePath), LoopTime(loopTime), EnterEffect(enter), ExitEffect(exit)
+	LoadingScreenInfo(std::vector<std::string> loadingImagePath, float ImageWidth, float ImageHeight, float loopTime, Effect enter = Effect::None, Effect exit = Effect::None)
+		:LoadingImagePath(loadingImagePath), LoopTime(loopTime), EnterEffect(enter), ExitEffect(exit), ImageHeight(ImageHeight), ImageWidth(ImageWidth)
 	{ }
 
 	std::vector<std::string> LoadingImagePath;
+
+	float ImageWidth;
+	float ImageHeight;
+
 	float LoopTime;
 
 	Effect EnterEffect;

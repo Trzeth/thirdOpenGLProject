@@ -398,7 +398,9 @@ void YardScene::setupPrefab()
 			[scene = this, &sceneManager = sceneManager](const YardSceneDoorInteractEvent& event) {
 			LoadingScreenInfo info;
 			info.LoopTime = 1.0f;
-			info.LoadingImagePath = std::vector<std::string>{ "GUI/Loading0.png" };
+			info.ImageWidth = 400;
+			info.ImageHeight = 400;
+			info.LoadingImagePath = std::vector<std::string>{ "GUI/Loading/Key/0.png","GUI/Loading/Key/1.png","GUI/Loading/Key/2.png" };
 
 			sceneManager.LoadScene<HouseScene>(info);
 		};
@@ -409,7 +411,9 @@ void YardScene::setupPrefab()
 			[scene = this, &sceneManager = sceneManager](const YardSceneBikeInteractEvent& event) {
 			LoadingScreenInfo info;
 			info.LoopTime = 1.0f;
-			info.LoadingImagePath = std::vector<std::string>{ "GUI/Loading0.png" };
+			info.ImageWidth = 406;
+			info.ImageHeight = 255;
+			info.LoadingImagePath = std::vector<std::string>{ "GUI/Loading/Bicycle/0.png","GUI/Loading/Bicycle/1.png","GUI/Loading/Bicycle/2.png","GUI/Loading/Bicycle/3.png" };
 
 			sceneManager.LoadScene<TownScene>(info);
 		};

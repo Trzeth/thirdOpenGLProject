@@ -352,20 +352,6 @@ void Renderer::drawStaticEntity()
 	glm::mat4 lightView = glm::lookAt(-100.0f * dirLight.direction, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	lightSpaceMatrix = lightProjection * lightView;
 
-	// Calculate Frustum
-	{
-		glm::mat4 matrix = glm::transpose(lightSpaceMatrix);
-		frustum[0] = matrix[3] + matrix[0];
-		frustum[1] = matrix[3] - matrix[0];
-		frustum[2] = matrix[3] + matrix[1];
-		frustum[3] = matrix[3] - matrix[1];
-		frustum[4] = matrix[3] + matrix[2];
-		frustum[5] = matrix[3] - matrix[2];
-
-		for (int i = 0; i != frustum.size(); i++)
-			frustum[i] /= glm::length2(glm::vec3(frustum[i]));
-	}
-
 	depthShaderCache.shader.Use();
 	glUniformMatrix4fv(depthShaderCache.shader.GetUniformLocation("lightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
 
@@ -388,8 +374,6 @@ void Renderer::drawStaticEntity()
 		glm::mat4 modelMatrix = renderable.transform;
 
 		glCheckError();
-
-		//Ö»¿¼ÂÇÁË¹Ç÷À¶¯»­£¡£¡
 
 		unsigned int cullMeshCount = 0;
 		unsigned int totalMeshCount = 0;
@@ -423,34 +407,6 @@ void Renderer::drawStaticEntity()
 			for (const auto& transform : transforms)
 			{
 				totalMeshCount++;
-				glCheckError();
-
-				float t = 0.0;
-				if (mesh.hasBoundingSphere)
-				{
-					/* Culling Per Mesh */
-
-					bool visible = true;
-					auto trans = modelMatrix * transform * glm::vec4(mesh.boundingSphere.center, 1);
-					auto matrix = modelMatrix * transform;
-					float maxScale = glm::max(glm::max(matrix[0][0], matrix[1][1]), matrix[2][2]);
-					t = maxScale;
-
-					assert(frustum.size() == 6);
-					for (int i = 0; i != frustum.size(); i++)
-					{
-						if (frustum[i].x * trans.x + frustum[i].y * trans.y + frustum[i].z * trans.z + frustum[i].w <= -mesh.boundingSphere.radius * maxScale)
-						{
-							visible = false;
-							break;
-						}
-					}
-
-					if (!visible) {
-						cullMeshCount++;
-						continue;
-					}
-				}
 				glCheckError();
 
 				vertexCount += mesh.GetIndicesCount();
@@ -521,15 +477,12 @@ void Renderer::drawInternal(RenderSpace space)
 			// Calculate Frustum
 			{
 				glm::mat4 matrix = glm::transpose(lightSpaceMatrix);
-				frustum[0] = matrix[3] + matrix[0];
-				frustum[1] = matrix[3] - matrix[0];
-				frustum[2] = matrix[3] + matrix[1];
-				frustum[3] = matrix[3] - matrix[1];
-				frustum[4] = matrix[3] + matrix[2];
-				frustum[5] = matrix[3] - matrix[2];
-
-				for (int i = 0; i != frustum.size(); i++)
-					frustum[i] /= glm::length2(glm::vec3(frustum[i]));
+				frustum[0] = glm::normalize(matrix[3] + matrix[0]);
+				frustum[1] = glm::normalize(matrix[3] - matrix[0]);
+				frustum[2] = glm::normalize(matrix[3] + matrix[1]);
+				frustum[3] = glm::normalize(matrix[3] - matrix[1]);
+				frustum[4] = glm::normalize(matrix[3] + matrix[2]);
+				frustum[5] = glm::normalize(matrix[3] - matrix[2]);
 			}
 
 			depthShaderCache.shader.Use();
@@ -551,15 +504,12 @@ void Renderer::drawInternal(RenderSpace space)
 			// Calculate Frustum
 			{
 				glm::mat4 matrix = glm::transpose(projectionMatrix * viewMatrix);
-				frustum[0] = matrix[3] + matrix[0];
-				frustum[1] = matrix[3] - matrix[0];
-				frustum[2] = matrix[3] + matrix[1];
-				frustum[3] = matrix[3] - matrix[1];
-				frustum[4] = matrix[3] + matrix[2];
-				frustum[5] = matrix[3] - matrix[2];
-
-				for (int i = 0; i != frustum.size(); i++)
-					frustum[i] /= glm::length2(glm::vec3(frustum[i]));
+				frustum[0] = glm::normalize(matrix[3] + matrix[0]);
+				frustum[1] = glm::normalize(matrix[3] - matrix[0]);
+				frustum[2] = glm::normalize(matrix[3] + matrix[1]);
+				frustum[3] = glm::normalize(matrix[3] - matrix[1]);
+				frustum[4] = glm::normalize(matrix[3] + matrix[2]);
+				frustum[5] = glm::normalize(matrix[3] - matrix[2]);
 			}
 
 			glBindBuffer(GL_UNIFORM_BUFFER, baseMatrixUBO);
@@ -640,7 +590,6 @@ void Renderer::drawInternal(RenderSpace space)
 				for (const auto& transform : transforms)
 				{
 					totalMeshCount++;
-					glCheckError();
 
 					float t = 0.0;
 					if (mesh.hasBoundingSphere)
@@ -656,7 +605,7 @@ void Renderer::drawInternal(RenderSpace space)
 						assert(frustum.size() == 6);
 						for (int i = 0; i != frustum.size(); i++)
 						{
-							if (frustum[i].x * trans.x + frustum[i].y * trans.y + frustum[i].z * trans.z + frustum[i].w <= -mesh.boundingSphere.radius * maxScale)
+							if (frustum[i].x * trans.x + frustum[i].y * trans.y + frustum[i].z * trans.z + frustum[i].w * trans.w <= -mesh.boundingSphere.radius * maxScale)
 							{
 								visible = false;
 								break;
@@ -668,7 +617,6 @@ void Renderer::drawInternal(RenderSpace space)
 							continue;
 						}
 					}
-					glCheckError();
 
 					/*
 					glm::mat4 trans = glm::scale(glm::mat4(1.0), glm::vec3(t));

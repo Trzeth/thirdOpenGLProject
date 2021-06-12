@@ -11,15 +11,18 @@
 #include "Game/Component/RigidbodyMotorComponent.h"
 #include "Game/Component/InteractComponent.h"
 
+#include "Game/Extra/PrefabConstructionInfo.h"
+
 #include "Game/Event/HouseSceneEvent.h"
 
 #include "Game/Scene/Home/YardScene.h"
+#include <thirdEngine/Renderer/Box.h>
 
 void ForestScene::Setup()
 {
 	setupPrefab();
 
-	eid_t player = world.ConstructPrefab(playerPrefab);
+	eid_t player = world.ConstructPrefab(playerPrefab, World::NullEntity, new PrefabConstructionInfo(Transform(glm::vec3(-47, 0, -222))));
 	eid_t camera = world.ConstructPrefab(cameraPrefab);
 
 	PlayerComponent* playerComponent = world.GetComponent<PlayerComponent>(player);
@@ -29,8 +32,9 @@ void ForestScene::Setup()
 	CameraComponent* cameraComponent = world.GetComponent<CameraComponent>(camera);
 	cameraComponent->isEnable = true;
 
-	world.ConstructPrefab(housePrefab);
+	world.ConstructPrefab(forestPrefab);
 	world.ConstructPrefab(doorInteractPrefab);
+	world.ConstructPrefab(skyboxPrefab);
 }
 
 void ForestScene::setupPrefab()
@@ -38,20 +42,28 @@ void ForestScene::setupPrefab()
 	if (prefabsSteup)
 		return;
 
-	/* House */
+	/* Forest */
 	{
-		glm::mat4 houseModelMat4(1.0f);
-		houseModelMat4 *= glm::scale(houseModelMat4, glm::vec3(0.4f));
+		glm::mat4 forestModelMat4(1.0f);
+		forestModelMat4 *= glm::translate(forestModelMat4, glm::vec3(0, -1.0, 0));
+		forestModelMat4 *= glm::scale(forestModelMat4, glm::vec3(0.1f));
 
-		Model houseModel = modelLoader.LoadFromFile("Resources/Room/Room.FBX", ModelLoadingPrefab::Optimize, houseModelMat4, true);
-		Renderer::ModelHandle houseModelHandle = renderer.GetModelHandle(houseModel);
+		DirLight dirLight;
+		dirLight.direction = glm::vec3(0.02, -9.37, 0.08);
+		dirLight.ambient = glm::vec3(0.61, 0.6, 0.5);
+		dirLight.diffuse = glm::vec3(0.7, 0.7, 0.75);
+		dirLight.specular = glm::vec3(0.5, 0.5, 0.5);
+		renderer.SetDirLight(dirLight);
 
-		housePrefab.SetName("HouseModel");
+		Model forestModel = modelLoader.LoadFromFile("Resources/CG_Forest/Forest.FBX", ModelLoadingPrefab::Optimize, forestModelMat4, true);
+		Renderer::ModelHandle forestModelHandle = renderer.GetModelHandle(forestModel);
 
-		plainShader = shaderLoader.BuildFromFile("Shaders/plainShader.vert", "Shaders/plainShader.frag");
+		forestPrefab.SetName("ForestModel");
 
-		housePrefab.AddConstructor(new TransformComponentConstructor());
-		housePrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, houseModelHandle, plainShader));
+		lightingShader = shaderLoader.BuildFromFile("Shaders/lightingShader.vert", "Shaders/lightingShader.frag");
+
+		forestPrefab.AddConstructor(new TransformComponentConstructor());
+		forestPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, forestModelHandle, lightingShader, true));
 
 		b2BodyDef bodyDef;
 
@@ -82,7 +94,18 @@ void ForestScene::setupPrefab()
 		fixtures.push_back(right);
 		fixtures.push_back(front);
 
-		housePrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(bodyDef, fixtures)));
+		//forestPrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(bodyDef, fixtures)));
+	}
+
+	/* Skybox */
+	{
+		Model skyboxModel = Box::GetSkybox("Resources/skybox/", std::vector<std::string>{"right.jpg", "left.jpg", "up.jpg", "down.jpg", "front.jpg", "back.jpg"});
+		skyboxShader = shaderLoader.BuildFromFile("Shaders/skybox.vert", "Shaders/skybox.frag");
+
+		Renderer::ModelHandle skyboxModelHandle = renderer.GetModelHandle(skyboxModel);
+
+		skyboxPrefab.AddConstructor(new TransformComponentConstructor());
+		skyboxPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, skyboxModelHandle, skyboxShader));
 	}
 
 	interactEventResponder = std::make_shared<InteractEventResponder>(world, eventManager);
@@ -105,8 +128,6 @@ void ForestScene::setupPrefab()
 
 	/* Player */
 	{
-		skinnedShader = shaderLoader.BuildFromFile("Shaders/plainShader.vert", "Shaders/plainShader.frag");
-
 		glm::mat4 playerModelMat4(1.0f);
 		playerModelMat4 *= glm::scale(playerModelMat4, glm::vec3(0.5f));
 
@@ -125,7 +146,7 @@ void ForestScene::setupPrefab()
 		playerData.turnAround = renderer.GetModelHandle(playerTurnAroundModel);
 
 		playerPrefab.AddConstructor(new PlayerComponentConstructor(playerData));
-		playerPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, playerData.walk, skinnedShader));
+		playerPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, playerData.walk, lightingShader, true));
 		b2BodyDef bodyDef;
 		bodyDef.type = b2BodyType::b2_dynamicBody;
 		bodyDef.allowSleep = false;

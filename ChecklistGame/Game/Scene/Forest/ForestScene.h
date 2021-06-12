@@ -25,10 +25,11 @@ private:
 	TextureLoader textureLoader;
 	ShaderLoader shaderLoader;
 
-	Shader skinnedShader;
-	Shader plainShader;
+	Shader lightingShader;
+	Shader skyboxShader;
 
-	Prefab housePrefab;
+	Prefab forestPrefab;
+	Prefab skyboxPrefab;
 	Prefab playerPrefab;
 	Prefab cameraPrefab;
 

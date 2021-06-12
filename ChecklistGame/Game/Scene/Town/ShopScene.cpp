@@ -29,7 +29,7 @@ void ShopScene::Setup()
 	CameraComponent* cameraComponent = world.GetComponent<CameraComponent>(camera);
 	cameraComponent->isEnable = true;
 
-	world.ConstructPrefab(housePrefab);
+	world.ConstructPrefab(shopPrefab);
 	world.ConstructPrefab(doorInteractPrefab);
 }
 
@@ -40,73 +40,32 @@ void ShopScene::setupPrefab()
 
 	/* House */
 	{
-		glm::mat4 houseModelMat4(1.0f);
-		houseModelMat4 *= glm::scale(houseModelMat4, glm::vec3(0.4f));
+		glm::mat4 shopModelMat4(1.0f);
+		shopModelMat4 *= glm::rotate(shopModelMat4, glm::radians(90.0f), glm::vec3(0, 1, 0));
+		shopModelMat4 *= glm::scale(shopModelMat4, glm::vec3(400.0f));
 
-		Model houseModel = modelLoader.LoadFromFile("Resources/Room/Room.FBX", ModelLoadingPrefab::Optimize, houseModelMat4, true);
-		Renderer::ModelHandle houseModelHandle = renderer.GetModelHandle(houseModel);
+		Model shopModel = modelLoader.LoadFromFile("Resources/CG_SHOP/untitled.obj", ModelLoadingPrefab::Optimize, shopModelMat4, true);
+		Renderer::ModelHandle shopModelHandle = renderer.GetModelHandle(shopModel);
 
-		housePrefab.SetName("HouseModel");
+		DirLight dirLight;
+		dirLight.direction = glm::vec3(0.04, -1, -0.01);
+		dirLight.ambient = glm::vec3(0.8, 0.8, 0.8);
+		dirLight.diffuse = glm::vec3(0.5, 0.5, 0.5);
+		dirLight.specular = glm::vec3(0.5, 0.5, 0.5);
+		renderer.SetDirLight(dirLight);
 
-		plainShader = shaderLoader.BuildFromFile("Shaders/plainShader.vert", "Shaders/plainShader.frag");
+		shopPrefab.SetName("ShopModel");
 
-		housePrefab.AddConstructor(new TransformComponentConstructor());
-		housePrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, houseModelHandle, plainShader));
+		lightingShader = shaderLoader.BuildFromFile("Shaders/lightingShader.vert", "Shaders/lightingShader.frag");
 
-		b2BodyDef bodyDef;
-
-		std::vector<b2FixtureDef> fixtures;
-
-		b2FixtureDef left;
-		b2PolygonShape* s1 = new b2PolygonShape();
-		s1->SetAsBox(0.1f, 13.5f, b2Vec2(-17.5f, -6.3f), 0);
-		left.shape = s1;
-
-		b2FixtureDef back;
-		b2PolygonShape* s2 = new b2PolygonShape();
-		s2->SetAsBox(13.0f, 5.0f, b2Vec2(-4.0f, -20.0f), 0);
-		back.shape = s2;
-
-		b2FixtureDef right;
-		b2PolygonShape* s3 = new b2PolygonShape();
-		s3->SetAsBox(0.1f, 13.5f, b2Vec2(9.6f, -6.3f), 0);
-		right.shape = s3;
-
-		b2FixtureDef front;
-		b2PolygonShape* s4 = new b2PolygonShape();
-		s4->SetAsBox(13.0f, 0.1f, b2Vec2(-4.0f, 7.5f), 0);
-		front.shape = s4;
-
-		fixtures.push_back(left);
-		fixtures.push_back(back);
-		fixtures.push_back(right);
-		fixtures.push_back(front);
-
-		housePrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(bodyDef, fixtures)));
+		shopPrefab.AddConstructor(new TransformComponentConstructor());
+		shopPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, shopModelHandle, lightingShader));
 	}
 
 	interactEventResponder = std::make_shared<InteractEventResponder>(world, eventManager);
 
-	/* Scene Interact Object */
-	{
-		/* Door */
-		b2BodyDef doorDef;
-
-		b2FixtureDef door;
-		door.isSensor = true;
-		b2PolygonShape* s1 = new b2PolygonShape();
-		s1->SetAsBox(5.0f, 5.0f, b2Vec2(-4.0f, -19.0f), 0);
-		door.shape = s1;
-
-		doorInteractPrefab.SetName("Door Interact");
-		doorInteractPrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(doorDef, door)));
-		doorInteractPrefab.AddConstructor(new InteractComponentConstructor(InteractComponent::Data(typeid(HouseSceneDoorInteractEvent).hash_code())));
-	}
-
 	/* Player */
 	{
-		skinnedShader = shaderLoader.BuildFromFile("Shaders/plainShader.vert", "Shaders/plainShader.frag");
-
 		glm::mat4 playerModelMat4(1.0f);
 		playerModelMat4 *= glm::scale(playerModelMat4, glm::vec3(0.5f));
 
@@ -114,6 +73,10 @@ void ShopScene::setupPrefab()
 		Model playerPickLetterModel = modelLoader.LoadFromFile("Resources/PickLetter.DAE", ModelLoadingPrefab::Default, playerModelMat4);
 		Model playerPutLetterModel = modelLoader.LoadFromFile("Resources/PutLetter.DAE", ModelLoadingPrefab::Default, playerModelMat4);
 		Model playerTurnAroundModel = modelLoader.LoadFromFile("Resources/TurnAround.DAE", ModelLoadingPrefab::Default, playerModelMat4);
+
+		Material i = playerWalkModel.GetMeshMaterial(0);
+		i.SetProperty("texture_diffuse", MaterialProperty(globalVariable.clothes[globalVariable.clothIndex]));
+		playerWalkModel.SetMeshMaterial(0, i);
 
 		playerPrefab.SetName("Player");
 		playerPrefab.AddConstructor(new TransformComponentConstructor());
@@ -125,7 +88,7 @@ void ShopScene::setupPrefab()
 		playerData.turnAround = renderer.GetModelHandle(playerTurnAroundModel);
 
 		playerPrefab.AddConstructor(new PlayerComponentConstructor(playerData));
-		playerPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, playerData.walk, skinnedShader));
+		playerPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, playerData.walk, lightingShader));
 		b2BodyDef bodyDef;
 		bodyDef.type = b2BodyType::b2_dynamicBody;
 		bodyDef.allowSleep = false;
@@ -145,6 +108,12 @@ void ShopScene::setupPrefab()
 	{
 		cameraPrefab.AddConstructor(new TransformComponentConstructor());
 		cameraPrefab.AddConstructor(new CameraComponentConstructor(CameraComponent::Data()));
+	}
+
+	/* UI */
+	{
+		shopUI = std::make_shared<ShopUI>(eventManager);
+		shopUIHandle = uiRenderer.GetEntityHandle(shopUI);
 	}
 
 	/* Callback */

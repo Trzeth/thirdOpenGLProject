@@ -6,6 +6,10 @@
 #include "Event/LoadSceneEvent.h"
 
 #include "Scene/Home/YardScene.h"
+#include "Scene/Town/TownScene.h"
+#include "Scene/Forest/ForestScene.h"
+#include "Scene/Town/ShopScene.h"
+#include "Scene/Town/ClothStoreScene.h"
 
 #include <thirdEngine/Renderer/UI/ImGui/imgui.h>
 #include <thirdEngine/Renderer/UI/ImGui/imgui_impl_glfw.h>
@@ -55,7 +59,6 @@ int Game::setup()
 	input.SetDefaultMapping("LookHorizontal", KbmAxis_MouseXPos, KbmAxis_MouseXNeg, AxisProps(0.1f, 0.2f, 0.3f));
 	input.SetDefaultMapping("LookVertical", KbmAxis_MouseYPos, KbmAxis_MouseYNeg, AxisProps(0.1f, 0.2f, 0.3f));
 
-	input.SetDefaultMapping("Space", KbmAxis_Space, KbmAxis_None);
 	input.SetDefaultMapping("E", KbmAxis_E, KbmAxis_None);
 	input.SetDefaultMapping("LeftMouse", KbmAxis_MouseLeft, KbmAxis_None);
 	input.SetDefaultMapping("R", KbmAxis_R, KbmAxis_None);
@@ -80,6 +83,7 @@ int Game::setup()
 	storyboardDirectorSystem = std::make_unique<StoryboardDirectorSystem>(world, eventManager);
 	collisionUpdateSystem = std::make_unique<CollisionUpdateSystem>(world);
 	rigidbodyMotorSystem = std::make_unique<RigidbodyMotorSystem>(world);
+	characterShowcaseSystem = std::make_unique<CharacterShowcaseSystem>(world, input, renderer);
 
 	/* Scene Manager */
 	SceneInfo sceneInfo;
@@ -88,6 +92,16 @@ int Game::setup()
 	sceneInfo.uiRenderer = &uiRenderer;
 	sceneInfo.dynamicsWorld = dynamicsWorld.get();
 	sceneInfo.globalVariable = &globalVariable;
+
+	std::vector<Texture> clothes;
+	TextureLoader textureLoader;
+	std::string paths[]{ "Resources/Cloth/0.png","Resources/Cloth/1.png","Resources/Cloth/2.png","Resources/Cloth/3.png" };
+	for (int i = 0; i != 4; i++)
+	{
+		clothes.push_back(textureLoader.LoadFromFile(TextureType::Diffuse, paths[i]));
+	}
+
+	sceneInfo.globalVariable->clothes = clothes;
 	sceneInfo.input = &input;
 	sceneInfo.eventManager = &eventManager;
 	sceneInfo.spawnPosition = Transform();
@@ -100,19 +114,13 @@ int Game::setup()
 	};
 	eventManager.RegisterForEvent<LoadSceneWaitEvent>(LoadSceneWaitCallback);
 
-	std::function<void(const LoadSceneStartEvent& event)> LoadSceneStartCallback =
-		[&loadScene = loadScene](const LoadSceneStartEvent& event) {
-		loadScene = true;
-	};
-	eventManager.RegisterForEvent<LoadSceneStartEvent>(LoadSceneStartCallback);
-
 	std::function<void(const LoadSceneEndEvent& event)> LoadSceneEndCallback =
 		[&loadSceneEnd = loadSceneEnd](const LoadSceneEndEvent& event) {
 		loadSceneEnd = true;
 	};
 	eventManager.RegisterForEvent<LoadSceneEndEvent>(LoadSceneEndCallback);
 
-	sceneManager->LoadScene<YardScene>(LoadingScreenInfo(
+	sceneManager->LoadScene<ClothStoreScene>(LoadingScreenInfo(
 		std::vector<std::string>{"GUI/Loading/Checklist/0.png", "GUI/Loading/Checklist/1.png", "GUI/Loading/Checklist/2.png", "GUI/Loading/Checklist/3.png", "GUI/Loading/Checklist/4.png", "GUI/Loading/Checklist/5.png"}, 400, 583, 0.5));
 
 	return 0;
@@ -153,6 +161,7 @@ void Game::update()
 		{
 			sceneManager->LoadBegin();
 			loadSceneWait = false;
+			loadScene = true;
 		}
 
 		if (loadScene) {
@@ -166,7 +175,7 @@ void Game::update()
 			loadSceneEnd = false;
 
 			std::vector<eid_t> playerEntities = world.GetEntitiesWithComponent<PlayerComponent>();
-			if (playerEntities.size() < 0)
+			if (playerEntities.size() <= 0)
 			{
 				printf("WARNING: No camera in scene");
 			}
@@ -197,6 +206,7 @@ void Game::update()
 	playerAnimationStateSystem->Update(deltaTime);
 	playerControlStateSystem->Update(deltaTime);
 	collisionUpdateSystem->Update(deltaTime);
+	characterShowcaseSystem->Update(deltaTime);
 
 	modelRenderSystem->Update(deltaTime);
 	cameraSystem->Update(deltaTime);

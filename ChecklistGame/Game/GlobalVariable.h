@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <thirdEngine/Renderer/Texture.h>
 
 enum class TaskState {
 	Finished,
@@ -8,12 +9,14 @@ enum class TaskState {
 
 struct GlobalVariable
 {
-	GlobalVariable(int taskCount) :currentTime(0)
+	GlobalVariable(int taskCount) :currentTime(0), clothes()
 	{
 		taskState.resize(taskCount);
 		for (int i = 0; i != taskCount; i++) {
 			taskState[i] = TaskState::NotFinished;
 		}
+
+		clothIndex = 0;
 	}
 	float currentTime;
 
@@ -28,4 +31,7 @@ struct GlobalVariable
 	 * 4.  ’ ∞∑øº‰
 	*/
 	std::vector<TaskState> taskState;
+
+	std::vector<Texture> clothes;
+	unsigned int clothIndex;
 };

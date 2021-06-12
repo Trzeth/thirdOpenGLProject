@@ -85,6 +85,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
+  <PropertyGroup Label="Vcpkg">
+    <VcpkgEnabled>false</VcpkgEnabled>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -148,6 +151,7 @@
   <ItemGroup>
     <ClCompile Include="ChecklistGame.cpp" />
     <ClCompile Include="Game\Component\CameraComponent.cpp" />
+    <ClCompile Include="Game\Component\CharacterShowcaseComponent.cpp" />
     <ClCompile Include="Game\Component\CollisionComponent.cpp" />
     <ClCompile Include="Game\Component\InteractComponent.cpp" />
     <ClCompile Include="Game\Component\ModelRenderComponent.cpp" />
@@ -169,11 +173,13 @@
     <ClCompile Include="Game\Scene\Home\YardScene.cpp" />
     <ClCompile Include="Game\Scene\Scene.cpp" />
     <ClCompile Include="Game\Scene\SceneManager.cpp" />
+    <ClCompile Include="Game\Scene\Town\ClothStoreScene.cpp" />
     <ClCompile Include="Game\Scene\Town\ShopScene.cpp" />
     <ClCompile Include="Game\Scene\Town\TownScene.cpp" />
     <ClCompile Include="Game\Storyboard\Storyboard.cpp" />
     <ClCompile Include="Game\Storyboard\StoryboardLoader.cpp" />
     <ClCompile Include="Game\System\CameraSystem.cpp" />
+    <ClCompile Include="Game\System\CharacterShowcaseSystem.cpp" />
     <ClCompile Include="Game\System\CollisionUpdateSystem.cpp" />
     <ClCompile Include="Game\System\ModelRenderSystem.cpp" />
     <ClCompile Include="Game\System\PlayerAnimationStateSystem.cpp" />
@@ -181,17 +187,21 @@
     <ClCompile Include="Game\System\PlayerInputSystem.cpp" />
     <ClCompile Include="Game\System\RigidbodyMotorSystem.cpp" />
     <ClCompile Include="Game\System\StoryboardDirectorSystem.cpp" />
+    <ClCompile Include="Game\UIElement\BikeMap.cpp" />
     <ClCompile Include="Game\UIElement\Checklist.cpp" />
     <ClCompile Include="Game\UIElement\Home\BrushLoading.cpp" />
     <ClCompile Include="Game\UIElement\Home\BrushSelector.cpp" />
     <ClCompile Include="Game\UIElement\Home\Letter.cpp" />
     <ClCompile Include="Game\UIElement\Home\StartMenu.cpp" />
     <ClCompile Include="Game\UIElement\Home\WaterFlower.cpp" />
+    <ClCompile Include="Game\UIElement\Town\ClothStoreUI.cpp" />
+    <ClCompile Include="Game\UIElement\Town\ShopUI.cpp" />
     <ClCompile Include="Game\Window.cpp" />
     <ClCompile Include="Lib\glad.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Component\CameraComponent.h" />
+    <ClInclude Include="Game\Component\CharacterShowcaseComponent.h" />
     <ClInclude Include="Game\Component\CollisionComponent.h" />
     <ClInclude Include="Game\Component\InteractComponent.h" />
     <ClInclude Include="Game\Component\ModelRenderComponent.h" />
@@ -199,10 +209,14 @@
     <ClInclude Include="Game\Component\RigidbodyMotorComponent.h" />
     <ClInclude Include="Game\Component\StoryboardDirectorComponent.h" />
     <ClInclude Include="Game\Component\TransformComponent.h" />
+    <ClInclude Include="Game\Event\ClothStoreSceneEvent.h" />
     <ClInclude Include="Game\Event\CollisionEvent.h" />
+    <ClInclude Include="Game\Event\ForestSceneEvent.h" />
     <ClInclude Include="Game\Event\GameEvent.h" />
     <ClInclude Include="Game\Event\HouseSceneEvent.h" />
     <ClInclude Include="Game\Event\LoadSceneEvent.h" />
+    <ClInclude Include="Game\Event\ShopSceneEvent.h" />
+    <ClInclude Include="Game\Event\TownSceneEvent.h" />
     <ClInclude Include="Game\Event\YardSceneEvent.h" />
     <ClInclude Include="Game\Extra\ExternalUI.h" />
     <ClInclude Include="Game\Extra\PrefabConstructionInfo.h" />
@@ -218,11 +232,13 @@
     <ClInclude Include="Game\Scene\Home\YardScene.h" />
     <ClInclude Include="Game\Scene\Scene.h" />
     <ClInclude Include="Game\Scene\SceneManager.h" />
+    <ClInclude Include="Game\Scene\Town\ClothStoreScene.h" />
     <ClInclude Include="Game\Scene\Town\ShopScene.h" />
     <ClInclude Include="Game\Scene\Town\TownScene.h" />
     <ClInclude Include="Game\Storyboard\Storyboard.h" />
     <ClInclude Include="Game\Storyboard\StoryboardLoader.h" />
     <ClInclude Include="Game\System\CameraSystem.h" />
+    <ClInclude Include="Game\System\CharacterShowcaseSystem.h" />
     <ClInclude Include="Game\System\CollisionUpdateSystem.h" />
     <ClInclude Include="Game\System\ModelRenderSystem.h" />
     <ClInclude Include="Game\System\PlayerAnimationStateSystem.h" />
@@ -230,12 +246,15 @@
     <ClInclude Include="Game\System\PlayerInputSystem.h" />
     <ClInclude Include="Game\System\RigidbodyMotorSystem.h" />
     <ClInclude Include="Game\System\StoryboardDirectorSystem.h" />
+    <ClInclude Include="Game\UIElement\BikeMap.h" />
     <ClInclude Include="Game\UIElement\Checklist.h" />
     <ClInclude Include="Game\UIElement\Home\BrushLoading.h" />
     <ClInclude Include="Game\UIElement\Home\BrushSelector.h" />
     <ClInclude Include="Game\UIElement\Home\Letter.h" />
     <ClInclude Include="Game\UIElement\Home\StartMenu.h" />
     <ClInclude Include="Game\UIElement\Home\WaterFlower.h" />
+    <ClInclude Include="Game\UIElement\Town\ClothStoreUI.h" />
+    <ClInclude Include="Game\UIElement\Town\ShopUI.h" />
     <ClInclude Include="Game\Window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

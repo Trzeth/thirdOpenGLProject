@@ -14,6 +14,7 @@
 #include "System/PlayerControlStateSystem.h"
 #include "System/CollisionUpdateSystem.h"
 #include "System/RigidbodyMotorSystem.h"
+#include "System/CharacterShowcaseSystem.h"
 
 #include "Window.h"
 #include "Physics.h"
@@ -57,6 +58,7 @@ private:
 	std::unique_ptr<StoryboardDirectorSystem> storyboardDirectorSystem;
 	std::unique_ptr<CollisionUpdateSystem> collisionUpdateSystem;
 	std::unique_ptr<RigidbodyMotorSystem> rigidbodyMotorSystem;
+	std::unique_ptr<CharacterShowcaseSystem> characterShowcaseSystem;
 
 	std::shared_ptr<b2World> dynamicsWorld;
 

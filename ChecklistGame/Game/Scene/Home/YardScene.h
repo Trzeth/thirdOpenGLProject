@@ -49,8 +49,7 @@ private:
 	ShaderLoader shaderLoader;
 	StoryboardLoader storyboardLoader;
 
-	Shader skinnedShader;
-	Shader plainShader;
+	Shader lightingShader;
 	Shader skyboxShader;
 
 	Prefab skyboxPrefab;

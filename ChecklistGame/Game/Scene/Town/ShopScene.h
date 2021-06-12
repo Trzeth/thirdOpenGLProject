@@ -8,6 +8,8 @@
 
 #include "Game/Scene/Scene.h"
 
+#include "Game/UIElement/Town/ShopUI.h"
+
 class ShopScene :public Scene
 {
 public:
@@ -25,14 +27,18 @@ private:
 	TextureLoader textureLoader;
 	ShaderLoader shaderLoader;
 
-	Shader skinnedShader;
-	Shader plainShader;
+	Shader lightingShader;
 
-	Prefab housePrefab;
+	Prefab shopPrefab;
 	Prefab playerPrefab;
 	Prefab cameraPrefab;
 
 	Prefab doorInteractPrefab;
 
 	std::shared_ptr<InteractEventResponder> interactEventResponder;
+
+	/* GUI */
+	std::shared_ptr<ShopUI> shopUI;
+
+	UIRenderer::UIElementHandle shopUIHandle;
 };

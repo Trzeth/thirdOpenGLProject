@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="ChecklistGame.cpp" />
     <ClCompile Include="Game\Window.cpp">
       <Filter>Game</Filter>
     </ClCompile>
@@ -128,6 +127,25 @@
     <ClCompile Include="Game\Extra\ExternalUI.cpp">
       <Filter>Game\Extra</Filter>
     </ClCompile>
+    <ClCompile Include="Game\UIElement\BikeMap.cpp">
+      <Filter>Game\UIElement</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Scene\Town\ClothStoreScene.cpp">
+      <Filter>Game\Scene\Town</Filter>
+    </ClCompile>
+    <ClCompile Include="ChecklistGame.cpp" />
+    <ClCompile Include="Game\UIElement\Town\ShopUI.cpp">
+      <Filter>Game\UIElement\Town</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Component\CharacterShowcaseComponent.cpp">
+      <Filter>Game\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\System\CharacterShowcaseSystem.cpp">
+      <Filter>Game\System</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\UIElement\Town\ClothStoreUI.cpp">
+      <Filter>Game\UIElement\Town</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Game">
@@ -174,6 +192,9 @@
     </Filter>
     <Filter Include="Game\Scene\Forest">
       <UniqueIdentifier>{4b19e94b-e316-4826-8185-ba3415cba6be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\UIElement\Town">
+      <UniqueIdentifier>{211d2a8f-8b17-414a-9bca-8c8d53669844}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -314,6 +335,36 @@
     </ClInclude>
     <ClInclude Include="Game\Extra\ExternalUI.h">
       <Filter>Game\Extra</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\UIElement\BikeMap.h">
+      <Filter>Game\UIElement</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Event\ForestSceneEvent.h">
+      <Filter>Game\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Event\ShopSceneEvent.h">
+      <Filter>Game\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Event\TownSceneEvent.h">
+      <Filter>Game\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Event\ClothStoreSceneEvent.h">
+      <Filter>Game\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Scene\Town\ClothStoreScene.h">
+      <Filter>Game\Scene\Town</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\UIElement\Town\ShopUI.h">
+      <Filter>Game\UIElement\Town</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Component\CharacterShowcaseComponent.h">
+      <Filter>Game\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\System\CharacterShowcaseSystem.h">
+      <Filter>Game\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\UIElement\Town\ClothStoreUI.h">
+      <Filter>Game\UIElement\Town</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

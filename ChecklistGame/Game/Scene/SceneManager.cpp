@@ -36,9 +36,6 @@ void SceneManager::LoadBegin()
 		&loadingWindow = loadingWindow, &eventManager = eventManager,
 			&currentScene = currentScene, &currentLoadingScene = currentLoadingScene]()
 		{
-			LoadSceneStartEvent startEvt;
-			eventManager.SendEvent<LoadSceneStartEvent>(startEvt);
-
 			glfwMakeContextCurrent(loadingWindow);
 
 			currentLoadingScene->Setup();

@@ -1,5 +1,6 @@
 #include "TownScene.h"
 
+#include <thirdEngine/Renderer/Box.h>
 #include "Game/Scene/SceneManager.h"
 
 #include "Game/Component/TransformComponent.h"
@@ -11,15 +12,19 @@
 #include "Game/Component/RigidbodyMotorComponent.h"
 #include "Game/Component/InteractComponent.h"
 
-#include "Game/Event/HouseSceneEvent.h"
+#include "Game/Extra/PrefabConstructionInfo.h"
+#include "Game/Event/TownSceneEvent.h"
 
-#include "Game/Scene/Home/YardScene.h"
+#include "Game/GlobalVariable.h"
+
+#include "Game/Scene/Town/ShopScene.h"
+#include "Game/Scene/Town/ClothStoreScene.h"
 
 void TownScene::Setup()
 {
 	setupPrefab();
 
-	eid_t player = world.ConstructPrefab(playerPrefab);
+	eid_t player = world.ConstructPrefab(playerPrefab, World::NullEntity, new PrefabConstructionInfo(spawnPosition));
 	eid_t camera = world.ConstructPrefab(cameraPrefab);
 
 	PlayerComponent* playerComponent = world.GetComponent<PlayerComponent>(player);
@@ -29,8 +34,10 @@ void TownScene::Setup()
 	CameraComponent* cameraComponent = world.GetComponent<CameraComponent>(camera);
 	cameraComponent->isEnable = true;
 
-	world.ConstructPrefab(housePrefab);
-	world.ConstructPrefab(doorInteractPrefab);
+	world.ConstructPrefab(townPrefab);
+	world.ConstructPrefab(shopDoorInteractPrefab);
+	world.ConstructPrefab(clothStoreDoorInteractPrefab);
+	world.ConstructPrefab(skyboxPrefab);
 }
 
 void TownScene::setupPrefab()
@@ -38,54 +45,28 @@ void TownScene::setupPrefab()
 	if (prefabsSteup)
 		return;
 
-	/* House */
+	/* Town */
 	{
-		glm::mat4 houseModelMat4(1.0f);
-		//houseModelMat4 *= glm::scale(houseModelMat4, glm::vec3(0.1f));
+		glm::mat4 townModelMat4(1.0f);
+		townModelMat4 *= glm::translate(townModelMat4, glm::vec3(0, -0.2, 0));
+		townModelMat4 *= glm::scale(townModelMat4, glm::vec3(20.0f));
 
-		Model houseModel = modelLoader.LoadFromFile("Resources/CG_Town/NewTown.FBX", ModelLoadingPrefab::Optimize, houseModelMat4, true);
-		// Disable fence culling because it doesn't seems right
-		houseModel.SetMeshCulling(29, false);
+		Model townModel = modelLoader.LoadFromFile("Resources/CG_Town/untitled.obj", ModelLoadingPrefab::Optimize, townModelMat4, true);
+		Renderer::ModelHandle townModelHandle = renderer.GetModelHandle(townModel);
 
-		Renderer::ModelHandle houseModelHandle = renderer.GetModelHandle(houseModel);
+		DirLight dirLight;
+		dirLight.direction = glm::vec3(-1, -1, 1);
+		dirLight.ambient = glm::vec3(0.5, 0.5, 0.4);
+		dirLight.diffuse = glm::vec3(0.7, 0.7, 0.75);
+		dirLight.specular = glm::vec3(0.5, 0.5, 0.5);
+		renderer.SetDirLight(dirLight);
 
-		housePrefab.SetName("HouseModel");
+		townPrefab.SetName("TownModel");
 
-		plainShader = shaderLoader.BuildFromFile("Shaders/plainShader.vert", "Shaders/plainShader.frag");
+		lightingShader = shaderLoader.BuildFromFile("Shaders/lightingShader.vert", "Shaders/lightingShader.frag");
 
-		housePrefab.AddConstructor(new TransformComponentConstructor());
-		housePrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, houseModelHandle, plainShader));
-
-		b2BodyDef bodyDef;
-
-		std::vector<b2FixtureDef> fixtures;
-
-		b2FixtureDef left;
-		b2PolygonShape* s1 = new b2PolygonShape();
-		s1->SetAsBox(0.1f, 13.5f, b2Vec2(-17.5f, -6.3f), 0);
-		left.shape = s1;
-
-		b2FixtureDef back;
-		b2PolygonShape* s2 = new b2PolygonShape();
-		s2->SetAsBox(13.0f, 5.0f, b2Vec2(-4.0f, -20.0f), 0);
-		back.shape = s2;
-
-		b2FixtureDef right;
-		b2PolygonShape* s3 = new b2PolygonShape();
-		s3->SetAsBox(0.1f, 13.5f, b2Vec2(9.6f, -6.3f), 0);
-		right.shape = s3;
-
-		b2FixtureDef front;
-		b2PolygonShape* s4 = new b2PolygonShape();
-		s4->SetAsBox(13.0f, 0.1f, b2Vec2(-4.0f, 7.5f), 0);
-		front.shape = s4;
-
-		fixtures.push_back(left);
-		fixtures.push_back(back);
-		fixtures.push_back(right);
-		fixtures.push_back(front);
-
-		//housePrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(bodyDef, fixtures)));
+		townPrefab.AddConstructor(new TransformComponentConstructor());
+		townPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, townModelHandle, lightingShader));
 	}
 
 	interactEventResponder = std::make_shared<InteractEventResponder>(world, eventManager);
@@ -93,30 +74,53 @@ void TownScene::setupPrefab()
 	/* Scene Interact Object */
 	{
 		/* Door */
-		b2BodyDef doorDef;
+		b2BodyDef bodyDef;
 
-		b2FixtureDef door;
-		door.isSensor = true;
+		b2FixtureDef clothStoreDoor;
+		clothStoreDoor.isSensor = true;
+		b2PolygonShape* s2 = new b2PolygonShape();
+		s2->SetAsBox(1.58f, 1.12f, b2Vec2(-20.71f, -76.97f), 0);
+		clothStoreDoor.shape = s2;
+
+		clothStoreDoorInteractPrefab.SetName("Cloth Store Door Interact");
+		clothStoreDoorInteractPrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(bodyDef, clothStoreDoor)));
+		clothStoreDoorInteractPrefab.AddConstructor(new InteractComponentConstructor(InteractComponent::Data(typeid(TownSceneClothStoreDoorInteractEvent).hash_code())));
+
+		b2FixtureDef shopDoor;
+		shopDoor.isSensor = true;
 		b2PolygonShape* s1 = new b2PolygonShape();
-		s1->SetAsBox(5.0f, 5.0f, b2Vec2(-4.0f, -19.0f), 0);
-		door.shape = s1;
+		s1->SetAsBox(5.5f, 1.58f, b2Vec2(25.18f, 39.50f), 0);
+		shopDoor.shape = s1;
 
-		doorInteractPrefab.SetName("Door Interact");
-		doorInteractPrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(doorDef, door)));
-		doorInteractPrefab.AddConstructor(new InteractComponentConstructor(InteractComponent::Data(typeid(HouseSceneDoorInteractEvent).hash_code())));
+		shopDoorInteractPrefab.SetName("Shop Door Interact");
+		shopDoorInteractPrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(bodyDef, shopDoor)));
+		shopDoorInteractPrefab.AddConstructor(new InteractComponentConstructor(InteractComponent::Data(typeid(TownSceneShopDoorInteractEvent).hash_code())));
+	}
+
+	/* Skybox */
+	{
+		Model skyboxModel = Box::GetSkybox("Resources/skybox/", std::vector<std::string>{"right.jpg", "left.jpg", "up.jpg", "down.jpg", "front.jpg", "back.jpg"});
+		skyboxShader = shaderLoader.BuildFromFile("Shaders/skybox.vert", "Shaders/skybox.frag");
+
+		Renderer::ModelHandle skyboxModelHandle = renderer.GetModelHandle(skyboxModel);
+
+		skyboxPrefab.AddConstructor(new TransformComponentConstructor());
+		skyboxPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, skyboxModelHandle, skyboxShader));
 	}
 
 	/* Player */
 	{
-		skinnedShader = shaderLoader.BuildFromFile("Shaders/plainShader.vert", "Shaders/plainShader.frag");
-
 		glm::mat4 playerModelMat4(1.0f);
-		playerModelMat4 *= glm::scale(playerModelMat4, glm::vec3(0.7f));
+		playerModelMat4 *= glm::scale(playerModelMat4, glm::vec3(0.5f));
 
 		Model playerWalkModel = modelLoader.LoadFromFile("Resources/Walk.DAE", ModelLoadingPrefab::Default, playerModelMat4);
 		Model playerPickLetterModel = modelLoader.LoadFromFile("Resources/PickLetter.DAE", ModelLoadingPrefab::Default, playerModelMat4);
 		Model playerPutLetterModel = modelLoader.LoadFromFile("Resources/PutLetter.DAE", ModelLoadingPrefab::Default, playerModelMat4);
 		Model playerTurnAroundModel = modelLoader.LoadFromFile("Resources/TurnAround.DAE", ModelLoadingPrefab::Default, playerModelMat4);
+
+		Material i = playerWalkModel.GetMeshMaterial(0);
+		i.SetProperty("texture_diffuse", MaterialProperty(globalVariable.clothes[globalVariable.clothIndex]));
+		playerWalkModel.SetMeshMaterial(0, i);
 
 		playerPrefab.SetName("Player");
 		playerPrefab.AddConstructor(new TransformComponentConstructor());
@@ -128,7 +132,7 @@ void TownScene::setupPrefab()
 		playerData.turnAround = renderer.GetModelHandle(playerTurnAroundModel);
 
 		playerPrefab.AddConstructor(new PlayerComponentConstructor(playerData));
-		playerPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, playerData.walk, skinnedShader));
+		playerPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, playerData.walk, lightingShader, true));
 		b2BodyDef bodyDef;
 		bodyDef.type = b2BodyType::b2_dynamicBody;
 		bodyDef.allowSleep = false;
@@ -152,16 +156,31 @@ void TownScene::setupPrefab()
 
 	/* Callback */
 	{
-		std::function<void(const HouseSceneDoorInteractEvent& event)> doorInteractCallback =
-			[scene = this, &sceneManager = sceneManager](const HouseSceneDoorInteractEvent& event) {
+		std::function<void(const TownSceneShopDoorInteractEvent& event)> shopDoorInteractCallback =
+			[scene = this, &sceneManager = sceneManager](const TownSceneShopDoorInteractEvent& event) {
 			LoadingScreenInfo info;
 			info.LoopTime = 1.0f;
-			info.LoadingImagePath = std::vector<std::string>{ "GUI/Loading1.png" };
+			info.ImageWidth = 400;
+			info.ImageHeight = 400;
+			info.LoadingImagePath = std::vector<std::string>{ "GUI/Loading/Key/0.png","GUI/Loading/Key/1.png","GUI/Loading/Key/2.png" };
 
-			sceneManager.LoadScene<YardScene>(info);
+			sceneManager.LoadScene<ShopScene>(info);
 		};
 
-		eventManager.RegisterForEvent<HouseSceneDoorInteractEvent>(doorInteractCallback);
+		eventManager.RegisterForEvent<TownSceneShopDoorInteractEvent>(shopDoorInteractCallback);
+
+		std::function<void(const TownSceneClothStoreDoorInteractEvent& event)> clothStoreDoorInteractCallback =
+			[scene = this, &sceneManager = sceneManager](const TownSceneClothStoreDoorInteractEvent& event) {
+			LoadingScreenInfo info;
+			info.LoopTime = 1.0f;
+			info.ImageWidth = 400;
+			info.ImageHeight = 400;
+			info.LoadingImagePath = std::vector<std::string>{ "GUI/Loading/Key/0.png","GUI/Loading/Key/1.png","GUI/Loading/Key/2.png" };
+
+			sceneManager.LoadScene<ClothStoreScene>(info);
+		};
+
+		eventManager.RegisterForEvent<TownSceneClothStoreDoorInteractEvent>(clothStoreDoorInteractCallback);
 	}
 
 	prefabsSteup = true;
@@ -169,11 +188,11 @@ void TownScene::setupPrefab()
 
 void TownScene::Finish()
 {
-	glEnable(GL_CULL_FACE);
 	renderer.GenVAO();
 }
 
 void TownScene::PreDestruct()
 {
-	glDisable(GL_CULL_FACE);
+	eventManager.ClearEventListener<TownSceneClothStoreDoorInteractEvent>();
+	eventManager.ClearEventListener<TownSceneShopDoorInteractEvent>();
 }

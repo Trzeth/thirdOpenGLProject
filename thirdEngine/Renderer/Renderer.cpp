@@ -40,6 +40,8 @@ void Renderer::Initialize(int width, int height)
 		//Failed to initialize GLAD
 	}
 
+	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+
 	viewportWidth = width;
 	viewportHeight = height;
 
@@ -279,7 +281,6 @@ Renderer::RenderableHandle Renderer::GetRenderableHandle(const ModelHandle& mode
 
 void Renderer::ClearBuffer() const
 {
-	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 

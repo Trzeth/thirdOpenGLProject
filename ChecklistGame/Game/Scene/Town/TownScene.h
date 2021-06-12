@@ -11,7 +11,7 @@
 class TownScene :public Scene
 {
 public:
-	TownScene(const SceneInfo& info) :Scene(info) { }
+	TownScene(const SceneInfo& info) :Scene(info) { spawnPosition = info.spawnPosition; }
 
 	void Setup();
 
@@ -25,14 +25,18 @@ private:
 	TextureLoader textureLoader;
 	ShaderLoader shaderLoader;
 
-	Shader skinnedShader;
-	Shader plainShader;
+	Transform spawnPosition;
 
-	Prefab housePrefab;
+	Shader lightingShader;
+	Shader skyboxShader;
+
+	Prefab townPrefab;
+	Prefab skyboxPrefab;
 	Prefab playerPrefab;
 	Prefab cameraPrefab;
 
-	Prefab doorInteractPrefab;
+	Prefab shopDoorInteractPrefab;
+	Prefab clothStoreDoorInteractPrefab;
 
 	std::shared_ptr<InteractEventResponder> interactEventResponder;
 };

@@ -15,7 +15,7 @@ void UIRenderer::Initialize(GLFWwindow* window)
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 
 	io.Fonts->AddFontFromFileTTF("fonts/NotoSansSC-Regular.otf", 20.0f, NULL, io.Fonts->GetGlyphRangesChineseSimplifiedCommon());
-
+	io.Fonts->AddFontFromFileTTF("fonts/FZMWFont.ttf", 100.0f, NULL, io.Fonts->GetGlyphRangesChineseSimplifiedCommon());
 	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
 	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;   // Enable Gamepad Controls
 

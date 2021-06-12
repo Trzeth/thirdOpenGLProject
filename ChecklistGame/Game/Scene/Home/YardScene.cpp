@@ -62,7 +62,7 @@ void YardScene::setupPrefab()
 
 	/* Yard */
 	{
-		plainShader = shaderLoader.BuildFromFile("Shaders/lightingShader.vert", "Shaders/lightingShader.frag");
+		lightingShader = shaderLoader.BuildFromFile("Shaders/lightingShader.vert", "Shaders/lightingShader.frag");
 		//renderer.SetDirLight();
 
 		glm::mat4 yardModelMat4(1.0f);
@@ -84,7 +84,7 @@ void YardScene::setupPrefab()
 		yardPrefab.SetName("YardModel");
 
 		yardPrefab.AddConstructor(new TransformComponentConstructor());
-		yardPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, yardModelHandle, plainShader));
+		yardPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, yardModelHandle, lightingShader));
 
 		/* Fence */
 		std::string paths[]{ "Resources/fobj_fence.png","Resources/fobj_fence2.png","Resources/fobj_fence3.png","Resources/fobj_fence4.png" };
@@ -194,8 +194,6 @@ void YardScene::setupPrefab()
 
 	/* Player */
 	{
-		skinnedShader = shaderLoader.BuildFromFile("Shaders/lightingShader.vert", "Shaders/lightingShader.frag");
-
 		glm::mat4 playerModelMat4(1.0f);
 		playerModelMat4 *= glm::scale(playerModelMat4, glm::vec3(0.5f));
 
@@ -203,6 +201,10 @@ void YardScene::setupPrefab()
 		Model playerPickLetterModel = modelLoader.LoadFromFile("Resources/PickLetter.DAE", ModelLoadingPrefab::Default, playerModelMat4);
 		Model playerPutLetterModel = modelLoader.LoadFromFile("Resources/PutLetter.DAE", ModelLoadingPrefab::Default, playerModelMat4);
 		Model playerTurnAroundModel = modelLoader.LoadFromFile("Resources/TurnAround.DAE", ModelLoadingPrefab::Default, playerModelMat4);
+
+		Material i = playerWalkModel.GetMeshMaterial(0);
+		i.SetProperty("texture_diffuse", MaterialProperty(globalVariable.clothes[globalVariable.clothIndex]));
+		playerWalkModel.SetMeshMaterial(0, i);
 
 		playerPrefab.SetName("Player");
 		playerPrefab.AddConstructor(new TransformComponentConstructor());
@@ -214,7 +216,7 @@ void YardScene::setupPrefab()
 		playerData.turnAround = renderer.GetModelHandle(playerTurnAroundModel);
 
 		playerPrefab.AddConstructor(new PlayerComponentConstructor(playerData));
-		playerPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, playerData.walk, skinnedShader, true));
+		playerPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, playerData.walk, lightingShader, true));
 		b2BodyDef bodyDef;
 		bodyDef.type = b2BodyType::b2_dynamicBody;
 		bodyDef.allowSleep = false;

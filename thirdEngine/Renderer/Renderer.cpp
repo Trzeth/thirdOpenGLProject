@@ -337,8 +337,6 @@ void Renderer::Update(float dt)
 			}
 		}
 	}
-
-	redrawDepthStaticMap = false;
 }
 
 void Renderer::drawStaticEntity()
@@ -350,7 +348,7 @@ void Renderer::drawStaticEntity()
 	// Depth Pass
 	GLfloat near_plane = 1.0f, far_plane = 1000.0f;
 	glm::mat4 lightProjection = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, near_plane, far_plane);
-	glm::mat4 lightView = glm::lookAt(-100.0f * dirLight.direction, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::mat4 lightView = glm::lookAt(dirLight.position, dirLight.position + dirLight.direction, glm::vec3(0.0f, 1.0f, 0.0f));
 	lightSpaceMatrix = lightProjection * lightView;
 
 	depthShaderCache.shader.Use();
@@ -448,19 +446,22 @@ void Renderer::drawStaticEntity()
 
 void Renderer::drawInternal(RenderSpace space)
 {
+	/*
 	ImGui::Begin("Dirlight");
 
 	ImGui::DragFloat3("Direction", glm::value_ptr(dirLight.direction));
+	ImGui::DragFloat3("Position", glm::value_ptr(dirLight.position));
 	ImGui::DragFloat3("Ambient", glm::value_ptr(dirLight.ambient));
 	ImGui::DragFloat3("Diffuse", glm::value_ptr(dirLight.diffuse));
 	ImGui::DragFloat3("Specular", glm::value_ptr(dirLight.specular));
 
 	ImGui::End();
-
+	*/
 	if (redrawDepthStaticMap)
 	{
 		// Static Shadow Pass
 		drawStaticEntity();
+		redrawDepthStaticMap = false;
 	}
 
 	// 0 Dynamic Shadow Depth Pass 1 Normal Draw
@@ -472,7 +473,7 @@ void Renderer::drawInternal(RenderSpace space)
 			// Dynamic Depth Pass
 			GLfloat near_plane = 1.0f, far_plane = 1000.0f;
 			glm::mat4 lightProjection = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, near_plane, far_plane);
-			glm::mat4 lightView = glm::lookAt(-100.0f * dirLight.direction, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+			glm::mat4 lightView = glm::lookAt(dirLight.position, dirLight.position + dirLight.direction, glm::vec3(0.0f, 1.0f, 0.0f));
 			lightSpaceMatrix = lightProjection * lightView;
 
 			// Calculate Frustum
@@ -677,7 +678,7 @@ void Renderer::drawInternal(RenderSpace space)
 				glCheckError();
 			}
 
-			std::cout << "Cull Mesh:" << cullMeshCount << "\t Total Mesh:" << totalMeshCount << "\t Vetex:" << vertexCount << std::endl;
+			//std::cout << "Cull Mesh:" << cullMeshCount << "\t Total Mesh:" << totalMeshCount << "\t Vetex:" << vertexCount << std::endl;
 		}
 	}
 }

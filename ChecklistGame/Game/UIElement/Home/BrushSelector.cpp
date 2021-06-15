@@ -1,6 +1,5 @@
 #include "BrushSelector.h"
 
-#include <thirdEngine/Renderer/TextureImpl.h>
 #include <thirdEngine/Renderer/UI/ImGui/imgui.h>
 
 #define IMGUI_DEFINE_MATH_OPERATORS

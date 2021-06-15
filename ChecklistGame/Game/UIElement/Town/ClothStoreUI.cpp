@@ -1,6 +1,5 @@
 #include "ClothStoreUI.h"
 
-#include <thirdEngine/Renderer/TextureImpl.h>
 #include <thirdEngine/Renderer/UI/ImGui/imgui.h>
 
 #include "Game/Event/ClothStoreSceneEvent.h"

@@ -189,8 +189,11 @@
     <ClCompile Include="Game\System\StoryboardDirectorSystem.cpp" />
     <ClCompile Include="Game\UIElement\BikeMap.cpp" />
     <ClCompile Include="Game\UIElement\Checklist.cpp" />
+    <ClCompile Include="Game\UIElement\Forest\DeerNPCConversation.cpp" />
     <ClCompile Include="Game\UIElement\Home\BrushLoading.cpp" />
     <ClCompile Include="Game\UIElement\Home\BrushSelector.cpp" />
+    <ClCompile Include="Game\UIElement\Home\Ending.cpp" />
+    <ClCompile Include="Game\UIElement\Home\ItemInfo.cpp" />
     <ClCompile Include="Game\UIElement\Home\Letter.cpp" />
     <ClCompile Include="Game\UIElement\Home\StartMenu.cpp" />
     <ClCompile Include="Game\UIElement\Home\WaterFlower.cpp" />
@@ -248,8 +251,11 @@
     <ClInclude Include="Game\System\StoryboardDirectorSystem.h" />
     <ClInclude Include="Game\UIElement\BikeMap.h" />
     <ClInclude Include="Game\UIElement\Checklist.h" />
+    <ClInclude Include="Game\UIElement\Forest\DeerNPCConversation.h" />
     <ClInclude Include="Game\UIElement\Home\BrushLoading.h" />
     <ClInclude Include="Game\UIElement\Home\BrushSelector.h" />
+    <ClInclude Include="Game\UIElement\Home\Ending.h" />
+    <ClInclude Include="Game\UIElement\Home\ItemInfo.h" />
     <ClInclude Include="Game\UIElement\Home\Letter.h" />
     <ClInclude Include="Game\UIElement\Home\StartMenu.h" />
     <ClInclude Include="Game\UIElement\Home\WaterFlower.h" />

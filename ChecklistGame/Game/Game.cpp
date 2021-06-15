@@ -10,6 +10,7 @@
 #include "Scene/Forest/ForestScene.h"
 #include "Scene/Town/ShopScene.h"
 #include "Scene/Town/ClothStoreScene.h"
+#include "Scene/Home/HouseScene.h"
 
 #include <thirdEngine/Renderer/UI/ImGui/imgui.h>
 #include <thirdEngine/Renderer/UI/ImGui/imgui_impl_glfw.h>
@@ -19,7 +20,7 @@ Game::Game() :
 	renderer(), uiRenderer(), world(), input(),
 	window(input, renderer), eventManager(world),
 	dynamicsWorld(new b2World(b2Vec2(0, 0))), physics(dynamicsWorld.get(), eventManager), debugDrawer(),
-	globalVariable(4)
+	globalVariable(6)
 {
 	restart = false;
 	running = false;
@@ -120,7 +121,7 @@ int Game::setup()
 	};
 	eventManager.RegisterForEvent<LoadSceneEndEvent>(LoadSceneEndCallback);
 
-	sceneManager->LoadScene<ClothStoreScene>(LoadingScreenInfo(
+	sceneManager->LoadScene<ForestScene>(LoadingScreenInfo(
 		std::vector<std::string>{"GUI/Loading/Checklist/0.png", "GUI/Loading/Checklist/1.png", "GUI/Loading/Checklist/2.png", "GUI/Loading/Checklist/3.png", "GUI/Loading/Checklist/4.png", "GUI/Loading/Checklist/5.png"}, 400, 583, 0.5));
 
 	return 0;
@@ -231,7 +232,7 @@ void Game::draw()
 	ImGui::NewFrame();
 
 	renderer.Draw();
-	dynamicsWorld->DebugDraw();
+	//dynamicsWorld->DebugDraw();
 	debugDrawer.Draw();
 	debugDrawer.Reset();
 	uiRenderer.Draw();

@@ -17,6 +17,7 @@
 #include "Game/UIElement/Home/BrushSelector.h"
 #include "Game/UIElement/Home/WaterFlower.h"
 #include "Game/UIElement/Checklist.h"
+#include "Game/UIElement/BikeMap.h"
 
 #include "Game/Scene/Scene.h"
 
@@ -69,8 +70,11 @@ private:
 
 	/* For change fence */
 	Model yardModel;
+	Model flowerModel;
 
 	Texture fenceTexture[4];
+
+	Prefab flowerPrefab[4];
 
 	/* GUI */
 	std::shared_ptr<StartMenu> startMenu;
@@ -78,14 +82,17 @@ private:
 	std::shared_ptr<BrushLoading> brushLoading;
 	std::shared_ptr<BrushSelector> brushSelector;
 	std::shared_ptr<WaterFlower> waterFlower;
+	std::shared_ptr<BikeMap> bikeMap;
 
 	UIRenderer::UIElementHandle startMenuHandle;
 	UIRenderer::UIElementHandle letterHandle;
 	UIRenderer::UIElementHandle brushLoadingHandle;
 	UIRenderer::UIElementHandle brushSelectorHandle;
 	UIRenderer::UIElementHandle waterFlowerHandle;
+	UIRenderer::UIElementHandle bikeMapHandle;
 
-	/* Global GUI */
+	/* Global GUI
 	std::shared_ptr<Checklist> checklist;
 	UIRenderer::UIElementHandle checklistHandle;
+	*/
 };

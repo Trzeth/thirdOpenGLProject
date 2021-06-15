@@ -11,9 +11,9 @@
 #include "Game/Component/RigidbodyMotorComponent.h"
 #include "Game/Component/InteractComponent.h"
 
-#include "Game/Event/HouseSceneEvent.h"
-
-#include "Game/Scene/Home/YardScene.h"
+#include "Game/Event/ShopSceneEvent.h"
+#include "Game/GlobalVariable.h"
+#include "Game/Scene/Town/TownScene.h"
 
 void ShopScene::Setup()
 {
@@ -118,16 +118,20 @@ void ShopScene::setupPrefab()
 
 	/* Callback */
 	{
-		std::function<void(const HouseSceneDoorInteractEvent& event)> doorInteractCallback =
-			[scene = this, &sceneManager = sceneManager](const HouseSceneDoorInteractEvent& event) {
+		std::function<void(const ShopSceneFinishEvent& event)> finishCallback =
+			[scene = this, &sceneManager = sceneManager](const ShopSceneFinishEvent& event) {
+			sceneManager.SetSpawnPosition(glm::vec3(24.71, 0, 31.76));
+
 			LoadingScreenInfo info;
 			info.LoopTime = 1.0f;
-			info.LoadingImagePath = std::vector<std::string>{ "GUI/Loading1.png" };
+			info.ImageWidth = 400;
+			info.ImageHeight = 400;
+			info.LoadingImagePath = std::vector<std::string>{ "GUI/Loading/Key/0.png","GUI/Loading/Key/1.png","GUI/Loading/Key/2.png" };
 
-			sceneManager.LoadScene<YardScene>(info);
+			sceneManager.LoadScene<TownScene>(info);
 		};
 
-		eventManager.RegisterForEvent<HouseSceneDoorInteractEvent>(doorInteractCallback);
+		eventManager.RegisterForEvent<ShopSceneFinishEvent>(finishCallback);
 	}
 
 	prefabsSteup = true;
@@ -142,4 +146,5 @@ void ShopScene::Finish()
 void ShopScene::PreDestruct()
 {
 	glDisable(GL_CULL_FACE);
+	eventManager.ClearEventListener<ShopSceneFinishEvent>();
 }

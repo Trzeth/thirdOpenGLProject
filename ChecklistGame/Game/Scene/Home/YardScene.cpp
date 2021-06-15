@@ -13,12 +13,12 @@
 
 #include "Game/Event/YardSceneEvent.h"
 #include "Game/Event/GameEvent.h"
+#include "Game/Event/LoadSceneEvent.h"
 #include "Game/Extra/PrefabConstructionInfo.h"
 
 #include "Game/Scene/Home/HouseScene.h"
 #include "Game/Scene/Forest/ForestScene.h"
 #include "Game/Scene/Town/TownScene.h"
-#include "Game/Scene/Town/ShopScene.h"
 
 #include "Game/Scene/SceneManager.h"
 
@@ -53,6 +53,11 @@ void YardScene::Setup()
 	world.ConstructPrefab(waterPotInteractPrefab);
 	world.ConstructPrefab(doorInteractPrefab);
 	world.ConstructPrefab(bikeInteractPrefab);
+
+	for (int i = 0; i != 4; i++)
+	{
+		world.ConstructPrefab(flowerPrefab[i]);
+	}
 }
 
 void YardScene::setupPrefab()
@@ -72,6 +77,7 @@ void YardScene::setupPrefab()
 
 		DirLight dirLight;
 		dirLight.direction = glm::vec3(-1, -1, 1);
+		dirLight.position = glm::vec3(50, 50, -50);
 		dirLight.ambient = glm::vec3(0.5, 0.5, 0.4);
 		dirLight.diffuse = glm::vec3(0.7, 0.7, 0.75);
 		dirLight.specular = glm::vec3(0.5, 0.5, 0.5);
@@ -128,6 +134,18 @@ void YardScene::setupPrefab()
 		fixtures.push_back(house);
 
 		yardPrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(bodyDef, fixtures)));
+
+		flowerModel = modelLoader.LoadFromFile("Resources/RainbowFlower/untitled.obj", ModelLoadingPrefab::Optimize, glm::mat4(0.0));
+		Renderer::ModelHandle flowerModelHandle = renderer.GetModelHandle(flowerModel);
+
+		Transform trans[4]{ glm::vec3(23.3105,1,17.2301),glm::vec3(23.4075,1,15.1081),glm::vec3(23.4075,1,19.5332),glm::vec3(23.2575,1,21.8582) };
+
+		for (int i = 0; i != 4; i++)
+		{
+			flowerPrefab[i].SetName("Flower");
+			flowerPrefab[i].AddConstructor(new TransformComponentConstructor(trans[i]));
+			flowerPrefab[i].AddConstructor(new ModelRenderComponentConstructor(renderer, flowerModelHandle, lightingShader, false));
+		}
 	}
 
 	interactEventResponder = std::make_shared<InteractEventResponder>(world, eventManager);
@@ -206,6 +224,18 @@ void YardScene::setupPrefab()
 		i.SetProperty("texture_diffuse", MaterialProperty(globalVariable.clothes[globalVariable.clothIndex]));
 		playerWalkModel.SetMeshMaterial(0, i);
 
+		i = playerPickLetterModel.GetMeshMaterial(0);
+		i.SetProperty("texture_diffuse", MaterialProperty(globalVariable.clothes[globalVariable.clothIndex]));
+		playerPickLetterModel.SetMeshMaterial(0, i);
+
+		i = playerPutLetterModel.GetMeshMaterial(0);
+		i.SetProperty("texture_diffuse", MaterialProperty(globalVariable.clothes[globalVariable.clothIndex]));
+		playerPutLetterModel.SetMeshMaterial(0, i);
+
+		i = playerTurnAroundModel.GetMeshMaterial(0);
+		i.SetProperty("texture_diffuse", MaterialProperty(globalVariable.clothes[globalVariable.clothIndex]));
+		playerTurnAroundModel.SetMeshMaterial(0, i);
+
 		playerPrefab.SetName("Player");
 		playerPrefab.AddConstructor(new TransformComponentConstructor());
 
@@ -261,8 +291,10 @@ void YardScene::setupPrefab()
 			letterHandle = uiRenderer.GetEntityHandle(letter);
 		}
 
+		/*
 		checklist = std::make_shared<Checklist>(input, globalVariable);
 		checklistHandle = uiRenderer.GetEntityHandle(checklist);
+		*/
 
 		brushLoading = std::make_shared<BrushLoading>(eventManager);
 		brushLoadingHandle = uiRenderer.GetEntityHandle(brushLoading);
@@ -270,6 +302,9 @@ void YardScene::setupPrefab()
 		brushSelectorHandle = uiRenderer.GetEntityHandle(brushSelector);
 		waterFlower = std::make_shared<WaterFlower>(eventManager);
 		waterFlowerHandle = uiRenderer.GetEntityHandle(waterFlower);
+
+		bikeMap = std::make_shared<BikeMap>(eventManager, 1);
+		bikeMapHandle = uiRenderer.GetEntityHandle(bikeMap);
 	}
 
 	/* Callback */
@@ -389,9 +424,11 @@ void YardScene::setupPrefab()
 		eventManager.RegisterForEvent<YardSceneWaterPotInteractEvent>(waterPotInteractCallback);
 
 		std::function<void(const YardSceneWaterPotFinishEvent& event)> waterPotFinishCallback =
-			[scene = this, &entityId = entityId, &world = world](const YardSceneWaterPotFinishEvent& event) {
+			[scene = this, &entityId = entityId, &world = world, &flowerModel = flowerModel](const YardSceneWaterPotFinishEvent& event) {
 			PlayerComponent* playerComponent = world.GetComponent<PlayerComponent>(entityId.player);
 			playerComponent->SetControlState(PlayerControlState::Normal);
+
+			flowerModel.SetMeshTransform(0, 0, glm::scale(glm::mat4(1.0), glm::vec3(5.0)));
 		};
 
 		eventManager.RegisterForEvent<YardSceneWaterPotFinishEvent>(waterPotFinishCallback);
@@ -410,17 +447,39 @@ void YardScene::setupPrefab()
 		eventManager.RegisterForEvent<YardSceneDoorInteractEvent>(doorInteractCallback);
 
 		std::function<void(const YardSceneBikeInteractEvent& event)> bikeInteractCallback =
-			[scene = this, &sceneManager = sceneManager](const YardSceneBikeInteractEvent& event) {
+			[scene = this, bikeMap = bikeMap](const YardSceneBikeInteractEvent& event) {
+			bikeMap->Show();
+		};
+
+		eventManager.RegisterForEvent<YardSceneBikeInteractEvent>(bikeInteractCallback);
+
+		std::function<void(const BikeMapChangeMapEvent& event)> bikeMapInteractCallback =
+			[scene = this, &sceneManager = sceneManager](const BikeMapChangeMapEvent& event) {
 			LoadingScreenInfo info;
 			info.LoopTime = 1.0f;
 			info.ImageWidth = 406;
 			info.ImageHeight = 255;
 			info.LoadingImagePath = std::vector<std::string>{ "GUI/Loading/Bicycle/0.png","GUI/Loading/Bicycle/1.png","GUI/Loading/Bicycle/2.png","GUI/Loading/Bicycle/3.png" };
 
-			sceneManager.LoadScene<TownScene>(info);
+			switch (event.dst)
+			{
+			case 0:
+				sceneManager.LoadScene<ForestScene>(info);
+				break;
+			case 1:
+				sceneManager.SetSpawnPosition(glm::vec3(-12.0143, 0, -16.5855));
+				sceneManager.LoadScene<YardScene>(info);
+				break;
+			case 2:
+				sceneManager.SetSpawnPosition(glm::vec3(-29.6974, 0, -119.804));
+				sceneManager.LoadScene<TownScene>(info);
+				break;
+			default:
+				break;
+			}
 		};
 
-		eventManager.RegisterForEvent<YardSceneBikeInteractEvent>(bikeInteractCallback);
+		eventManager.RegisterForEvent<BikeMapChangeMapEvent>(bikeMapInteractCallback);
 
 #pragma endregion
 	}
@@ -430,11 +489,13 @@ void YardScene::setupPrefab()
 
 void YardScene::Finish()
 {
+	glEnable(GL_CULL_FACE);
 	renderer.GenVAO();
 }
 
 void YardScene::PreDestruct()
 {
+	glDisable(GL_CULL_FACE);
 	eventManager.ClearEventListener<GameStartEvent>();
 	eventManager.ClearEventListener<YardSceneOpenSceneStoryboardEndEvent>();
 	eventManager.ClearEventListener<YardSceneLetterCloseEvent>();

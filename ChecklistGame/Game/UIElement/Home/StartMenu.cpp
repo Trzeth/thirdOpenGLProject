@@ -1,6 +1,5 @@
 #include "StartMenu.h"
 
-#include <thirdEngine/Renderer/TextureImpl.h>
 #include <thirdEngine/Renderer/UI/ImGui/imgui.h>
 
 #include "Game/Extra/ExternalUI.h"

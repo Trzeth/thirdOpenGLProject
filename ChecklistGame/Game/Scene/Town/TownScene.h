@@ -5,6 +5,7 @@
 #include <thirdEngine/Framework/EventManager.h>
 
 #include "Game/Responder/InteractEventResponder.h"
+#include "Game/UIElement/BikeMap.h"
 
 #include "Game/Scene/Scene.h"
 
@@ -39,4 +40,7 @@ private:
 	Prefab clothStoreDoorInteractPrefab;
 
 	std::shared_ptr<InteractEventResponder> interactEventResponder;
+
+	std::shared_ptr<BikeMap> bikeMap;
+	UIRenderer::UIElementHandle bikeMapHandle;
 };

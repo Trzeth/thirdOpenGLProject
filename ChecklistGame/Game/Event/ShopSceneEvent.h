@@ -1,4 +1,5 @@
 #pragma once
-class ShopSceneEvent
-{
-};
+#include <thirdEngine/Framework/Event.h>
+
+class ShopSceneFinishEvent :public Event
+{ };

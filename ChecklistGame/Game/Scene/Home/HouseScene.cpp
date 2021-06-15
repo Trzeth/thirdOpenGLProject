@@ -31,6 +31,9 @@ void HouseScene::Setup()
 
 	world.ConstructPrefab(housePrefab);
 	world.ConstructPrefab(doorInteractPrefab);
+	world.ConstructPrefab(giftPrefab);
+	world.ConstructPrefab(songbingPrefab);
+	world.ConstructPrefab(bangbangtangPrefab);
 }
 
 void HouseScene::setupPrefab()
@@ -44,11 +47,12 @@ void HouseScene::setupPrefab()
 		houseModelMat4 *= glm::scale(houseModelMat4, glm::vec3(0.4f));
 		houseModelMat4 *= glm::mat4_cast(glm::angleAxis(glm::radians(180.0f), Transform::UP));
 
-		Model houseModel = modelLoader.LoadFromFile("Resources/Room/Room.FBX", ModelLoadingPrefab::Default, houseModelMat4, true);
+		Model houseModel = modelLoader.LoadFromFile("Resources/Room/withMovableRoom.FBX", ModelLoadingPrefab::Default, houseModelMat4, true);
 		Renderer::ModelHandle houseModelHandle = renderer.GetModelHandle(houseModel);
 
 		DirLight dirLight;
 		dirLight.direction = glm::vec3(0.04, -1, -0.01);
+		dirLight.position = glm::vec3(0, 50, 0);
 		dirLight.ambient = glm::vec3(0.8, 0.8, 0.8);
 		dirLight.diffuse = glm::vec3(0.5, 0.5, 0.5);
 		dirLight.specular = glm::vec3(0.5, 0.5, 0.5);
@@ -56,10 +60,10 @@ void HouseScene::setupPrefab()
 
 		housePrefab.SetName("HouseModel");
 
-		plainShader = shaderLoader.BuildFromFile("Shaders/lightingShader.vert", "Shaders/lightingShader.frag");
+		lightingShader = shaderLoader.BuildFromFile("Shaders/lightingShader.vert", "Shaders/lightingShader.frag");
 
 		housePrefab.AddConstructor(new TransformComponentConstructor());
-		housePrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, houseModelHandle, plainShader));
+		housePrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, houseModelHandle, lightingShader, true));
 
 		b2BodyDef bodyDef;
 
@@ -98,7 +102,7 @@ void HouseScene::setupPrefab()
 	/* Scene Interact Object */
 	{
 		/* Door */
-		b2BodyDef doorDef;
+		b2BodyDef bodyDef;
 
 		b2FixtureDef door;
 		door.isSensor = true;
@@ -107,14 +111,45 @@ void HouseScene::setupPrefab()
 		door.shape = s1;
 
 		doorInteractPrefab.SetName("Door Interact");
-		doorInteractPrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(doorDef, door)));
+		doorInteractPrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(bodyDef, door)));
 		doorInteractPrefab.AddConstructor(new InteractComponentConstructor(InteractComponent::Data(typeid(HouseSceneDoorInteractEvent).hash_code())));
+
+		b2FixtureDef gift;
+		gift.isSensor = true;
+		b2CircleShape* s2 = new b2CircleShape();
+		s2->m_radius = 2.0f;
+		s2->m_p = b2Vec2(-4.52984, 14.3827);
+		gift.shape = s2;
+
+		giftPrefab.SetName("Gift Interact");
+		giftPrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(bodyDef, gift)));
+		giftPrefab.AddConstructor(new InteractComponentConstructor(InteractComponent::Data(typeid(HouseSceneGiftInteractEvent).hash_code())));
+
+		b2FixtureDef bangbangtang;
+		bangbangtang.isSensor = true;
+		b2CircleShape* s3 = new b2CircleShape();
+		s3->m_radius = 2.0f;
+		s3->m_p = b2Vec2(15.395, -0.0636796);
+		bangbangtang.shape = s3;
+
+		bangbangtangPrefab.SetName("Bangbangtang Interact");
+		bangbangtangPrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(bodyDef, bangbangtang)));
+		bangbangtangPrefab.AddConstructor(new InteractComponentConstructor(InteractComponent::Data(typeid(HouseSceneBangbangtangInteractEvent).hash_code())));
+
+		b2FixtureDef songbing;
+		songbing.isSensor = true;
+		b2CircleShape* s4 = new b2CircleShape();
+		s4->m_radius = 2.0f;
+		s4->m_p = b2Vec2(-7.495, -0.0636702);
+		songbing.shape = s4;
+
+		songbingPrefab.SetName("Songbing Interact");
+		songbingPrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(bodyDef, songbing)));
+		songbingPrefab.AddConstructor(new InteractComponentConstructor(InteractComponent::Data(typeid(HouseSceneSongbingInteractEvent).hash_code())));
 	}
 
 	/* Player */
 	{
-		skinnedShader = shaderLoader.BuildFromFile("Shaders/lightingShader.vert", "Shaders/lightingShader.frag");
-
 		glm::mat4 playerModelMat4(1.0f);
 		playerModelMat4 *= glm::scale(playerModelMat4, glm::vec3(0.5f));
 
@@ -122,6 +157,10 @@ void HouseScene::setupPrefab()
 		Model playerPickLetterModel = modelLoader.LoadFromFile("Resources/PickLetter.DAE", ModelLoadingPrefab::Default, playerModelMat4);
 		Model playerPutLetterModel = modelLoader.LoadFromFile("Resources/PutLetter.DAE", ModelLoadingPrefab::Default, playerModelMat4);
 		Model playerTurnAroundModel = modelLoader.LoadFromFile("Resources/TurnAround.DAE", ModelLoadingPrefab::Default, playerModelMat4);
+
+		Material i = playerWalkModel.GetMeshMaterial(0);
+		i.SetProperty("texture_diffuse", MaterialProperty(globalVariable.clothes[globalVariable.clothIndex]));
+		playerWalkModel.SetMeshMaterial(0, i);
 
 		playerPrefab.SetName("Player");
 		playerPrefab.AddConstructor(new TransformComponentConstructor());
@@ -133,7 +172,7 @@ void HouseScene::setupPrefab()
 		playerData.turnAround = renderer.GetModelHandle(playerTurnAroundModel);
 
 		playerPrefab.AddConstructor(new PlayerComponentConstructor(playerData));
-		playerPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, playerData.walk, skinnedShader, true));
+		playerPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, playerData.walk, lightingShader, true));
 		b2BodyDef bodyDef;
 		bodyDef.type = b2BodyType::b2_dynamicBody;
 		bodyDef.allowSleep = false;
@@ -155,6 +194,18 @@ void HouseScene::setupPrefab()
 		cameraPrefab.AddConstructor(new CameraComponentConstructor(CameraComponent::Data()));
 	}
 
+	/* GUI */
+	{
+		iteminfo = std::make_shared<ItemInfo>();
+		iteminfoHandle = uiRenderer.GetEntityHandle(iteminfo);
+
+		if (globalVariable.taskState[5] == TaskState::Finished)
+		{
+			ending = std::make_shared<Ending>();
+			endingHandle = uiRenderer.GetEntityHandle(ending);
+		}
+	}
+
 	/* Callback */
 	{
 		std::function<void(const HouseSceneDoorInteractEvent& event)> doorInteractCallback =
@@ -170,6 +221,27 @@ void HouseScene::setupPrefab()
 		};
 
 		eventManager.RegisterForEvent<HouseSceneDoorInteractEvent>(doorInteractCallback);
+
+		std::function<void(const HouseSceneGiftInteractEvent& event)> giftInteractCallback =
+			[scene = this, iteminfo = iteminfo](const HouseSceneGiftInteractEvent& event) {
+			iteminfo->Show(0);
+		};
+
+		eventManager.RegisterForEvent<HouseSceneGiftInteractEvent>(giftInteractCallback);
+
+		std::function<void(const HouseSceneSongbingInteractEvent& event)> songbingInteractCallback =
+			[scene = this, iteminfo = iteminfo](const HouseSceneSongbingInteractEvent& event) {
+			iteminfo->Show(1);
+		};
+
+		eventManager.RegisterForEvent<HouseSceneSongbingInteractEvent>(songbingInteractCallback);
+
+		std::function<void(const HouseSceneBangbangtangInteractEvent& event)> bangbangtangInteractCallback =
+			[scene = this, iteminfo = iteminfo](const HouseSceneBangbangtangInteractEvent& event) {
+			iteminfo->Show(2);
+		};
+
+		eventManager.RegisterForEvent<HouseSceneBangbangtangInteractEvent>(bangbangtangInteractCallback);
 	}
 
 	prefabsSteup = true;

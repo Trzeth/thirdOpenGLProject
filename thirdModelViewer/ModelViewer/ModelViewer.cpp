@@ -1,6 +1,8 @@
 #include "ModelViewer.h"
 
 #include "Scene/DefaultScene.h"
+#include <thirdEngine/Renderer/UI/ImGui/imgui_impl_glfw.h>
+#include <thirdEngine/Renderer/UI/ImGui/imgui_impl_opengl3.h>
 
 ModelViewer::ModelViewer() :renderer(), uiRenderer(), world(), input(), window(input, renderer), eventManager(world)
 {
@@ -109,6 +111,11 @@ void ModelViewer::update()
 void ModelViewer::draw()
 {
 	//renderer.Draw();
+
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+
 	renderer.ClearBuffer();
 
 	uiRenderer.Draw();

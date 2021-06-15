@@ -1,6 +1,5 @@
 #include "ShopUI.h"
 
-#include <thirdEngine/Renderer/TextureImpl.h>
 #include <thirdEngine/Renderer/UI/ImGui/imgui.h>
 #include "Game/Event/ShopSceneEvent.h"
 
@@ -120,6 +119,18 @@ void ShopUI::Draw()
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.13, 0.52, 0.09, 1));
 			ImGui::Button(u8"ÂôÍêÀ²£¡", ImVec2(0, height));
 			ImGui::PopStyleColor(4);
+		}
+
+		int i = 0;
+		for (; i != buttonStatus.size(); i++)
+		{
+			if (!buttonStatus[i])break;
+		}
+
+		if (i == buttonStatus.size())
+		{
+			ShopSceneFinishEvent evt;
+			eventManager.SendEvent(evt);
 		}
 
 		ImGui::EndGroup();

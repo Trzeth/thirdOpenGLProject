@@ -1,5 +1,6 @@
 #include "ForestScene.h"
 
+#include <thirdEngine/Renderer/Box.h>
 #include "Game/Scene/SceneManager.h"
 
 #include "Game/Component/TransformComponent.h"
@@ -11,18 +12,18 @@
 #include "Game/Component/RigidbodyMotorComponent.h"
 #include "Game/Component/InteractComponent.h"
 
+#include "Game/GlobalVariable.h"
+
 #include "Game/Extra/PrefabConstructionInfo.h"
 
-#include "Game/Event/HouseSceneEvent.h"
-
 #include "Game/Scene/Home/YardScene.h"
-#include <thirdEngine/Renderer/Box.h>
+#include "Game/Event/ForestSceneEvent.h"
 
 void ForestScene::Setup()
 {
 	setupPrefab();
 
-	eid_t player = world.ConstructPrefab(playerPrefab, World::NullEntity, new PrefabConstructionInfo(Transform(glm::vec3(-47, 0, -222))));
+	eid_t player = world.ConstructPrefab(playerPrefab, World::NullEntity, new PrefabConstructionInfo(Transform(glm::vec3(-47.66, 0, -176.19))));
 	eid_t camera = world.ConstructPrefab(cameraPrefab);
 
 	PlayerComponent* playerComponent = world.GetComponent<PlayerComponent>(player);
@@ -33,7 +34,12 @@ void ForestScene::Setup()
 	cameraComponent->isEnable = true;
 
 	world.ConstructPrefab(forestPrefab);
-	world.ConstructPrefab(doorInteractPrefab);
+
+	world.ConstructPrefab(npcInteractPrefab);
+	world.ConstructPrefab(applePrefab, World::NullEntity, new PrefabConstructionInfo(Transform(glm::vec3(35.55, -17.0, -71.08))));
+	world.ConstructPrefab(mushroomPrefab, World::NullEntity, new PrefabConstructionInfo(Transform(glm::vec3(-89.55, -18.0, -65.58))));
+	world.ConstructPrefab(woodPrefab, World::NullEntity, new PrefabConstructionInfo(Transform(glm::vec3(-21.2798, -16.0, -38.70))));
+
 	world.ConstructPrefab(skyboxPrefab);
 }
 
@@ -50,6 +56,7 @@ void ForestScene::setupPrefab()
 
 		DirLight dirLight;
 		dirLight.direction = glm::vec3(0.02, -9.37, 0.08);
+		dirLight.position = glm::vec3(-50, 100, -100);
 		dirLight.ambient = glm::vec3(0.61, 0.6, 0.5);
 		dirLight.diffuse = glm::vec3(0.7, 0.7, 0.75);
 		dirLight.specular = glm::vec3(0.5, 0.5, 0.5);
@@ -63,38 +70,7 @@ void ForestScene::setupPrefab()
 		lightingShader = shaderLoader.BuildFromFile("Shaders/lightingShader.vert", "Shaders/lightingShader.frag");
 
 		forestPrefab.AddConstructor(new TransformComponentConstructor());
-		forestPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, forestModelHandle, lightingShader, true));
-
-		b2BodyDef bodyDef;
-
-		std::vector<b2FixtureDef> fixtures;
-
-		b2FixtureDef left;
-		b2PolygonShape* s1 = new b2PolygonShape();
-		s1->SetAsBox(0.1f, 13.5f, b2Vec2(-17.5f, -6.3f), 0);
-		left.shape = s1;
-
-		b2FixtureDef back;
-		b2PolygonShape* s2 = new b2PolygonShape();
-		s2->SetAsBox(13.0f, 5.0f, b2Vec2(-4.0f, -20.0f), 0);
-		back.shape = s2;
-
-		b2FixtureDef right;
-		b2PolygonShape* s3 = new b2PolygonShape();
-		s3->SetAsBox(0.1f, 13.5f, b2Vec2(9.6f, -6.3f), 0);
-		right.shape = s3;
-
-		b2FixtureDef front;
-		b2PolygonShape* s4 = new b2PolygonShape();
-		s4->SetAsBox(13.0f, 0.1f, b2Vec2(-4.0f, 7.5f), 0);
-		front.shape = s4;
-
-		fixtures.push_back(left);
-		fixtures.push_back(back);
-		fixtures.push_back(right);
-		fixtures.push_back(front);
-
-		//forestPrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(bodyDef, fixtures)));
+		forestPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, forestModelHandle, lightingShader));
 	}
 
 	/* Skybox */
@@ -113,17 +89,70 @@ void ForestScene::setupPrefab()
 	/* Scene Interact Object */
 	{
 		/* Door */
-		b2BodyDef doorDef;
+		b2BodyDef bodyDef;
 
-		b2FixtureDef door;
-		door.isSensor = true;
-		b2PolygonShape* s1 = new b2PolygonShape();
-		s1->SetAsBox(5.0f, 5.0f, b2Vec2(-4.0f, -19.0f), 0);
-		door.shape = s1;
+		b2FixtureDef npc;
+		npc.isSensor = true;
+		b2CircleShape* s1 = new b2CircleShape();
+		s1->m_p = b2Vec2(-50.23, -121.02);
+		s1->m_radius = 2.0f;
+		npc.shape = s1;
 
-		doorInteractPrefab.SetName("Door Interact");
-		doorInteractPrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(doorDef, door)));
-		doorInteractPrefab.AddConstructor(new InteractComponentConstructor(InteractComponent::Data(typeid(HouseSceneDoorInteractEvent).hash_code())));
+		npcInteractPrefab.SetName("NPC Interact");
+		npcInteractPrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(bodyDef, npc)));
+		npcInteractPrefab.AddConstructor(new InteractComponentConstructor(InteractComponent::Data(typeid(ForestSceneNPCInteractEvent).hash_code())));
+
+		b2FixtureDef apple;
+		apple.isSensor = true;
+
+		b2CircleShape* s2 = new b2CircleShape();
+		s2->m_radius = 2.0f;
+		apple.shape = s2;
+
+		glm::mat4 trans(1.0);
+		trans = glm::scale(trans, glm::vec3(0.1f));
+		//trans = glm::translate(trans, glm::vec3(0, 0, -20.0));
+
+		appleModel = modelLoader.LoadFromFile("Resources/CG_Forest/APPLE.FBX", ModelLoadingPrefab::Optimize, trans, true);
+		Renderer::ModelHandle appleModelHandle = renderer.GetModelHandle(appleModel);
+
+		applePrefab.SetName("Apple");
+		applePrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(bodyDef, apple)));
+		applePrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, appleModelHandle, lightingShader, true));
+		applePrefab.AddConstructor(new InteractComponentConstructor(InteractComponent::Data(typeid(ForestSceneAppleInteractEvent).hash_code())));
+		applePrefab.AddConstructor(new TransformComponentConstructor());
+
+		b2FixtureDef wood;
+		wood.isSensor = true;
+
+		b2CircleShape* s3 = new b2CircleShape();
+		s3->m_radius = 2.0f;
+		wood.shape = s3;
+
+		woodModel = modelLoader.LoadFromFile("Resources/CG_Forest/WOOD.FBX", ModelLoadingPrefab::Optimize, trans, true);
+		Renderer::ModelHandle woodModelHandle = renderer.GetModelHandle(woodModel);
+
+		woodPrefab.SetName("Wood");
+		woodPrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(bodyDef, wood)));
+		woodPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, woodModelHandle, lightingShader, true));
+		woodPrefab.AddConstructor(new InteractComponentConstructor(InteractComponent::Data(typeid(ForestSceneWoodInteractEvent).hash_code())));
+		woodPrefab.AddConstructor(new TransformComponentConstructor());
+
+		b2FixtureDef mushroom;
+		mushroom.isSensor = true;
+
+		b2CircleShape* s4 = new b2CircleShape();
+		s4->m_radius = 2.0f;
+		mushroom.shape = s4;
+
+		mushroomModel = modelLoader.LoadFromFile("Resources/CG_Forest/MUSHROOM.FBX", ModelLoadingPrefab::Optimize, trans, true);
+		Renderer::ModelHandle mushroomModelHandle = renderer.GetModelHandle(mushroomModel);
+
+		mushroomPrefab.SetName("Mushroom");
+		mushroomPrefab.AddConstructor(new CollisionComponentConstructor(dynamicsWorld, CollisionConstructorInfo(bodyDef, mushroom)));
+		mushroomPrefab.AddConstructor(new ModelRenderComponentConstructor(renderer, mushroomModelHandle, lightingShader, true));
+		mushroomPrefab.AddConstructor(new InteractComponentConstructor(InteractComponent::Data(typeid(ForestSceneMushroomInteractEvent).hash_code())));
+		mushroomPrefab.AddConstructor(new TransformComponentConstructor());
 	}
 
 	/* Player */
@@ -135,6 +164,10 @@ void ForestScene::setupPrefab()
 		Model playerPickLetterModel = modelLoader.LoadFromFile("Resources/PickLetter.DAE", ModelLoadingPrefab::Default, playerModelMat4);
 		Model playerPutLetterModel = modelLoader.LoadFromFile("Resources/PutLetter.DAE", ModelLoadingPrefab::Default, playerModelMat4);
 		Model playerTurnAroundModel = modelLoader.LoadFromFile("Resources/TurnAround.DAE", ModelLoadingPrefab::Default, playerModelMat4);
+
+		Material i = playerWalkModel.GetMeshMaterial(0);
+		i.SetProperty("texture_diffuse", MaterialProperty(globalVariable.clothes[globalVariable.clothIndex]));
+		playerWalkModel.SetMeshMaterial(0, i);
 
 		playerPrefab.SetName("Player");
 		playerPrefab.AddConstructor(new TransformComponentConstructor());
@@ -168,18 +201,70 @@ void ForestScene::setupPrefab()
 		cameraPrefab.AddConstructor(new CameraComponentConstructor(CameraComponent::Data()));
 	}
 
+	/* UI */
+
+	{
+		npcConversation = std::make_shared<DeerNPCConversation>(eventManager);
+		npcConversationHandle = uiRenderer.GetEntityHandle(npcConversation);
+	}
+
 	/* Callback */
 	{
-		std::function<void(const HouseSceneDoorInteractEvent& event)> doorInteractCallback =
-			[scene = this, &sceneManager = sceneManager](const HouseSceneDoorInteractEvent& event) {
-			LoadingScreenInfo info;
-			info.LoopTime = 1.0f;
-			info.LoadingImagePath = std::vector<std::string>{ "GUI/Loading1.png" };
-
-			sceneManager.LoadScene<YardScene>(info);
+		std::function<void(const ForestSceneNPCInteractEvent& event)> npcInteractCallback =
+			[scene = this, &npcConversation = npcConversation, &itemStatus = itemStatus](const ForestSceneNPCInteractEvent& event) {
+			if (!itemStatus[3])
+			{
+				npcConversation->Show();
+				itemStatus[3] = true;
+				return;
+			}
+			else if (itemStatus[0] && itemStatus[1] && itemStatus[2])
+			{
+				npcConversation->Show();
+			}
 		};
 
-		eventManager.RegisterForEvent<HouseSceneDoorInteractEvent>(doorInteractCallback);
+		eventManager.RegisterForEvent<ForestSceneNPCInteractEvent>(npcInteractCallback);
+
+		std::function<void(const ForestSceneGoHomeInteractEvent& event)> gohomeInteractCallback =
+			[scene = this, &sceneManager = sceneManager, &globalVariable = globalVariable](const ForestSceneGoHomeInteractEvent& event) {
+			LoadingScreenInfo info;
+			info.LoopTime = 1.0f;
+			info.ImageWidth = 406;
+			info.ImageHeight = 255;
+			info.LoadingImagePath = std::vector<std::string>{ "GUI/Loading/Bicycle/0.png","GUI/Loading/Bicycle/1.png","GUI/Loading/Bicycle/2.png","GUI/Loading/Bicycle/3.png" };
+
+			sceneManager.SetSpawnPosition(glm::vec3(-12.0143, 0, -16.5855));
+			sceneManager.LoadScene<YardScene>(info);
+
+			globalVariable.taskState[5] = TaskState::Finished;
+		};
+
+		eventManager.RegisterForEvent<ForestSceneGoHomeInteractEvent>(gohomeInteractCallback);
+
+		std::function<void(const ForestSceneAppleInteractEvent& event)> appleInteractCallback =
+			[scene = this, &appleModel = appleModel, &itemStatus = itemStatus](const ForestSceneAppleInteractEvent& event) {
+			appleModel.SetMeshTransform(0, 0, glm::mat4(0.0));
+			itemStatus[0] = true;
+		};
+
+		eventManager.RegisterForEvent<ForestSceneAppleInteractEvent>(appleInteractCallback);
+
+		std::function<void(const ForestSceneMushroomInteractEvent& event)> mushroomInteractCallback =
+			[scene = this, &mushroomModel = mushroomModel, &itemStatus = itemStatus](const ForestSceneMushroomInteractEvent& event) {
+			mushroomModel.SetMeshTransform(0, 0, glm::mat4(0.0));
+			itemStatus[1] = true;
+		};
+
+		eventManager.RegisterForEvent<ForestSceneMushroomInteractEvent>(mushroomInteractCallback);
+
+		std::function<void(const ForestSceneWoodInteractEvent& event)> woodInteractCallback =
+			[scene = this, &woodModel = woodModel, &itemStatus = itemStatus](const ForestSceneWoodInteractEvent& event) {
+			woodModel.SetMeshTransform(0, 0, glm::mat4(0.0));
+			itemStatus[2] = true;
+		};
+
+		eventManager.RegisterForEvent<ForestSceneWoodInteractEvent>(woodInteractCallback);
 	}
 
 	prefabsSteup = true;

@@ -146,6 +146,15 @@
     <ClCompile Include="Game\UIElement\Town\ClothStoreUI.cpp">
       <Filter>Game\UIElement\Town</Filter>
     </ClCompile>
+    <ClCompile Include="Game\UIElement\Forest\DeerNPCConversation.cpp">
+      <Filter>Game\UIElement\Forest</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\UIElement\Home\ItemInfo.cpp">
+      <Filter>Game\UIElement\Home</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\UIElement\Home\Ending.cpp">
+      <Filter>Game\UIElement\Home</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Game">
@@ -195,6 +204,9 @@
     </Filter>
     <Filter Include="Game\UIElement\Town">
       <UniqueIdentifier>{211d2a8f-8b17-414a-9bca-8c8d53669844}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\UIElement\Forest">
+      <UniqueIdentifier>{5a6ca65b-b125-4318-83aa-b00f554a92f8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -365,6 +377,15 @@
     </ClInclude>
     <ClInclude Include="Game\UIElement\Town\ClothStoreUI.h">
       <Filter>Game\UIElement\Town</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\UIElement\Forest\DeerNPCConversation.h">
+      <Filter>Game\UIElement\Forest</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\UIElement\Home\ItemInfo.h">
+      <Filter>Game\UIElement\Home</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\UIElement\Home\Ending.h">
+      <Filter>Game\UIElement\Home</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

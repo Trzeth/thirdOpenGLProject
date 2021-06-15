@@ -16,7 +16,7 @@ struct GlobalVariable
 			taskState[i] = TaskState::NotFinished;
 		}
 
-		clothIndex = 0;
+		clothIndex = 3;
 	}
 	float currentTime;
 
@@ -26,9 +26,10 @@ struct GlobalVariable
 	/*!
 	 * 0. 栏杆刷漆
 	 * 1. 浇花
-	 * 2. 修草坪
-	 * 3. 整理屋子
-	 * 4. 收拾房间
+	 * 2. 收拾房间
+	 * 3. 换衣服
+	 * 4. 买材料
+	 * 5. 收集食材
 	*/
 	std::vector<TaskState> taskState;
 

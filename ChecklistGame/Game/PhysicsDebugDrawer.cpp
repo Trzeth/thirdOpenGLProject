@@ -3,7 +3,6 @@
 #include <glad/glad.h>
 
 #include <thirdEngine/Renderer/Shader.h>
-#include <thirdEngine/Renderer/ShaderImpl.h>
 
 struct PhysicsDebugDrawer::Impl
 {

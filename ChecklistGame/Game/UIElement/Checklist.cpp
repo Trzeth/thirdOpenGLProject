@@ -3,7 +3,6 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <thirdEngine/Renderer/UI/ImGui/imgui.h>
 #include <thirdEngine/Renderer/UI/ImGui/imgui_internal.h>
-#include <thirdEngine/Renderer/TextureImpl.h>
 
 Checklist::Checklist(Input& input, GlobalVariable& globalVariable)
 	:input(input), isVisible(true), globalVariable(globalVariable)

@@ -6,6 +6,9 @@
 
 #include "Game/Responder/InteractEventResponder.h"
 
+#include "Game//UIElement/Home/ItemInfo.h"
+#include "Game/UIElement/Home/Ending.h"
+
 #include "Game/Scene/Scene.h"
 
 class HouseScene :public Scene
@@ -25,14 +28,23 @@ private:
 	TextureLoader textureLoader;
 	ShaderLoader shaderLoader;
 
-	Shader skinnedShader;
-	Shader plainShader;
+	Shader lightingShader;
 
 	Prefab housePrefab;
 	Prefab playerPrefab;
 	Prefab cameraPrefab;
 
+	Prefab songbingPrefab;
+	Prefab bangbangtangPrefab;
+	Prefab giftPrefab;
+
 	Prefab doorInteractPrefab;
+
+	std::shared_ptr<ItemInfo> iteminfo;
+	UIRenderer::UIElementHandle iteminfoHandle;
+
+	std::shared_ptr<Ending> ending;
+	UIRenderer::UIElementHandle endingHandle;
 
 	std::shared_ptr<InteractEventResponder> interactEventResponder;
 };

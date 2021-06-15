@@ -1,7 +1,5 @@
 #include "WaterFlower.h"
 
-#include <thirdEngine/Renderer/TextureImpl.h>
-
 #include <thirdEngine/Renderer/UI/ImGui/imgui.h>
 
 #define IMGUI_DEFINE_MATH_OPERATORS
@@ -52,7 +50,7 @@ void WaterFlower::Draw()
 	{
 		const ImGuiViewport* viewport = ImGui::GetMainViewport();
 
-		ImGui::Begin("StartMenu", 0, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove);
+		ImGui::Begin("WaterFlower", 0, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove);
 
 		ImGui::SetWindowSize(ImVec2(viewport->Size.x, viewport->Size.y));
 		ImGui::SetWindowPos(ImVec2(0, 0));

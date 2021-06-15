@@ -86,7 +86,7 @@ void ClothStoreScene::setupPrefab()
 
 	/* Callback */
 	{
-		std::function<void(const ClothStoreChangeClothSceneEvent& event)> doorInteractCallback =
+		std::function<void(const ClothStoreChangeClothSceneEvent& event)> changeClothCallback =
 			[scene = this, &g = globalVariable, &playerWalkModel = playerWalkModel, &sceneManager = sceneManager](const ClothStoreChangeClothSceneEvent& event) {
 			if (event.clothIndex == 4)
 			{
@@ -107,7 +107,7 @@ void ClothStoreScene::setupPrefab()
 			playerWalkModel.SetMeshMaterial(0, i);
 		};
 
-		eventManager.RegisterForEvent<ClothStoreChangeClothSceneEvent>(doorInteractCallback);
+		eventManager.RegisterForEvent<ClothStoreChangeClothSceneEvent>(changeClothCallback);
 	}
 
 	prefabsSteup = true;
@@ -115,10 +115,12 @@ void ClothStoreScene::setupPrefab()
 
 void ClothStoreScene::Finish()
 {
+	glEnable(GL_CULL_FACE);
 	renderer.GenVAO();
 }
 
 void ClothStoreScene::PreDestruct()
 {
+	glDisable(GL_CULL_FACE);
 	eventManager.ClearEventListener<ClothStoreChangeClothSceneEvent>();
 }

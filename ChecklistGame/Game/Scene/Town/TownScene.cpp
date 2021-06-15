@@ -14,8 +14,13 @@
 
 #include "Game/Extra/PrefabConstructionInfo.h"
 #include "Game/Event/TownSceneEvent.h"
+#include "Game/Event/LoadSceneEvent.h"
 
 #include "Game/GlobalVariable.h"
+
+#include "Game/Scene/Home/YardScene.h"
+#include "Game/Scene/Forest/ForestScene.h"
+#include "Game/Scene/Town/TownScene.h"
 
 #include "Game/Scene/Town/ShopScene.h"
 #include "Game/Scene/Town/ClothStoreScene.h"
@@ -57,6 +62,7 @@ void TownScene::setupPrefab()
 		DirLight dirLight;
 		dirLight.direction = glm::vec3(-1, -1, 1);
 		dirLight.ambient = glm::vec3(0.5, 0.5, 0.4);
+		dirLight.position = glm::vec3(50, 50, -50);
 		dirLight.diffuse = glm::vec3(0.7, 0.7, 0.75);
 		dirLight.specular = glm::vec3(0.5, 0.5, 0.5);
 		renderer.SetDirLight(dirLight);
@@ -154,6 +160,12 @@ void TownScene::setupPrefab()
 		cameraPrefab.AddConstructor(new CameraComponentConstructor(CameraComponent::Data()));
 	}
 
+	/* UI */
+	{
+		bikeMap = std::make_shared<BikeMap>(eventManager, 0);
+		bikeMapHandle = uiRenderer.GetEntityHandle(bikeMap);
+	}
+
 	/* Callback */
 	{
 		std::function<void(const TownSceneShopDoorInteractEvent& event)> shopDoorInteractCallback =
@@ -181,6 +193,34 @@ void TownScene::setupPrefab()
 		};
 
 		eventManager.RegisterForEvent<TownSceneClothStoreDoorInteractEvent>(clothStoreDoorInteractCallback);
+
+		std::function<void(const BikeMapChangeMapEvent& event)> bikeMapInteractCallback =
+			[scene = this, &sceneManager = sceneManager](const BikeMapChangeMapEvent& event) {
+			LoadingScreenInfo info;
+			info.LoopTime = 1.0f;
+			info.ImageWidth = 406;
+			info.ImageHeight = 255;
+			info.LoadingImagePath = std::vector<std::string>{ "GUI/Loading/Bicycle/0.png","GUI/Loading/Bicycle/1.png","GUI/Loading/Bicycle/2.png","GUI/Loading/Bicycle/3.png" };
+
+			switch (event.dst)
+			{
+			case 0:
+				sceneManager.LoadScene<ForestScene>(info);
+				break;
+			case 1:
+				sceneManager.SetSpawnPosition(glm::vec3(-12.0143, 0, -16.5855));
+				sceneManager.LoadScene<YardScene>(info);
+				break;
+			case 2:
+				sceneManager.SetSpawnPosition(glm::vec3(-29.6974, 0, -119.804));
+				sceneManager.LoadScene<TownScene>(info);
+				break;
+			default:
+				break;
+			}
+		};
+
+		eventManager.RegisterForEvent<BikeMapChangeMapEvent>(bikeMapInteractCallback);
 	}
 
 	prefabsSteup = true;
@@ -188,11 +228,13 @@ void TownScene::setupPrefab()
 
 void TownScene::Finish()
 {
+	glEnable(GL_CULL_FACE);
 	renderer.GenVAO();
 }
 
 void TownScene::PreDestruct()
 {
+	glDisable(GL_CULL_FACE);
 	eventManager.ClearEventListener<TownSceneClothStoreDoorInteractEvent>();
 	eventManager.ClearEventListener<TownSceneShopDoorInteractEvent>();
 }

@@ -121,7 +121,7 @@ int Game::setup()
 	};
 	eventManager.RegisterForEvent<LoadSceneEndEvent>(LoadSceneEndCallback);
 
-	sceneManager->LoadScene<ForestScene>(LoadingScreenInfo(
+	sceneManager->LoadScene<YardScene>(LoadingScreenInfo(
 		std::vector<std::string>{"GUI/Loading/Checklist/0.png", "GUI/Loading/Checklist/1.png", "GUI/Loading/Checklist/2.png", "GUI/Loading/Checklist/3.png", "GUI/Loading/Checklist/4.png", "GUI/Loading/Checklist/5.png"}, 400, 583, 0.5));
 
 	return 0;

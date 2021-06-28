@@ -4,13 +4,19 @@
 1. thirdModelViewer -A simple model viewer for debug purpose.
 1. ChecklistGame - A simple game made for end term work.
 
-with C++17 Standard
+You can find following features in this project.
+
+1. Frustum Culling
+1. Shadow Map
+1. Storyboard
+
+All the resources' credit goes to auther.
 
 /lib/\* was built on Visual Studio 2019 x64 Debug Mtd
 
-box2d-2.4.1
-assimp-5.0.1
-glfw-3.3.2
-irrKlang-64bit-1.6.0
-rapidjson-1.1.0
-glm-0.9.9.7
+1. box2d-2.4.1
+1. assimp-5.0.1
+1. glfw-3.3.2
+1. irrKlang-64bit-1.6.0
+1. rapidjson-1.1.0
+1. glm-0.9.9.7
